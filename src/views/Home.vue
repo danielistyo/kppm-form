@@ -1,18 +1,40 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <form-l class="home__forml" />
+    <form-preview class="home__form-preview" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import FormL from '@/components/FormL';
+import FormPreview from '@/components/FormPreview';
 
 export default defineComponent({
   name: 'Home',
   components: {
-    HelloWorld,
+    FormL,
+    FormPreview,
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.home {
+  display: flex;
+  flex-direction: row;
+}
+</style>
+
+<style lang="scss">
+@media print {
+  .home {
+    .forml {
+      display: none;
+    }
+  }
+  body {
+    margin: 0;
+  }
+}
+</style>

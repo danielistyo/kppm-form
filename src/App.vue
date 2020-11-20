@@ -1,17 +1,10 @@
 <template>
-  <!-- All your app's content goes here. -->
-  <HelloWorld />
+  <router-view />
 </template>
 
 <script lang="ts">
-import HelloWorld from './components/HelloWorld.vue';
-
 export default {
   name: 'App',
-
-  components: {
-    HelloWorld,
-  },
 
   data: () => ({
     //

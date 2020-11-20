@@ -1,0 +1,139 @@
+[
+  {
+    "id": 1,
+    "name": "Badan Pembantu",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 2,
+    "name": "Lampiran",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 3,
+    "name": "Nomor Program",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 4,
+    "name": "Nama Program",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 5,
+    "name": "Tujuan",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 6,
+    "name": "Waktu",
+    "type": "calendar-input",
+    "fieldValue": "FieldValueDefault",
+    "props": {
+      "showIcon": true,
+      "dateFormat": "dd-mm-yy",
+      "manualInput": false
+    },
+    "value": "",
+    "view": ""
+  },
+  {
+    "id": 7,
+    "name": "Tempat",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 8,
+    "name": "Pelaksanaan Kegiatan",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 9,
+    "name": "Keberhasilan",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 10,
+    "name": "Kendala",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 11,
+    "name": "Usulan",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  },
+  {
+    "id": 12,
+    "name": "Biaya",
+    "type": "input-text",
+    "fieldValue": "FieldValueCost",
+    "value": [
+      {
+        "item": "Minuman",
+        "count": 2,
+        "price": 20000
+      },
+      {
+        "item": "Makanan",
+        "count": 2,
+        "price": 20000
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Sumber Biaya",
+    "type": null,
+    "fieldValue": "FieldValueDefault",
+    "children": [
+      {
+        "id": 14,
+        "name": "Sumber A",
+        "type": "input-text",
+        "fieldValue": "FieldValueDefault",
+        "value": ""
+      },
+      {
+        "id": 15,
+        "name": "Sumber B",
+        "type": "input-text",
+        "fieldValue": "FieldValueDefault",
+        "value": ""
+      },
+      {
+        "id": 16,
+        "name": "Sumber C",
+        "type": "input-text",
+        "fieldValue": "FieldValueDefault",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Pelaksana",
+    "type": "input-text",
+    "fieldValue": "FieldValueDefault",
+    "value": ""
+  }
+]

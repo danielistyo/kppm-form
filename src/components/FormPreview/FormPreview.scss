@@ -1,0 +1,121 @@
+.form-preview {
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+  $width: calc(100vw - 400px);
+  $margin: 16px;
+
+  font-size: calc(#{$width} / 48);
+  margin: $margin;
+  width: $width;
+  height: calc(100vh - #{$margin * 2} - 16px);
+  overflow-y: auto;
+
+  @media print {
+    width: 100vw;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    font-size: calc(100vw / 48);
+  }
+
+  &__paper {
+    width: 100%;
+    // height: calc(((100vw - 400px) / 210) * 297);
+    height: auto;
+    background-color: #fff;
+    padding: 2em 2.3em;
+  }
+
+  &__title {
+    font-weight: bold;
+    font-size: 1em;
+    text-align: center;
+  }
+
+  &__top-table {
+    margin-bottom: 1em;
+  }
+
+  &__main-table {
+    @mixin border {
+      border: solid 0.02em #000;
+      border-collapse: collapse;
+    }
+
+    @include border();
+    tr,
+    td {
+      @include border();
+    }
+
+    tr > td:first-child {
+      padding: 1em;
+      text-align: center;
+      vertical-align: top;
+    }
+    tr > td:nth-child(2) {
+      padding: 1em;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    tr > td:nth-child(3) {
+      padding: 1em;
+      text-align: left;
+      vertical-align: top;
+      width: 29em;
+    }
+
+    tr > td:nth-child(4) {
+      padding: 1em;
+      text-align: left;
+      vertical-align: top;
+      width: 240em;
+    }
+
+    ::v-deep {
+      .field-value-cost {
+        width: 100%;
+        @include border();
+
+        th,
+        tr,
+        td {
+          @include border();
+        }
+
+        td {
+          padding: 0 0.4em;
+        }
+
+        th {
+          text-align: center;
+        }
+
+        &__money {
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+.header {
+  border-bottom: solid 5px #000;
+
+  &__logo {
+    display: inline-block;
+    width: 6em;
+    vertical-align: middle;
+  }
+
+  &__title {
+    display: inline-block;
+    width: calc(100% - 6em);
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+    vertical-align: middle;
+  }
+}
