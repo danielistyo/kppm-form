@@ -1,7 +1,3 @@
-interface FieldProp {
-  [key: string]: string | boolean | null | number;
-}
-
 interface FieldCostValue {
   item: string;
   count: number;
@@ -14,7 +10,7 @@ export interface FormLField {
   type: string | null;
   children?: FormLFields;
   value?: string | Array<FieldCostValue>;
-  props?: FieldProp;
+  props?: Record<string, string | boolean | null | number | undefined | string[]>;
 }
 
 export type FormLFields = Array<FormLField>;
