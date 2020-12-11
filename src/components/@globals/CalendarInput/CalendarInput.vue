@@ -1,7 +1,7 @@
 <template>
   <calendar v-model="computedValue" v-bind="$attrs" :selectionMode="selectionMode" />
-  <div>
-    Ganti
+  <div class="calendar-input__options">
+    Opsi:
     <span
       :style="{ fontWeight: selectionMode === 'single' ? 'bold' : null }"
       @click="clickHandler('single')"
@@ -62,8 +62,6 @@ export default defineComponent({
         return modelValue ? dayjs(modelValue, 'DD-MM-YYYY').toDate() : null;
       },
       set(val: Date | Array<Date | null> | null) {
-        console.log(val);
-
         // for multiple and range mode
         if (Array.isArray(val)) {
           const newVal: Array<string | null> = val.map((dt: Date | null) => {
@@ -117,5 +115,9 @@ export default defineComponent({
 
 span {
   cursor: pointer;
+}
+
+.calendar-input__options {
+  font-size: 0.95em;
 }
 </style>
