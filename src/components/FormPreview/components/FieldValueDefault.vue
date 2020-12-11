@@ -1,5 +1,6 @@
 <template>
-  {{ view || value }}
+  <div v-if="needRender" v-html="view || value"></div>
+  <div v-else>{{ view || value }}</div>
 </template>
 
 <script lang="ts">
@@ -15,6 +16,10 @@ export default defineComponent({
     view: {
       type: String,
       required: false,
+    },
+    needRender: {
+      type: Boolean,
+      default: false,
     },
   },
 });

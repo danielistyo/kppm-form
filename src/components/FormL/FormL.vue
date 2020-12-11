@@ -24,6 +24,7 @@
 <script lang="ts">
 import { computed, ComputedRef, defineComponent } from 'vue';
 import InputText from 'primevue/inputtext';
+import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
 import Card from 'primevue/card';
 import { FormLFields } from '@/types';
@@ -35,6 +36,7 @@ export default defineComponent({
     InputText,
     Card,
     CalendarInput,
+    SimpleEditor,
   },
   setup() {
     const store = useStore();

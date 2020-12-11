@@ -25,13 +25,20 @@
 
       <table class="form-preview__main-table">
         <template v-for="(field, index) in mainTableFields" :key="index">
+          <!-- row for field which doesn't have children -->
           <tr v-if="!field.children">
             <td>{{ index + 1 }}</td>
             <td>{{ field.name }}</td>
             <td colspan="2">
-              <component :is="field.fieldValue" :value="field.value" :view="field.view" />
+              <component
+                :is="field.fieldValue"
+                :value="field.value"
+                :view="field.view"
+                :need-render="field.type === 'simple-editor'"
+              />
             </td>
           </tr>
+          <!-- row for field which has children -->
           <tr
             v-else-if="field.children"
             v-for="(child, childIdx) in field.children"

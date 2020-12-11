@@ -30,8 +30,11 @@
   {
     "id": 5,
     "name": "Tujuan",
-    "type": "input-text",
     "fieldValue": "FieldValueDefault",
+    "type": "simple-editor",
+    "props": {
+      "formats": ["bold", "italic", "underline", "list"]
+    },
     "value": ""
   },
   {
@@ -57,29 +60,41 @@
   {
     "id": 8,
     "name": "Pelaksanaan Kegiatan",
-    "type": "input-text",
     "fieldValue": "FieldValueDefault",
+    "type": "simple-editor",
+    "props": {
+      "formats": ["bold", "italic", "underline", "list"]
+    },
     "value": ""
   },
   {
     "id": 9,
     "name": "Keberhasilan",
-    "type": "input-text",
     "fieldValue": "FieldValueDefault",
+    "type": "simple-editor",
+    "props": {
+      "formats": ["bold", "italic", "underline", "list"]
+    },
     "value": ""
   },
   {
     "id": 10,
     "name": "Kendala",
-    "type": "input-text",
     "fieldValue": "FieldValueDefault",
+    "type": "simple-editor",
+    "props": {
+      "formats": ["bold", "italic", "underline", "list"]
+    },
     "value": ""
   },
   {
     "id": 11,
     "name": "Usulan",
-    "type": "input-text",
     "fieldValue": "FieldValueDefault",
+    "type": "simple-editor",
+    "props": {
+      "formats": ["bold", "italic", "underline", "list"]
+    },
     "value": ""
   },
   {
