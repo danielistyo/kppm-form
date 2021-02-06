@@ -100,16 +100,16 @@
   {
     "id": 12,
     "name": "Biaya",
-    "type": "input-text",
+    "type": "cost-input",
     "fieldValue": "FieldValueCost",
     "value": [
       {
-        "item": "Minuman",
+        "name": "Minuman",
         "count": 2,
         "price": 20000
       },
       {
-        "item": "Makanan",
+        "name": "Makanan",
         "count": 2,
         "price": 20000
       }

@@ -1,5 +1,5 @@
 interface FieldCostValue {
-  item: string;
+  name: string;
   count: number;
   price: number;
 }
@@ -14,6 +14,14 @@ export interface FormLField {
 }
 
 export type FormLFields = Array<FormLField>;
+
+export interface CostItem {
+  name: string;
+  count: number;
+  price: number;
+}
+
+export type CostItems = Array<CostItem | unknown>;
 
 /**** START STORE TYPE *****/
 

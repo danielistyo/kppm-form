@@ -7,17 +7,11 @@
       <th>Jumlah</th>
     </thead>
     <tbody>
-      <tr>
-        <td>Minuman</td>
-        <td>3</td>
-        <td class="field-value-cost__money">10000</td>
-        <td class="field-value-cost__money">30000</td>
-      </tr>
-      <tr>
-        <td>Minuman</td>
-        <td>3</td>
-        <td class="field-value-cost__money">10000</td>
-        <td class="field-value-cost__money">30000</td>
+      <tr v-for="(item, index) in value" :key="index">
+        <td>{{ item.name }}</td>
+        <td>{{ item.count }}</td>
+        <td class="field-value-cost__money">{{ item.price }}</td>
+        <td class="field-value-cost__money">{{ item.price * item.count }}</td>
       </tr>
       <tr>
         <td colspan="3">Total</td>

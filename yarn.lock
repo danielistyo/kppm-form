@@ -8910,9 +8910,9 @@ primeicons@^4.0.0:
   integrity sha512-JQBIswGSItn8I0Pq21RchENpKJxSi1MjfBDfggMQpXtoKNKblJoHmol/7tCV3CAV2Dlb94ht8TD8qdIAW01pGg==
 
 primevue@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/primevue/-/primevue-3.0.0.tgz#ff3664672895ea2fff919553044c515d96d19301"
-  integrity sha512-IMxH1iDvhQz/RL/yPWTn00er4tssLPxFI7x7s7OH3jXA1NLarK6GE2/Y+JyyLO20KgLJeU16DHYn3SuRPc+A8w==
+  version "3.1.1"
+  resolved "https://registry.npmjs.org/primevue/-/primevue-3.1.1.tgz#9dcdbb9ef82bd49b2abd40eb8e94e4f93da133d5"
+  integrity sha512-iav6VSm3H7IyKrdtpvUU7o6HpEBmxWgBgNWvZ5tk/OdL0ZE6yOiStJbNZEa3ht3LlMGEp8gO1WYdCfrzecz80Q==
 
 process-nextick-args@~2.0.0:
   version "2.0.1"
