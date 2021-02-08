@@ -18,14 +18,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, PropType } from 'vue';
 import PrButton from 'primevue/button';
 import InputGroup from './components/InputGroup.vue';
 import { CostItem, CostItems } from '@/types';
-
-interface Props {
-  modelValue: CostItems;
-}
 
 export default defineComponent({
   name: 'CostInput',
@@ -36,11 +32,11 @@ export default defineComponent({
   emits: ['update:modelValue'],
   props: {
     modelValue: {
-      type: Array,
+      type: Array as PropType<CostItems>,
       required: true,
     },
   },
-  setup(props: Readonly<Props>, { emit }) {
+  setup(props, { emit }) {
     const computedValue = computed<CostItems>({
       get() {
         return props.modelValue;

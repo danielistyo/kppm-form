@@ -15,22 +15,33 @@
       </tr>
       <tr>
         <td colspan="3">Total</td>
-        <td class="field-value-cost__money">60000</td>
+        <td class="field-value-cost__money">{{ totalPrice }}</td>
       </tr>
     </tbody>
   </table>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, PropType } from 'vue';
+import { FieldCostValue } from '@/types';
+
+declare type ValueProp = Array<FieldCostValue>;
 
 export default defineComponent({
   name: 'FieldValueCost',
   props: {
     value: {
-      type: Array,
+      type: Array as PropType<ValueProp>,
       required: true,
     },
+  },
+  setup(props) {
+    const totalPrice = computed(() =>
+      props.value.reduce((total: number, item: FieldCostValue): number => {
+        return total + item.price * item.count;
+      }, 0),
+    );
+    return { totalPrice };
   },
 });
 </script>

@@ -1,4 +1,4 @@
-interface FieldCostValue {
+export interface FieldCostValue {
   name: string;
   count: number;
   price: number;
@@ -21,7 +21,7 @@ export interface CostItem {
   price: number;
 }
 
-export type CostItems = Array<CostItem | unknown>;
+export type CostItems = Array<CostItem>;
 
 /**** START STORE TYPE *****/
 
