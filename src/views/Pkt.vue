@@ -5,9 +5,10 @@
         <dropdown
           v-model="chosenPkt"
           :options="choices"
+          :disabled="isGettingPkt"
+          :placeholder="isGettingPkt ? 'Loading...' : 'Pilih PKT Anda di sini'"
           optionLabel="nameChoice"
           optionValue="valueChoice"
-          placeholder="Pilih PKT Anda di sini"
         />
       </div>
 
@@ -26,7 +27,7 @@
 import Dropdown from 'primevue/dropdown';
 import ButtonPrime from 'primevue/button';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, ref, watch } from 'vue';
+import { computed, ComputedRef, defineComponent, onUnmounted, ref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import { useStore } from 'vuex';
 import {
@@ -37,6 +38,8 @@ import {
   PktKeys,
   RootStateStoreWithModule,
 } from '@/types';
+
+const pktKppmRef = firebase.database().ref('/pkt/kppm/');
 
 export default defineComponent({
   name: 'Pkt',
@@ -61,18 +64,15 @@ export default defineComponent({
       return store.state.pkt.fields;
     });
 
-    const fields: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
-      return store.state.pkt.fields;
+    const isGettingPkt = ref(true);
+    const onPktKppmValueChange = pktKppmRef.on('value', (snapshot) => {
+      isGettingPkt.value = false;
+      store.commit('pkt/parseResponse', snapshot.val());
     });
 
-    const isGettingPkt = ref(true);
-    firebase
-      .database()
-      .ref('/pkt/kppm/')
-      .on('value', (snapshot) => {
-        isGettingPkt.value = false;
-        store.commit('pkt/parseResponse', snapshot.val());
-      });
+    onUnmounted(() => {
+      pktKppmRef.off('value', onPktKppmValueChange);
+    });
 
     const submitPkt = () => {
       /*  eslint-disable @typescript-eslint/camelcase */
@@ -108,13 +108,10 @@ export default defineComponent({
         }
       });
 
-      firebase
-        .database()
-        .ref('/pkt/kppm/')
-        .update({ [`${chosenPkt.value}`]: pktObj });
+      pktKppmRef.update({ [`${chosenPkt.value}`]: pktObj });
     };
 
-    return { selectedPkt, choices, chosenPkt, isGettingPkt, fields, submitPkt };
+    return { selectedPkt, choices, chosenPkt, isGettingPkt, submitPkt };
   },
 });
 </script>
