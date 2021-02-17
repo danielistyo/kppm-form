@@ -6,12 +6,12 @@
         <div class="header__title">
           GREJA KRISTEN JAWI WETAN<br />
           Jemaat Rungkut – Surabaya<br />
-          FORM L3
+          FORM {{ type.toUpperCase() }}3
         </div>
       </div>
 
       <h3 class="form-preview__title">
-        FORM LAPORAN KEGIATAN PEMBANGUNAN<br />
+        FORM {{ title }} KEGIATAN PEMBANGUNAN<br />
         PASAL 300 DAN 700
       </h3>
 
@@ -51,35 +51,65 @@
           </tr>
         </template>
       </table>
+
+      <div class="form-preview__footer">
+        <div class="form-preview__approver approver">
+          <br />
+          <div>Menyetujui</div>
+          <div>Ketua Bidang .............................</div>
+          <div class="approver__sign"></div>
+        </div>
+        <div class="form-preview__requester requester">
+          <div>Surabaya, ..............................</div>
+          <div>Ketua Komis/Panitia/Tim</div>
+          <br />
+          <div class="requester__sign"></div>
+        </div>
+        <div class="form-preview__approver-note">
+          Catatan Ketua Bidang/PHMJ
+          <div class="form-preview__approver-note-box"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { FormLFields } from '@/types';
-import { FIELD_BIAYA_ID } from '@/constants';
-import { computed, ComputedRef } from 'vue';
-import { useStore } from 'vuex';
+import { FormFields, FormlKeys, FormpKeys } from '@/types';
+import { computed, ComputedRef, defineComponent, PropType } from 'vue';
 import FieldValueCost from './components/FieldValueCost.vue';
 import FieldValueDefault from './components/FieldValueDefault.vue';
 
-export default {
+type FieldType = FormFields<FormpKeys | FormlKeys>;
+type ComputedFieldType = ComputedRef<FieldType>;
+
+export default defineComponent({
   name: 'FormPreview',
   components: {
     FieldValueCost,
     FieldValueDefault,
   },
-  setup() {
-    const store = useStore();
-    const topTableFields: ComputedRef<FormLFields> = computed<FormLFields>(() =>
-      store.state.forml.fields.slice(0, 2),
-    );
-    const mainTableFields: ComputedRef<FormLFields> = computed<FormLFields>(() =>
-      store.state.forml.fields.slice(2),
-    );
-    return { topTableFields, mainTableFields, FIELD_BIAYA_ID };
+  props: {
+    inputs: {
+      type: Array as PropType<FieldType>,
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
   },
-};
+  setup(props) {
+    const topTableFields: ComputedFieldType = computed<FieldType>(() => props.inputs.slice(0, 2));
+
+    const mainTableFields: ComputedFieldType = computed<FieldType>(() => props.inputs.slice(2));
+
+    const title = computed<string>(() =>
+      props.type === 'l' ? 'LAPORAN' : 'PENGAJUAN PELAKSANAAN',
+    );
+    return { topTableFields, mainTableFields, title };
+  },
+});
 </script>
 
 <style lang="scss" src="./FormPreview.scss" scoped></style>

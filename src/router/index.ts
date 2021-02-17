@@ -1,11 +1,23 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import Home from '@/views/Home.vue';
+import FormL from '@/views/FormL.vue';
+import FormP from '@/views/FormP.vue';
+import Pkt from '@/views/Pkt.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home,
+    path: '/forml',
+    name: 'FormL',
+    component: FormL,
+  },
+  {
+    path: '/formp',
+    name: 'FormP',
+    component: FormP,
+  },
+  {
+    path: '/pkt',
+    name: 'Pkt',
+    component: Pkt,
   },
   {
     path: '/about',
