@@ -39,8 +39,6 @@ import {
   RootStateStoreWithModule,
 } from '@/types';
 
-const pktKppmRef = firebase.database().ref('/pkt/kppm/');
-
 export default defineComponent({
   name: 'Pkt',
   components: {
@@ -49,6 +47,8 @@ export default defineComponent({
     ButtonPrime,
   },
   setup() {
+    const pktKppmRef = firebase.database().ref('/pkt/kppm/');
+
     const store = useStore<RootStateStoreWithModule>();
 
     const choices = computed(() => {
