@@ -1,9 +1,9 @@
 <template>
   <div class="cost-input">
     <div class="p-d-flex cost-input__titles">
-      <span style="width:100%" class="p-mr-2 p-text-center">Nama</span>
+      <span style="width:22em" class="p-mr-2 p-text-center">Nama</span>
       <span style="width:10em" class="p-mr-2 p-text-center">Jumlah</span>
-      <span style="width:100%" class="p-text-center">Harga</span>
+      <span style="width:25em" class="p-text-center">Harga</span>
     </div>
     <template v-for="(child, index) in computedValue" :key="index">
       <input-group
