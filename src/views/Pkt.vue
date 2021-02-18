@@ -1,6 +1,6 @@
 <template>
   <div class="pkt">
-    <div class="p-fluid">
+    <div class="p-fluid pkt__container">
       <div class="p-field pkt__top-field">
         <dropdown
           v-model="selectedPktKey"
@@ -18,6 +18,14 @@
           class="p-button-rounded p-button-primary pkt__add"
         />
       </div>
+
+      <button-prime
+        v-if="selectedPktKey && !isAddingData"
+        @click="deletePkt"
+        icon="pi pi-times"
+        label="Hapus"
+        class="p-button-danger p-button-outlined p-button-sm pkt__delete"
+      ></button-prime>
 
       <template v-if="selectedPktKey || isAddingData">
         <form-proposal :inputs="selectedPkt" type="pkt" class="pkt__form-proposal" />
@@ -37,7 +45,7 @@ import Dropdown from 'primevue/dropdown';
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, onUnmounted, ref, watch } from 'vue';
+import { computed, ComputedRef, defineComponent, nextTick, onUnmounted, ref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import { useStore } from 'vuex';
 import {
@@ -61,23 +69,27 @@ export default defineComponent({
 
     const confirm = useConfirm();
 
+    const isAddingData = ref(false);
     const isGettingPkt = ref(true);
+
     const selectedPktKey = ref<string>('');
     watch(selectedPktKey, (selectedPktKey) => {
+      isAddingData.value = false;
       store.commit('pkt/choosePkt', selectedPktKey);
     });
+    const addNewPkt = () => {
+      selectedPktKey.value = '';
+      nextTick(() => {
+        isAddingData.value = true;
+      });
+      store.commit('pkt/clearFields');
+    };
     const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
       return store.state.pkt.fields;
     });
     const pktChoices = computed(() => {
       return store.getters['pkt/choices'];
     });
-
-    const isAddingData = ref(false);
-    const addNewPkt = () => {
-      isAddingData.value = !isAddingData.value;
-      store.commit('pkt/clearFields');
-    };
 
     /* ************* firebase stuff - START ************* */
     const pktKppmRef = firebase.database().ref('/pkt/kppm/');
@@ -135,6 +147,7 @@ export default defineComponent({
             .toLowerCase()
             .replace(' ', '-')}`;
           await pktKppmRef.child(newPktKey).set(pktObj);
+          selectedPktKey.value = newPktKey;
         } else {
           await pktKppmRef.update({ [`${selectedPktKey.value}`]: pktObj });
         }
@@ -143,11 +156,29 @@ export default defineComponent({
       };
 
       confirm.require({
-        message: `Anda yakin ingin ${isAddingData.value ? 'menambahkan' : 'mengubah'} data ini?`,
+        message: `Anda yakin ingin ${
+          isAddingData.value ? 'menambahkan' : 'mengubah'
+        } program di PKT ini?`,
         header: 'Perhatian!',
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
           submitData();
+        },
+        reject: () => {
+          confirm.close();
+        },
+      });
+    };
+    const deletePkt = () => {
+      const programName = selectedPkt.value.find((val) => val.key === 'nama_program')?.value;
+      confirm.require({
+        message: `Anda yakin ingin menghapus program "${programName}" di PKT ini?`,
+        header: 'Perhatian!',
+        icon: 'pi pi-exclamation-triangle',
+        acceptClass: 'p-button-danger',
+        accept: async () => {
+          await pktKppmRef.child(selectedPktKey.value).remove();
+          selectedPktKey.value = '';
         },
         reject: () => {
           confirm.close();
@@ -168,6 +199,7 @@ export default defineComponent({
       selectedPktKey,
       isGettingPkt,
       submitPkt,
+      deletePkt,
       isSubmittingData,
       isAddingData,
       addNewPkt,
@@ -182,6 +214,10 @@ export default defineComponent({
   max-width: 768px;
   margin: auto;
 
+  &__container {
+    position: relative;
+  }
+
   &__top-field {
     display: flex;
     align-items: center;
@@ -194,6 +230,14 @@ export default defineComponent({
   &__add {
     margin-left: 12px;
     width: 20%;
+  }
+
+  &__delete,
+  .p-button-danger {
+    position: absolute;
+    width: 90px;
+    top: 85px;
+    right: 16px;
   }
 
   &__form-proposal {

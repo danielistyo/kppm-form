@@ -24,6 +24,8 @@ const module: Module<PktStates, RootStateStore> = {
     },
     // update all fields value using selected pkt
     choosePkt(state, key: string) {
+      if (!key) return;
+
       const selectedPkt = state.list.find(({ nameChoice }) => nameChoice === key);
       state.fields.forEach((field) => {
         // set sumber dana field
