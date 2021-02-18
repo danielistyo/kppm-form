@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import PrimeVue from 'primevue/config';
+import ConfirmationService from 'primevue/confirmationservice';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
@@ -16,6 +17,6 @@ const app = createApp(App)
   .use(store)
   .use(router);
 
-app.use(PrimeVue);
+app.use(PrimeVue).use(ConfirmationService);
 
 app.mount('#app');

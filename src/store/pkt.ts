@@ -1,22 +1,28 @@
 import pktField from '@/data/pkt-field';
+import cloneDeep from 'lodash/fp/cloneDeep';
 import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue } from '@/types';
 import { Module } from 'vuex';
 
 const module: Module<PktStates, RootStateStore> = {
   namespaced: true,
   state: () => ({
-    // Pkt field template
-    fields: pktField,
+    // selected/new pkt fields
+    fields: cloneDeep(pktField),
     // it should be array of object in order to be reactive when new object is coming
     // don't use object, because data from firebase is object as well. Then it will not be reactive.
     list: [],
   }),
   mutations: {
+    clearFields(state) {
+      state.fields = cloneDeep(pktField);
+    },
     parseResponse(state, response: Record<string, PktItem>) {
+      state.list = [];
       Object.entries(response).forEach(([key, value]: [string, PktItem]) => {
         state.list.push({ nameChoice: key, valueChoice: key, ...value });
       });
     },
+    // update all fields value using selected pkt
     choosePkt(state, key: string) {
       const selectedPkt = state.list.find(({ nameChoice }) => nameChoice === key);
       state.fields.forEach((field) => {
