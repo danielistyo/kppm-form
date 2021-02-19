@@ -42,6 +42,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import InputText from 'primevue/inputtext';
+import TextArea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
 import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
@@ -60,6 +61,7 @@ export default defineComponent({
     CalendarInput,
     SimpleEditor,
     CostInput,
+    TextArea,
   },
   props: {
     inputs: {

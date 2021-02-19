@@ -43,7 +43,7 @@ const fields: FormFields<PktKeys> = [
     key: 'ukuran_hasil',
     name: 'Ukuran Hasil',
     fieldValue: 'FieldValueDefault',
-    type: 'input-text',
+    type: 'text-area',
     value: '',
   },
   {
@@ -80,6 +80,7 @@ const fields: FormFields<PktKeys> = [
     name: 'Biaya',
     type: 'cost-input',
     fieldValue: 'FieldValueCost',
+    props: { useFrequency: true },
     value: [],
   },
   {

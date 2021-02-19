@@ -76,6 +76,9 @@ export default defineComponent({
     watch(selectedPktKey, (selectedPktKey) => {
       isAddingData.value = false;
       store.commit('pkt/choosePkt', selectedPktKey);
+      nextTick(() => {
+        document.documentElement.scrollTop = 0;
+      });
     });
     const addNewPkt = () => {
       selectedPktKey.value = '';

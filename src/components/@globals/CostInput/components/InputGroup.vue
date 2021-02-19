@@ -1,9 +1,22 @@
 <template>
   <div class="p-d-inline-flex p-mb-2 p-ai-center">
-    <input-text v-model="computedName" class="p-mr-2 p-p-1" />
-    <input-number v-model="computedCount" style="width:10em" class="p-mr-2" inputClass="p-p-1" />
+    <input-text v-model="computedName" style="width:35.2941176%" class="p-mr-2 p-p-1" />
+    <input-number
+      v-model="computedCount"
+      style="width:14.7058824%"
+      class="p-mr-2"
+      inputClass="p-p-1"
+    />
+    <input-number
+      v-if="useFrequency"
+      v-model="computedFrequency"
+      style="width:14.7058824%"
+      class="p-mr-2"
+      inputClass="p-p-1"
+    />
     <input-number
       v-model="computedPrice"
+      style="width:35.2941176%"
       mode="currency"
       currency="IDR"
       locale="id-ID"
@@ -17,7 +30,7 @@
 <script lang="ts">
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
-import { computed, defineComponent, WritableComputedOptions } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { CostItem } from '@/types';
 
 export default defineComponent({
@@ -38,6 +51,14 @@ export default defineComponent({
     price: {
       type: Number,
       required: true,
+    },
+    frequency: {
+      type: Number,
+      required: true,
+    },
+    useFrequency: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props: Readonly<CostItem>, { emit }) {
@@ -65,6 +86,14 @@ export default defineComponent({
         emit(`update:price`, val);
       },
     });
+    const computedFrequency = computed({
+      get() {
+        return props.frequency;
+      },
+      set(val) {
+        emit(`update:frequency`, val);
+      },
+    });
 
     const handleDelete = () => {
       emit('delete');
@@ -74,6 +103,7 @@ export default defineComponent({
       computedName,
       computedCount,
       computedPrice,
+      computedFrequency,
       handleDelete,
     };
   },
