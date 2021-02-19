@@ -19,7 +19,7 @@ export interface CostFormField<K> extends BasicFormField<K> {
 }
 
 export interface DefaultFormField<K> extends BasicFormField<K> {
-  type: 'input-text' | 'input-number' | 'simple-editor' | 'calendar-input' | null;
+  type: 'input-text' | 'input-number' | 'simple-editor' | 'calendar-input' | 'text-area' | null;
   value?: string | number | Array<FieldCostValue>;
 }
 
@@ -29,6 +29,7 @@ export interface CostItem {
   name: string;
   count: number;
   price: number;
+  frequency?: number;
 }
 
 export type CostItems = Array<CostItem>;
