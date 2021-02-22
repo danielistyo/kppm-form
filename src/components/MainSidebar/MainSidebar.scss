@@ -1,0 +1,65 @@
+.main-sidebar {
+  &__logo {
+    display: flex;
+    align-items: center;
+    margin-top: 35px;
+    padding-bottom: 15px;
+  }
+
+  &__logo-image {
+    width: 30%;
+  }
+
+  &__title {
+    font-size: 21px;
+    font-weight: bold;
+    padding-left: 20px;
+  }
+
+  &__divider {
+    border-color: #d3d3d3;
+  }
+
+  &__menus {
+    padding-top: 15px;
+  }
+
+  &__menu {
+    $menu: &;
+    padding: 4px 0;
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    vertical-align: middle;
+    line-height: 40px;
+    color: #7b7b7b;
+    cursor: pointer;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &#{$menu}--active {
+      background-color: #3f51b5;
+      color: #fff;
+      border-radius: 7px;
+    }
+
+    .pi {
+      $pi: &;
+      margin-right: 10px;
+      line-height: 40px;
+      width: 50px;
+      font-size: 23px;
+      font-weight: bold;
+      text-align: center;
+      vertical-align: middle;
+      color: #7b7b7b;
+
+      &.pi--active {
+        // background-color: #3f51b5;
+        color: #fff;
+      }
+    }
+  }
+}
