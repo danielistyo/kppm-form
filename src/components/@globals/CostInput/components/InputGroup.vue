@@ -54,7 +54,7 @@ export default defineComponent({
     },
     frequency: {
       type: Number,
-      required: true,
+      default: 0,
     },
     useFrequency: {
       type: Boolean,

@@ -2,6 +2,7 @@ import pktField from '@/data/pkt-field';
 import cloneDeep from 'lodash/fp/cloneDeep';
 import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue } from '@/types';
 import { Module } from 'vuex';
+import firebase from 'firebase/app';
 
 const module: Module<PktStates, RootStateStore> = {
   namespaced: true,
@@ -11,6 +12,7 @@ const module: Module<PktStates, RootStateStore> = {
     // it should be array of object in order to be reactive when new object is coming
     // don't use object, because data from firebase is object as well. Then it will not be reactive.
     list: [],
+    isGettingData: false,
   }),
   mutations: {
     clearFields(state) {
@@ -33,7 +35,10 @@ const module: Module<PktStates, RootStateStore> = {
           field.children?.forEach((child) => {
             if (child.key === 'a' || child.key === 'b' || child.key === 'c') {
               const newValue = selectedPkt?.sumber_dana?.[child.key];
-              if (!newValue) return child;
+              if (!newValue) {
+                child.value = 0;
+                return;
+              }
               child.value = newValue;
             }
           });
@@ -47,6 +52,8 @@ const module: Module<PktStates, RootStateStore> = {
               data.push(biayaItem);
             });
             field.value = data;
+          } else {
+            field.value = [];
           }
         } else {
           field.value = selectedPkt?.[field.key];
@@ -57,6 +64,16 @@ const module: Module<PktStates, RootStateStore> = {
   getters: {
     choices(state): Choices {
       return state.list.map(({ nameChoice, valueChoice }) => ({ nameChoice, valueChoice }));
+    },
+  },
+  actions: {
+    getPkt({ commit, state }) {
+      const pktKppmRef = firebase.database().ref('/pkt/kppm/');
+      state.isGettingData = true;
+      pktKppmRef.on('value', (snapshot) => {
+        state.isGettingData = false;
+        commit('parseResponse', snapshot.val());
+      });
     },
   },
 };

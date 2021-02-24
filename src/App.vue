@@ -11,6 +11,8 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import MainSidebar from './components/MainSidebar/MainSidebar.vue';
 import MainHeader from './components/MainHeader/MainHeader.vue';
 import emitter from '@/emitter';
+import { useStore } from 'vuex';
+import { RootStateStoreWithModule } from './types';
 
 export default defineComponent({
   name: 'App',
@@ -20,10 +22,14 @@ export default defineComponent({
     MainHeader,
   },
   setup() {
+    const store = useStore<RootStateStoreWithModule>();
+    store.dispatch('pkt/getPkt');
+
     const showSidebar = ref(false);
     emitter.on('sidebar:show', (isShow) => {
       showSidebar.value = isShow;
     });
+
     return { showSidebar };
   },
 });

@@ -45,7 +45,7 @@ import Dropdown from 'primevue/dropdown';
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, nextTick, onUnmounted, ref, watch } from 'vue';
+import { computed, ComputedRef, defineComponent, nextTick, ref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import { useStore } from 'vuex';
 import {
@@ -70,7 +70,15 @@ export default defineComponent({
     const confirm = useConfirm();
 
     const isAddingData = ref(false);
-    const isGettingPkt = ref(true);
+    const isGettingPkt = computed<boolean>(() => {
+      return store.state.pkt.isGettingData;
+    });
+    const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
+      return store.state.pkt.fields;
+    });
+    const pktChoices = computed(() => {
+      return store.getters['pkt/choices'];
+    });
 
     const selectedPktKey = ref<string>('');
     watch(selectedPktKey, (selectedPktKey) => {
@@ -80,6 +88,7 @@ export default defineComponent({
         document.documentElement.scrollTop = 0;
       });
     });
+
     const addNewPkt = () => {
       selectedPktKey.value = '';
       nextTick(() => {
@@ -87,24 +96,9 @@ export default defineComponent({
       });
       store.commit('pkt/clearFields');
     };
-    const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
-      return store.state.pkt.fields;
-    });
-    const pktChoices = computed(() => {
-      return store.getters['pkt/choices'];
-    });
 
     /* ************* firebase stuff - START ************* */
     const pktKppmRef = firebase.database().ref('/pkt/kppm/');
-
-    const onPktKppmValueChange = pktKppmRef.on('value', (snapshot) => {
-      isGettingPkt.value = false;
-      store.commit('pkt/parseResponse', snapshot.val());
-    });
-
-    onUnmounted(() => {
-      pktKppmRef.off('value', onPktKppmValueChange);
-    });
 
     const isSubmittingData = ref(false);
 

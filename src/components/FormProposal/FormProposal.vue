@@ -3,6 +3,18 @@
     <template #title> Form {{ type.toUpperCase() }} </template>
     <template #content>
       <div class="p-fluid">
+        <div class="p-field form-proposal__field">
+          <label class="form-proposal__field-name" for="pktField">PKT</label>
+          <dropdown
+            v-model="selectedPktKey"
+            :options="pktChoices"
+            :disabled="isGettingPkt"
+            :placeholder="isGettingPkt ? 'Loading...' : 'Pilih PKT Anda di sini'"
+            optionLabel="nameChoice"
+            optionValue="valueChoice"
+            class="pkt__choices"
+          />
+        </div>
         <template v-for="(input, index) in inputs" :key="index">
           <div class="p-field form-proposal__field">
             <label class="form-proposal__field-name" :for="input.name + 'ID'">
@@ -40,7 +52,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { computed, ComputedRef, defineComponent, PropType, ref, watch } from 'vue';
+import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
@@ -48,7 +61,8 @@ import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
 import CostInput from '@/components/@globals/CostInput';
 import Card from 'primevue/card';
-import { FormFields, FormlKeys, FormpKeys } from '@/types';
+import { FormFields, FormlKeys, FormpKeys, PktKeys, RootStateStoreWithModule } from '@/types';
+import { useStore } from 'vuex';
 
 type FieldType = FormFields<FormpKeys | FormlKeys>;
 
@@ -62,6 +76,7 @@ export default defineComponent({
     SimpleEditor,
     CostInput,
     TextArea,
+    Dropdown,
   },
   props: {
     inputs: {
@@ -75,6 +90,25 @@ export default defineComponent({
         return ['l', 'p', 'pkt'].includes(val);
       },
     },
+  },
+  setup() {
+    const store = useStore<RootStateStoreWithModule>();
+    const isGettingPkt = computed<boolean>(() => {
+      return store.state.pkt.isGettingData;
+    });
+    const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
+      return store.state.pkt.fields;
+    });
+    const pktChoices = computed(() => {
+      return store.getters['pkt/choices'];
+    });
+
+    const selectedPktKey = ref<string>('');
+    watch(selectedPktKey, (selectedPktKey) => {
+      store.commit('pkt/choosePkt', selectedPktKey);
+    });
+
+    return { isGettingPkt, selectedPkt, pktChoices, selectedPktKey };
   },
 });
 </script>

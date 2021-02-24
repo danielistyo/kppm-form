@@ -116,6 +116,7 @@ export type PktItem = {
 type ListPktItem = Array<PktItem & Choice>;
 export interface PktStates extends FormModule<PktKeys> {
   list: ListPktItem;
+  isGettingData: boolean;
 }
 
 export interface PktModule extends PktStates {
