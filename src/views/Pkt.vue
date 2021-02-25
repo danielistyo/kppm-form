@@ -45,17 +45,17 @@ import Dropdown from 'primevue/dropdown';
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, nextTick, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, ref } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import { useStore } from 'vuex';
 import {
   CostFormField,
   DefaultFormField,
-  FormFields,
   PktItem,
   PktKeys,
   RootStateStoreWithModule,
 } from '@/types';
+import pktComposables from '@/composables/pkt';
 
 export default defineComponent({
   name: 'Pkt',
@@ -70,24 +70,7 @@ export default defineComponent({
     const confirm = useConfirm();
 
     const isAddingData = ref(false);
-    const isGettingPkt = computed<boolean>(() => {
-      return store.state.pkt.isGettingData;
-    });
-    const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
-      return store.state.pkt.fields;
-    });
-    const pktChoices = computed(() => {
-      return store.getters['pkt/choices'];
-    });
-
-    const selectedPktKey = ref<string>('');
-    watch(selectedPktKey, (selectedPktKey) => {
-      isAddingData.value = false;
-      store.commit('pkt/choosePkt', selectedPktKey);
-      nextTick(() => {
-        document.documentElement.scrollTop = 0;
-      });
-    });
+    const { isGettingPkt, selectedPkt, pktChoices, selectedPktKey } = pktComposables();
 
     const addNewPkt = () => {
       selectedPktKey.value = '';

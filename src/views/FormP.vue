@@ -36,7 +36,7 @@ export default defineComponent({
 
   &__form-proposal {
     max-width: 400px;
-    height: calc(100vh - 16px);
+    height: calc(100vh - 16px - 50px);
   }
 }
 </style>

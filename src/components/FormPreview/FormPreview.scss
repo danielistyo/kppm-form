@@ -4,11 +4,14 @@
   }
   $width: calc(100vw - 400px);
   $margin: 16px;
+  $headerHeight: 50px;
 
   font-size: calc(#{$width} / 48);
-  margin: $margin;
+  margin-right: $margin;
+  margin-left: $margin;
+  margin-bottom: $margin;
   width: $width;
-  height: calc(100vh - #{$margin * 2} - 16px);
+  height: calc(100vh - #{$margin} - #{$headerHeight});
   overflow-y: auto;
 
   @media print {

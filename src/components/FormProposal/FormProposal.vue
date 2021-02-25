@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import { computed, ComputedRef, defineComponent, PropType, ref, watch } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
@@ -61,8 +61,8 @@ import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
 import CostInput from '@/components/@globals/CostInput';
 import Card from 'primevue/card';
-import { FormFields, FormlKeys, FormpKeys, PktKeys, RootStateStoreWithModule } from '@/types';
-import { useStore } from 'vuex';
+import { FormFields, FormlKeys, FormpKeys } from '@/types';
+import pktComposables from '@/composables/pkt';
 
 type FieldType = FormFields<FormpKeys | FormlKeys>;
 
@@ -92,23 +92,8 @@ export default defineComponent({
     },
   },
   setup() {
-    const store = useStore<RootStateStoreWithModule>();
-    const isGettingPkt = computed<boolean>(() => {
-      return store.state.pkt.isGettingData;
-    });
-    const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
-      return store.state.pkt.fields;
-    });
-    const pktChoices = computed(() => {
-      return store.getters['pkt/choices'];
-    });
-
-    const selectedPktKey = ref<string>('');
-    watch(selectedPktKey, (selectedPktKey) => {
-      store.commit('pkt/choosePkt', selectedPktKey);
-    });
-
-    return { isGettingPkt, selectedPkt, pktChoices, selectedPktKey };
+    const pktData = pktComposables();
+    return { ...pktData };
   },
 });
 </script>
