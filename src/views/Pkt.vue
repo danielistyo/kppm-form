@@ -45,7 +45,7 @@ import Dropdown from 'primevue/dropdown';
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, defineComponent, nextTick, ref } from 'vue';
+import { computed, defineComponent, nextTick, ref, unref } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import { useStore } from 'vuex';
 import {
@@ -108,28 +108,30 @@ export default defineComponent({
         };
         /* eslint-enable */
 
-        selectedPkt.value.forEach((pktItem: DefaultFormField<PktKeys> | CostFormField<PktKeys>) => {
-          if (pktItem.type === 'cost-input' && pktItem.key === 'biaya') {
-            pktItem.value?.forEach((cost, index) => {
-              pktObj.biaya[index] = cost;
-            });
-          } else if (pktItem.key === 'sumber_dana') {
-            pktItem?.children?.forEach((child) => {
-              pktObj.sumber_dana[child.key] = child.value as number;
-            });
-          } else if (pktItem.key !== 'biaya') {
-            pktObj[pktItem.key] = pktItem.value as string;
-          }
-        });
+        unref(selectedPkt).forEach(
+          (pktItem: DefaultFormField<PktKeys> | CostFormField<PktKeys>) => {
+            if (pktItem.type === 'cost-input' && pktItem.key === 'biaya') {
+              pktItem.value?.forEach((cost, index) => {
+                pktObj.biaya[index] = cost;
+              });
+            } else if (pktItem.key === 'sumber_dana') {
+              pktItem?.children?.forEach((child) => {
+                pktObj.sumber_dana[child.key] = child.value as number;
+              });
+            } else if (pktItem.key !== 'biaya') {
+              pktObj[pktItem.key] = pktItem.value as string;
+            }
+          },
+        );
 
-        if (isAddingData.value) {
+        if (unref(isAddingData)) {
           const newPktKey = `${new Date().getFullYear()}-${pktObj.nama_program
             .toLowerCase()
             .replace(' ', '-')}`;
           await pktKppmRef.child(newPktKey).set(pktObj);
           selectedPktKey.value = newPktKey;
         } else {
-          await pktKppmRef.update({ [`${selectedPktKey.value}`]: pktObj });
+          await pktKppmRef.update({ [`${unref(selectedPktKey)}`]: pktObj });
         }
 
         isSubmittingData.value = false;
@@ -137,7 +139,7 @@ export default defineComponent({
 
       confirm.require({
         message: `Anda yakin ingin ${
-          isAddingData.value ? 'menambahkan' : 'mengubah'
+          unref(isAddingData) ? 'menambahkan' : 'mengubah'
         } program di PKT ini?`,
         header: 'Perhatian!',
         icon: 'pi pi-exclamation-triangle',
@@ -150,14 +152,14 @@ export default defineComponent({
       });
     };
     const deletePkt = () => {
-      const programName = selectedPkt.value.find((val) => val.key === 'nama_program')?.value;
+      const programName = unref(selectedPkt).find((val) => val.key === 'nama_program')?.value;
       confirm.require({
         message: `Anda yakin ingin menghapus program "${programName}" di PKT ini?`,
         header: 'Perhatian!',
         icon: 'pi pi-exclamation-triangle',
         acceptClass: 'p-button-danger',
         accept: async () => {
-          await pktKppmRef.child(selectedPktKey.value).remove();
+          await pktKppmRef.child(unref(selectedPktKey)).remove();
           selectedPktKey.value = '';
         },
         reject: () => {
@@ -168,8 +170,8 @@ export default defineComponent({
     /* ************* firebase stuff - END ************* */
 
     const actionButtonLabel = computed((): string => {
-      if (isSubmittingData.value) return 'Loading...';
-      else if (isAddingData.value) return 'Tambahkan';
+      if (unref(isSubmittingData)) return 'Loading...';
+      else if (unref(isAddingData)) return 'Tambahkan';
       else return 'Ubah';
     });
 
