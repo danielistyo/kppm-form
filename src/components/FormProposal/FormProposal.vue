@@ -5,15 +5,8 @@
       <div class="p-fluid">
         <div class="p-field form-proposal__field">
           <label class="form-proposal__field-name" for="pktField">PKT</label>
-          <dropdown
-            v-model="selectedPktKey"
-            :options="pktChoices"
-            :disabled="isGettingPkt"
-            :placeholder="isGettingPkt ? 'Loading...' : 'Pilih PKT Anda di sini'"
-            optionLabel="nameChoice"
-            optionValue="valueChoice"
-            class="pkt__choices"
-          />
+
+          <pkt-dropdown v-model="selectedPktKey" />
         </div>
         <template v-for="(input, index) in inputs" :key="index">
           <div class="p-field form-proposal__field">
@@ -52,19 +45,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
 import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
+import PktDropdown from '@/components/@globals/PktDropdown';
 import CostInput from '@/components/@globals/CostInput';
 import Card from 'primevue/card';
-import { FormFields, FormlKeys, FormpKeys } from '@/types';
-import pktComposables from '@/composables/pkt';
+import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
 
-type FieldType = FormFields<FormpKeys | FormlKeys>;
+type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
 
 export default defineComponent({
   name: 'FormProposal',
@@ -77,6 +70,7 @@ export default defineComponent({
     CostInput,
     TextArea,
     Dropdown,
+    PktDropdown,
   },
   props: {
     inputs: {
@@ -92,8 +86,8 @@ export default defineComponent({
     },
   },
   setup() {
-    const pktData = pktComposables();
-    return { ...pktData };
+    const selectedPktKey = ref<string>('');
+    return { selectedPktKey };
   },
 });
 </script>

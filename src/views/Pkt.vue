@@ -2,15 +2,8 @@
   <div class="pkt">
     <div class="p-fluid pkt__container">
       <div class="p-field pkt__top-field">
-        <dropdown
-          v-model="selectedPktKey"
-          :options="pktChoices"
-          :disabled="isGettingPkt || isSubmittingData"
-          :placeholder="isGettingPkt ? 'Loading...' : 'Pilih PKT Anda di sini'"
-          optionLabel="nameChoice"
-          optionValue="valueChoice"
-          class="pkt__choices"
-        />
+        <pkt-dropdown v-model="selectedPktKey" :disabled="isSubmittingData" />
+
         <button-prime
           @click="addNewPkt"
           :disabled="isGettingPkt || isSubmittingData"
@@ -38,15 +31,16 @@
       </template>
     </div>
   </div>
+  <div></div>
 </template>
 
-<script lang="ts">
-import Dropdown from 'primevue/dropdown';
+<script lang="tsx">
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, defineComponent, nextTick, ref, unref } from 'vue';
+import { computed, defineComponent, nextTick, ref, unref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
+import PktDropdown from '@/components/@globals/PktDropdown';
 import { useStore } from 'vuex';
 import {
   CostFormField,
@@ -55,13 +49,13 @@ import {
   PktKeys,
   RootStateStoreWithModule,
 } from '@/types';
-import pktComposables from '@/composables/pkt';
+import usePkt from '@/composables/pkt';
 
 export default defineComponent({
   name: 'Pkt',
   components: {
+    PktDropdown,
     FormProposal,
-    Dropdown,
     ButtonPrime,
   },
   setup() {
@@ -70,7 +64,15 @@ export default defineComponent({
     const confirm = useConfirm();
 
     const isAddingData = ref(false);
-    const { isGettingPkt, selectedPkt, pktChoices, selectedPktKey } = pktComposables();
+    const isSubmittingData = ref(false);
+    const selectedPktKey = ref<string>('');
+    const { isGettingPkt, selectedPkt } = usePkt();
+
+    watch(selectedPktKey, () => {
+      nextTick(() => {
+        document.documentElement.scrollTop = 0;
+      });
+    });
 
     const addNewPkt = () => {
       selectedPktKey.value = '';
@@ -82,8 +84,6 @@ export default defineComponent({
 
     /* ************* firebase stuff - START ************* */
     const pktKppmRef = firebase.database().ref('/pkt/kppm/');
-
-    const isSubmittingData = ref(false);
 
     const submitPkt = () => {
       const submitData = async () => {
@@ -153,19 +153,21 @@ export default defineComponent({
     };
     const deletePkt = () => {
       const programName = unref(selectedPkt).find((val) => val.key === 'nama_program')?.value;
-      confirm.require({
-        message: `Anda yakin ingin menghapus program "${programName}" di PKT ini?`,
-        header: 'Perhatian!',
-        icon: 'pi pi-exclamation-triangle',
-        acceptClass: 'p-button-danger',
-        accept: async () => {
-          await pktKppmRef.child(unref(selectedPktKey)).remove();
-          selectedPktKey.value = '';
-        },
-        reject: () => {
-          confirm.close();
-        },
-      });
+      if (programName) {
+        confirm.require({
+          message: `Anda yakin ingin menghapus program "${programName}" di PKT ini?`,
+          header: 'Perhatian!',
+          icon: 'pi pi-exclamation-triangle',
+          acceptClass: 'p-button-danger',
+          accept: async () => {
+            await pktKppmRef.child(unref(selectedPktKey)).remove();
+            selectedPktKey.value = '';
+          },
+          reject: () => {
+            confirm.close();
+          },
+        });
+      }
     };
     /* ************* firebase stuff - END ************* */
 
@@ -177,7 +179,7 @@ export default defineComponent({
 
     return {
       selectedPkt,
-      pktChoices,
+
       selectedPktKey,
       isGettingPkt,
       submitPkt,
