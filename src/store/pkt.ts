@@ -1,6 +1,6 @@
 import pktField from '@/data/pkt-field';
 import cloneDeep from 'lodash/fp/cloneDeep';
-import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue } from '@/types';
+import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue, SelectedPkt } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 
@@ -25,17 +25,16 @@ const module: Module<PktStates, RootStateStore> = {
       });
     },
     // update all fields value using selected pkt
-    choosePkt(state, key: string) {
-      if (!key) return;
+    updatePktFields(state, selectedPkt: SelectedPkt) {
+      if (!selectedPkt) return;
 
-      const selectedPkt = state.list.find(({ nameChoice }) => nameChoice === key);
       state.fields.forEach((field) => {
         // set sumber dana field
         if (field.key === 'sumber_dana') {
           field.children?.forEach((child) => {
             if (child.key === 'a' || child.key === 'b' || child.key === 'c') {
               const newValue = selectedPkt?.sumber_dana?.[child.key];
-              if (!newValue) {
+              if (newValue === null || newValue === undefined) {
                 child.value = 0;
                 return;
               }
@@ -65,15 +64,24 @@ const module: Module<PktStates, RootStateStore> = {
     choices(state): Choices {
       return state.list.map(({ nameChoice, valueChoice }) => ({ nameChoice, valueChoice }));
     },
+    selectedPkt(state): Function {
+      return (key: string): SelectedPkt => state.list.find(({ nameChoice }) => nameChoice === key);
+    },
   },
   actions: {
-    getPkt({ commit, state }) {
+    getPkt({ commit, state }): void {
       const pktKppmRef = firebase.database().ref('/pkt/kppm/');
       state.isGettingData = true;
       pktKppmRef.on('value', (snapshot) => {
         state.isGettingData = false;
         commit('parseResponse', snapshot.val());
       });
+    },
+    choosePkt({ commit, getters }, key: string): void {
+      if (!key) return;
+
+      const selectedPkt: SelectedPkt = getters.selectedPkt(key);
+      selectedPkt && commit('updatePktFields', selectedPkt);
     },
   },
 };

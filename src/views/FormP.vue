@@ -1,6 +1,12 @@
 <template>
   <div class="formp">
-    <form-proposal :inputs="formInputs" type="p" class="formp__form-proposal" />
+    <form-proposal
+      :inputs="formInputs"
+      @pktchange="handlePktChanged"
+      type="p"
+      class="formp__form-proposal"
+      show-pkt
+    />
     <form-preview :inputs="formInputs" type="p" class="formp__form-preview" />
   </div>
 </template>
@@ -10,7 +16,7 @@ import { computed, ComputedRef, defineComponent } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import FormPreview from '@/components/FormPreview';
 import { useStore } from 'vuex';
-import { FormFields, FormpKeys } from '@/types';
+import { FormFields, FormpKeys, SelectedPkt } from '@/types';
 
 export default defineComponent({
   name: 'FormP',
@@ -20,11 +26,18 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    store.commit('formp/clearFields');
 
     const formInputs: ComputedRef<FormFields<FormpKeys>> = computed<FormFields<FormpKeys>>(
       () => store.state.formp.fields,
     );
-    return { formInputs };
+
+    const handlePktChanged = (selectedPktKey: string): void => {
+      const selectedPkt: SelectedPkt = store.getters['pkt/selectedPkt'](selectedPktKey);
+      store.commit('formp/updateFormPFields', selectedPkt);
+    };
+
+    return { formInputs, handlePktChanged };
   },
 });
 </script>

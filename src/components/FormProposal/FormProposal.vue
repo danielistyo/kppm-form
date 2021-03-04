@@ -3,7 +3,7 @@
     <template #title> Form {{ type.toUpperCase() }} </template>
     <template #content>
       <div class="p-fluid">
-        <div class="p-field form-proposal__field">
+        <div v-if="showPkt" class="p-field form-proposal__field">
           <label class="form-proposal__field-name" for="pktField">PKT</label>
 
           <pkt-dropdown v-model="selectedPktKey" />
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, ref, watch } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
@@ -72,6 +72,7 @@ export default defineComponent({
     Dropdown,
     PktDropdown,
   },
+  emits: ['pktchange'],
   props: {
     inputs: {
       type: Array as PropType<FieldType>,
@@ -84,9 +85,17 @@ export default defineComponent({
         return ['l', 'p', 'pkt'].includes(val);
       },
     },
+    showPkt: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup() {
+  setup(props, { emit }) {
     const selectedPktKey = ref<string>('');
+
+    watch(selectedPktKey, (newSelectedPktKey) => {
+      emit('pktchange', newSelectedPktKey);
+    });
     return { selectedPktKey };
   },
 });

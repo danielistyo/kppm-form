@@ -12,9 +12,7 @@
 
 <script lang="tsx">
 import { defineComponent } from 'vue';
-import { Choices, RootStateStoreWithModule } from '@/types';
 import { computed } from 'vue';
-import { useStore } from 'vuex';
 import Dropdown from 'primevue/dropdown';
 import pktComposables from '@/composables/pkt';
 
@@ -34,14 +32,11 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const store = useStore<RootStateStoreWithModule>();
-
     const { isGettingPkt, pktChoices } = pktComposables();
 
     const value = computed<string>({
       get: () => props.modelValue,
-      set: (value) => {
-        store.commit('pkt/choosePkt', value);
+      set: (value: string) => {
         emit('update:modelValue', value);
       },
     });

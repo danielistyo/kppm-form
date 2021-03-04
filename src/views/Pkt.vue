@@ -68,7 +68,8 @@ export default defineComponent({
     const selectedPktKey = ref<string>('');
     const { isGettingPkt, selectedPkt } = usePkt();
 
-    watch(selectedPktKey, () => {
+    watch(selectedPktKey, (newSelectedPktKey) => {
+      store.dispatch('pkt/choosePkt', newSelectedPktKey);
       nextTick(() => {
         document.documentElement.scrollTop = 0;
       });
@@ -179,7 +180,6 @@ export default defineComponent({
 
     return {
       selectedPkt,
-
       selectedPktKey,
       isGettingPkt,
       submitPkt,

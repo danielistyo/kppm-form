@@ -3,19 +3,19 @@
   <div class="calendar-input__options">
     Opsi:
     <span
-      :style="{ fontWeight: selectionMode === 'single' ? 'bold' : null }"
+      :style="{ fontWeight: selectionMode === 'single' ? 'bold' : undefined }"
       @click="clickHandler('single')"
     >
       <u>single</u> </span
     >,
     <span
-      :style="{ fontWeight: selectionMode === 'multiple' ? 'bold' : null }"
+      :style="{ fontWeight: selectionMode === 'multiple' ? 'bold' : undefined }"
       @click="clickHandler('multiple')"
       ><u>multiple</u></span
     >
     atau
     <span
-      :style="{ fontWeight: selectionMode === 'range' ? 'bold' : null }"
+      :style="{ fontWeight: selectionMode === 'range' ? 'bold' : undefined }"
       @click="clickHandler('range')"
       ><u>jarak</u></span
     >
