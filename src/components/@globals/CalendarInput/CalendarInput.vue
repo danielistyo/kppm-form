@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import Calendar from 'primevue/calendar';
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, PropType, ref } from 'vue';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -38,7 +38,7 @@ export default defineComponent({
   emits: ['update:modelValue', 'update:view'],
   props: {
     modelValue: {
-      type: [String, Array],
+      type: [String, Array] as PropType<string | Array<string>>,
       required: true,
     },
     view: {
@@ -50,9 +50,21 @@ export default defineComponent({
     type mode = 'single' | 'multiple' | 'range';
     const selectionMode = ref<mode>('single');
 
-    const computedValue = computed<Date | Array<Date | null> | null>({
+    const isShowTextOnly = computed<boolean>((): boolean => {
+      const modelValue: string | Array<string> = props.modelValue;
+      if (typeof modelValue === 'string') {
+        if (!modelValue.trim()) return false;
+        const dateObj = dayjs(modelValue, 'DD-MM-YYYY');
+        return !dateObj.isValid();
+      }
+      return false;
+    });
+
+    type ComputedValueType = Date | Array<Date | null> | null | string;
+    const computedValue = computed<ComputedValueType>({
       get() {
-        const modelValue: string | Array<any> = props.modelValue;
+        if (isShowTextOnly.value && typeof props.modelValue === 'string') return props.modelValue;
+        const modelValue: string | Array<string> = props.modelValue;
 
         // for multiple and range mode
         if (Array.isArray(modelValue)) {
@@ -61,7 +73,7 @@ export default defineComponent({
 
         return modelValue ? dayjs(modelValue, 'DD-MM-YYYY').toDate() : null;
       },
-      set(val: Date | Array<Date | null> | null) {
+      set(val: ComputedValueType) {
         // for multiple and range mode
         if (Array.isArray(val)) {
           const newVal: Array<string | null> = val.map((dt: Date | null) => {
@@ -93,6 +105,7 @@ export default defineComponent({
 
     const clickHandler = (choice: mode) => {
       context.emit('update:modelValue', '');
+      context.emit('update:view', '');
       selectionMode.value = choice;
     };
 

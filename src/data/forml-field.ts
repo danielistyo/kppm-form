@@ -56,6 +56,7 @@ const fields: FormFields<FormlKeys> = [
       manualInput: false,
     },
     value: '',
+    view: '', // to show in FieldValueDefault
   },
   {
     id: 7,

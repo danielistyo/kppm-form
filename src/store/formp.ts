@@ -43,6 +43,7 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
           }
         } else if (field.key !== 'lampiran' && field.key !== 'pihak_luar') {
           field.value = selectedPkt?.[field.key];
+          field.view && (field.view = '');
         }
       });
     },

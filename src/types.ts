@@ -11,6 +11,7 @@ interface BasicFormField<K> {
   children?: FormFields<SumberDanaKey>;
   fieldValue: string;
   props?: Record<string, string | boolean | null | number | undefined | string[]>;
+  view?: string;
 }
 
 export interface CostFormField<K> extends BasicFormField<K> {
