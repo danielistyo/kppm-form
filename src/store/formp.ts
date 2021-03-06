@@ -16,6 +16,8 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
       if (!selectedPkt) return;
 
       state.fields.forEach((field) => {
+        if (field.key === 'lampiran' || field.key === 'pihak_luar') return;
+
         // set sumber dana field
         if (field.key === 'sumber_dana') {
           field.children?.forEach((child) => {
@@ -41,7 +43,7 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
           } else {
             field.value = [];
           }
-        } else if (field.key !== 'lampiran' && field.key !== 'pihak_luar') {
+        } else {
           field.value = selectedPkt?.[field.key];
           field.view && (field.view = '');
         }

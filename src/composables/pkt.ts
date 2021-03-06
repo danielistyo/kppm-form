@@ -8,7 +8,7 @@ export default () => {
   const isGettingPkt = computed<boolean>(() => {
     return store.state.pkt.isGettingData;
   });
-  const selectedPkt: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
+  const selectedPktFields: ComputedRef<FormFields<PktKeys>> = computed<FormFields<PktKeys>>(() => {
     return store.state.pkt.fields;
   });
 
@@ -18,7 +18,7 @@ export default () => {
 
   return {
     isGettingPkt,
-    selectedPkt,
+    selectedPktFields,
     pktChoices,
   };
 };

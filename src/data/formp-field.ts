@@ -64,6 +64,7 @@ const fields: FormFields<FormpKeys> = [
       manualInput: false,
     },
     value: '',
+    view: '',
   },
   {
     key: 'tempat',

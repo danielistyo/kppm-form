@@ -1,30 +1,30 @@
 <template>
-  <calendar v-model="computedValue" v-bind="$attrs" :selectionMode="selectionMode" />
+  <calendar
+    v-if="selectionMode !== 'text'"
+    v-model="computedValue"
+    v-bind="$attrs"
+    :selectionMode="selectionMode"
+  />
+  <input-text v-else v-model="computedValue" v-bind="$attrs" />
   <div class="calendar-input__options">
     Opsi:
-    <span
-      :style="{ fontWeight: selectionMode === 'single' ? 'bold' : undefined }"
-      @click="clickHandler('single')"
-    >
-      <u>single</u> </span
-    >,
-    <span
-      :style="{ fontWeight: selectionMode === 'multiple' ? 'bold' : undefined }"
-      @click="clickHandler('multiple')"
-      ><u>multiple</u></span
-    >
-    atau
-    <span
-      :style="{ fontWeight: selectionMode === 'range' ? 'bold' : undefined }"
-      @click="clickHandler('range')"
-      ><u>jarak</u></span
-    >
+    <template v-for="(md, index) in mode" :key="index">
+      <span
+        :style="{ fontWeight: selectionMode === md ? 'bold' : undefined }"
+        @click="clickHandler(md)"
+      >
+        <u>{{ md }}</u>
+      </span>
+      <template v-if="index === mode.length - 2"> atau </template>
+      <template v-else-if="index !== mode.length - 1">, </template>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
 import Calendar from 'primevue/calendar';
-import { computed, defineComponent, PropType, ref } from 'vue';
+import InputText from 'primevue/inputtext';
+import { computed, defineComponent, PropType, ref, toRef, unref, watch } from 'vue';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -34,6 +34,7 @@ export default defineComponent({
   name: 'CalendarInput',
   components: {
     Calendar,
+    InputText,
   },
   emits: ['update:modelValue', 'update:view'],
   props: {
@@ -47,23 +48,43 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    type mode = 'single' | 'multiple' | 'range';
-    const selectionMode = ref<mode>('single');
+    const mode = ['single', 'multiple', 'range', 'text'];
+    type Mode = 'single' | 'multiple' | 'range' | 'text';
+    const selectionMode = ref<Mode>('single');
 
-    const isShowTextOnly = computed<boolean>((): boolean => {
-      const modelValue: string | Array<string> = props.modelValue;
-      if (typeof modelValue === 'string') {
-        if (!modelValue.trim()) return false;
-        const dateObj = dayjs(modelValue, 'DD-MM-YYYY');
-        return !dateObj.isValid();
-      }
-      return false;
-    });
+    watch(
+      toRef(props, 'modelValue'),
+      (modelValue) => {
+        if (typeof modelValue === 'string') {
+          if (modelValue === '') return;
+          else if (/\d{2}-\d{2}-\d{4} - \d{2}-\d{2}-\d{4}/.test(modelValue)) {
+            selectionMode.value = 'range';
+
+            // because at beginning, the value is string, it needs to be changed into array of string first
+            context.emit('update:modelValue', (modelValue as string).split(' - '));
+            context.emit('update:view', modelValue);
+          } else if (/(\d{2}-\d{2}-\d{4}, )+\d{2}-\d{2}-\d{4}/.test(modelValue)) {
+            selectionMode.value = 'multiple';
+
+            // because at beginning, the value is string, it needs to be changed into array of string first
+            context.emit('update:modelValue', (modelValue as string).split(', '));
+            context.emit('update:view', modelValue);
+          } else if (dayjs(modelValue, 'DD-MM-YYYY').isValid()) selectionMode.value = 'single';
+          else selectionMode.value = 'text';
+        } else if (Array.isArray(modelValue)) {
+          if (props.view?.includes(',')) selectionMode.value = 'multiple';
+          else if (props.view?.includes(' - ')) selectionMode.value = 'range';
+        }
+      },
+      { immediate: true },
+    );
 
     type ComputedValueType = Date | Array<Date | null> | null | string;
     const computedValue = computed<ComputedValueType>({
       get() {
-        if (isShowTextOnly.value && typeof props.modelValue === 'string') return props.modelValue;
+        if (unref(selectionMode) === 'text' && typeof props.modelValue === 'string')
+          return props.modelValue;
+
         const modelValue: string | Array<string> = props.modelValue;
 
         // for multiple and range mode
@@ -74,8 +95,15 @@ export default defineComponent({
         return modelValue ? dayjs(modelValue, 'DD-MM-YYYY').toDate() : null;
       },
       set(val: ComputedValueType) {
+        if (unref(selectionMode) === 'text') {
+          context.emit('update:modelValue', val);
+          context.emit('update:view', val);
+        }
         // for multiple and range mode
-        if (Array.isArray(val)) {
+        else if (
+          Array.isArray(val) &&
+          (unref(selectionMode) === 'multiple' || unref(selectionMode) === 'range')
+        ) {
           const newVal: Array<string | null> = val.map((dt: Date | null) => {
             return dt
               ? dayjs(dt)
@@ -84,11 +112,11 @@ export default defineComponent({
               : null;
           });
           context.emit('update:modelValue', newVal);
-          const separator: string = selectionMode.value === 'range' ? ' - ' : ', ';
+          const separator: string = unref(selectionMode) === 'range' ? ' - ' : ', ';
           context.emit('update:view', newVal.join(separator));
         }
         // for single mode
-        else if (val) {
+        else if (unref(selectionMode) === 'single' && val && !Array.isArray(val)) {
           const dateString = dayjs(val)
             .format('DD-MM-YYYY')
             .toString();
@@ -103,8 +131,12 @@ export default defineComponent({
       },
     });
 
-    const clickHandler = (choice: mode) => {
-      context.emit('update:modelValue', '');
+    const clickHandler = (choice: Mode) => {
+      let value: string | Array<string> = '';
+      if (choice === 'multiple' || choice === 'range') {
+        value = [];
+      }
+      context.emit('update:modelValue', value);
       context.emit('update:view', '');
       selectionMode.value = choice;
     };
@@ -113,6 +145,7 @@ export default defineComponent({
       computedValue,
       selectionMode,
       clickHandler,
+      mode,
     };
   },
 });

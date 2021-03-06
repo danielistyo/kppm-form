@@ -21,7 +21,7 @@
       ></button-prime>
 
       <template v-if="selectedPktKey || isAddingData">
-        <form-proposal :inputs="selectedPkt" type="pkt" class="pkt__form-proposal" />
+        <form-proposal :inputs="selectedPktFields" type="pkt" class="pkt__form-proposal" />
 
         <div class="pkt__footer">
           <button-prime @click="submitPkt" :disabled="isSubmittingData" class="pkt__submit">
@@ -66,7 +66,7 @@ export default defineComponent({
     const isAddingData = ref(false);
     const isSubmittingData = ref(false);
     const selectedPktKey = ref<string>('');
-    const { isGettingPkt, selectedPkt } = usePkt();
+    const { isGettingPkt, selectedPktFields } = usePkt();
 
     watch(selectedPktKey, (newSelectedPktKey) => {
       store.dispatch('pkt/choosePkt', newSelectedPktKey);
@@ -90,6 +90,7 @@ export default defineComponent({
       const submitData = async () => {
         isSubmittingData.value = true;
 
+        // create new template PktItem
         /*  eslint-disable @typescript-eslint/camelcase */
         const pktObj: PktItem = {
           acuan: '',
@@ -109,22 +110,31 @@ export default defineComponent({
         };
         /* eslint-enable */
 
-        unref(selectedPkt).forEach(
+        // set pkt item template with vuex data
+        unref(selectedPktFields).forEach(
           (pktItem: DefaultFormField<PktKeys> | CostFormField<PktKeys>) => {
+            // handle biaya only
             if (pktItem.type === 'cost-input' && pktItem.key === 'biaya') {
               pktItem.value?.forEach((cost, index) => {
                 pktObj.biaya[index] = cost;
               });
-            } else if (pktItem.key === 'sumber_dana') {
+            }
+            // handle sumber_dana only
+            else if (pktItem.key === 'sumber_dana') {
               pktItem?.children?.forEach((child) => {
-                pktObj.sumber_dana[child.key] = child.value as number;
+                if (typeof child.value === 'number') pktObj.sumber_dana[child.key] = child.value;
               });
-            } else if (pktItem.key !== 'biaya') {
-              pktObj[pktItem.key] = pktItem.value as string;
+            }
+            // for the other key
+            else if (pktItem.key !== 'biaya') {
+              // set high priority for view property first
+              if (pktItem.view) pktObj[pktItem.key] = pktItem.view;
+              else pktObj[pktItem.key] = pktItem.value as string;
             }
           },
         );
 
+        // update to firebase
         if (unref(isAddingData)) {
           const newPktKey = `${new Date().getFullYear()}-${pktObj.nama_program
             .toLowerCase()
@@ -153,7 +163,7 @@ export default defineComponent({
       });
     };
     const deletePkt = () => {
-      const programName = unref(selectedPkt).find((val) => val.key === 'nama_program')?.value;
+      const programName = unref(selectedPktFields).find((val) => val.key === 'nama_program')?.value;
       if (programName) {
         confirm.require({
           message: `Anda yakin ingin menghapus program "${programName}" di PKT ini?`,
@@ -179,7 +189,7 @@ export default defineComponent({
     });
 
     return {
-      selectedPkt,
+      selectedPktFields,
       selectedPktKey,
       isGettingPkt,
       submitPkt,

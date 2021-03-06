@@ -59,7 +59,7 @@ const fields: FormFields<PktKeys> = [
   {
     key: 'waktu',
     name: 'Waktu',
-    type: 'input-text',
+    type: 'calendar-input',
     fieldValue: 'FieldValueDefault',
     props: {
       showIcon: true,
@@ -67,6 +67,7 @@ const fields: FormFields<PktKeys> = [
       manualInput: false,
     },
     value: '',
+    view: '',
   },
   {
     key: 'tempat',

@@ -75,6 +75,12 @@ const module: Module<PktStates, RootStateStore> = {
       pktKppmRef.on('value', (snapshot) => {
         state.isGettingData = false;
         commit('parseResponse', snapshot.val());
+
+        // update current selected fields
+        const selectedPktNameValue = state.fields.find((field) => field.key === 'nama_program')
+          ?.value;
+        const selectedPkt = state.list.find((pkt) => pkt.nama_program === selectedPktNameValue);
+        commit('updatePktFields', selectedPkt);
       });
     },
     choosePkt({ commit, getters }, key: string): void {
