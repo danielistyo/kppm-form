@@ -20,15 +20,15 @@
         class="p-button-danger p-button-outlined p-button-sm pkt__delete"
       ></button-prime>
 
-      <template v-if="selectedPktKey || isAddingData">
-        <form-proposal :inputs="selectedPktFields" type="pkt" class="pkt__form-proposal" />
-
-        <div class="pkt__footer">
-          <button-prime @click="submitPkt" :disabled="isSubmittingData" class="pkt__submit">
-            {{ actionButtonLabel }}
-          </button-prime>
-        </div>
-      </template>
+      <form-proposal
+        v-if="selectedPktKey || isAddingData"
+        @formsubmit="submitPkt"
+        :is-loading="isSubmittingData"
+        :submit-label="actionButtonLabel"
+        :inputs="selectedPktFields"
+        type="pkt"
+        class="pkt__form-proposal"
+      />
     </div>
   </div>
   <div></div>
@@ -146,6 +146,7 @@ export default defineComponent({
         }
 
         isSubmittingData.value = false;
+        isAddingData.value = false;
       };
 
       confirm.require({
@@ -236,20 +237,17 @@ export default defineComponent({
 
   &__form-proposal {
     margin-bottom: 60px;
-  }
 
-  &__submit.p-button {
-    justify-content: center;
-    width: 100%;
-  }
-
-  &__footer {
-    max-width: 768px;
-    position: fixed;
-    bottom: 10px;
-    right: 5px;
-    left: 5px;
-    margin: auto;
+    ::v-deep {
+      .form-proposal__footer {
+        max-width: 768px;
+        position: fixed;
+        bottom: 10px;
+        right: 5px;
+        left: 5px;
+        margin: auto;
+      }
+    }
   }
 }
 </style>

@@ -1,47 +1,59 @@
 <template>
-  <card class="form-proposal">
-    <template #title> Form {{ type.toUpperCase() }} </template>
-    <template #content>
-      <div class="p-fluid">
-        <div v-if="showPkt" class="p-field form-proposal__field">
-          <label class="form-proposal__field-name" for="pktField">PKT</label>
+  <div class="form-proposal">
+    <card>
+      <template #title> Form {{ type.toUpperCase() }} </template>
+      <template #content>
+        <div class="p-fluid">
+          <div v-if="showPkt" class="p-field form-proposal__field">
+            <label class="form-proposal__field-name" for="pktField">PKT</label>
 
-          <pkt-dropdown v-model="selectedPktKey" />
-        </div>
-        <template v-for="(input, index) in inputs" :key="index">
-          <div class="p-field form-proposal__field">
-            <label class="form-proposal__field-name" :for="input.name + 'ID'">
-              {{ input.name }}
-            </label>
-            <!-- for looping input when has children -->
-            <template v-if="input.children && input.children.length">
-              <div v-for="(child, childIndex) in input.children" :key="childIndex">
-                <label class="form-proposal__field-name-child" :for="child.name + 'ID'">
-                  {{ child.name }}
-                </label>
-                <component
-                  v-model="child.value"
-                  :is="child.type"
-                  :id="child.name + 'ID'"
-                  v-bind="child.props"
-                  class="form-proposal__field-input-child"
-                />
-              </div>
-            </template>
-            <component
-              v-else
-              v-model="input.value"
-              v-model:view="input.view"
-              :is="input.type"
-              :id="input.name + 'ID'"
-              class="form-proposal__field-input"
-              v-bind="input.props"
-            />
+            <pkt-dropdown v-model="selectedPktKey" />
           </div>
-        </template>
-      </div>
-    </template>
-  </card>
+          <template v-for="(input, index) in inputs" :key="index">
+            <div class="p-field form-proposal__field">
+              <label class="form-proposal__field-name" :for="input.name + 'ID'">
+                {{ input.name }}
+              </label>
+              <!-- for looping input when has children -->
+              <template v-if="input.children && input.children.length">
+                <div v-for="(child, childIndex) in input.children" :key="childIndex">
+                  <label class="form-proposal__field-name-child" :for="child.name + 'ID'">
+                    {{ child.name }}
+                  </label>
+                  <component
+                    v-model="child.value"
+                    :is="child.type"
+                    :id="child.name + 'ID'"
+                    v-bind="child.props"
+                    class="form-proposal__field-input-child"
+                  />
+                </div>
+              </template>
+              <component
+                v-else
+                v-model="input.value"
+                v-model:view="input.view"
+                :is="input.type"
+                :id="input.name + 'ID'"
+                class="form-proposal__field-input"
+                v-bind="input.props"
+              />
+            </div>
+          </template>
+        </div>
+      </template>
+    </card>
+
+    <div class="form-proposal__footer">
+      <button-prime
+        @click="$emit('formsubmit')"
+        :disabled="isLoading"
+        class="form-proposal__submit"
+      >
+        {{ submitLabel }}
+      </button-prime>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -56,6 +68,7 @@ import PktDropdown from '@/components/@globals/PktDropdown';
 import CostInput from '@/components/@globals/CostInput';
 import Card from 'primevue/card';
 import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
+import ButtonPrime from 'primevue/button';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
 
@@ -71,8 +84,9 @@ export default defineComponent({
     TextArea,
     Dropdown,
     PktDropdown,
+    ButtonPrime,
   },
-  emits: ['pktchange'],
+  emits: ['pktchange', 'formsubmit'],
   props: {
     inputs: {
       type: Array as PropType<FieldType>,
@@ -85,9 +99,17 @@ export default defineComponent({
         return ['l', 'p', 'pkt'].includes(val);
       },
     },
+    isLoading: {
+      type: Boolean,
+      default: false,
+    },
     showPkt: {
       type: Boolean,
       default: false,
+    },
+    submitLabel: {
+      type: String,
+      default: 'Kirim',
     },
   },
   setup(props, { emit }) {

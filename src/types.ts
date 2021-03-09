@@ -45,7 +45,6 @@ export type Choice = { nameChoice: string; valueChoice: string };
 export type Choices = Array<Choice>;
 
 export type FormpKeys =
-  | 'acuan'
   | 'badan_pembantu'
   | 'bentuk_kegiatan'
   | 'biaya'
@@ -96,6 +95,23 @@ export type PktKeys =
 export type SumberDanaKey = 'a' | 'b' | 'c';
 type SumberDana = { [k in SumberDanaKey]: number };
 type BiayaItem = { [k: number]: FieldCostValue };
+
+export type FormpItem = {
+  badan_pembantu: string;
+  bentuk_kegiatan: string;
+  biaya: BiayaItem;
+  lampiran: string;
+  nama_program: string;
+  nomor_program: string;
+  pelaksana: string;
+  pihak_luar: string;
+  sasaran_kuantitas: string;
+  sumber_dana: SumberDana;
+  tempat: string;
+  tujuan: string;
+  ukuran_hasil: string;
+  waktu: string;
+};
 
 export type PktItem = {
   acuan: string;
