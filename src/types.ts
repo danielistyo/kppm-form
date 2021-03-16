@@ -39,6 +39,7 @@ export type CostItems = Array<CostItem>;
 
 export interface FormModule<K> {
   fields: FormFields<K>;
+  isGettingData: boolean;
 }
 
 export type Choice = { nameChoice: string; valueChoice: string };
@@ -96,6 +97,11 @@ export type SumberDanaKey = 'a' | 'b' | 'c';
 type SumberDana = { [k in SumberDanaKey]: number };
 type BiayaItem = { [k: number]: FieldCostValue };
 
+export type RequestData = {
+  created_at: number;
+  updated_at: number;
+};
+
 export type FormpItem = {
   badan_pembantu: string;
   bentuk_kegiatan: string;
@@ -112,6 +118,13 @@ export type FormpItem = {
   ukuran_hasil: string;
   waktu: string;
 };
+
+export type SelectedFormp = FormpItem & { key: FormpKeys };
+
+type ListFormpItem = Array<SelectedFormp>;
+export interface FormpStates extends FormModule<FormpKeys> {
+  list: ListFormpItem;
+}
 
 export type PktItem = {
   acuan: string;
@@ -132,14 +145,9 @@ export type PktItem = {
 
 export type SelectedPkt = (PktItem & Choice) | undefined;
 
-type ListPktItem = Array<PktItem & Choice>;
+export type ListPktItem = Array<PktItem & Choice>;
 export interface PktStates extends FormModule<PktKeys> {
   list: ListPktItem;
-  isGettingData: boolean;
-}
-
-export interface PktModule extends PktStates {
-  choices: Choices;
 }
 
 export interface RootStateStore {
@@ -149,7 +157,7 @@ export interface RootStateStore {
 export interface RootStateStoreWithModule {
   master: null | string;
   pkt: PktStates;
-  formp: FormModule<FormpKeys>;
+  formp: FormpStates;
   forml: FormModule<FormlKeys>;
 }
 

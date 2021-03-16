@@ -1,19 +1,41 @@
 import formpField from '@/data/formp-field';
 import cloneDeep from 'lodash/fp/cloneDeep';
-import { FieldCostValue, FormModule, FormpKeys, RootStateStore, SelectedPkt } from '@/types';
+import {
+  FieldCostValue,
+  FormpItem,
+  FormpStates,
+  RootStateStore,
+  FormpKeys,
+  SelectedFormp,
+} from '@/types';
 import { Module } from 'vuex';
+import firebase from 'firebase/app';
 
-const module: Module<FormModule<FormpKeys>, RootStateStore> = {
+const module: Module<FormpStates, RootStateStore> = {
   namespaced: true,
   state: () => ({
     fields: cloneDeep(formpField),
+    isGettingData: false,
+    list: [],
   }),
+  getters: {
+    selectedFormp(state): Function {
+      return (selectedKey: FormpKeys): SelectedFormp | undefined =>
+        state.list.find(({ key }) => key === selectedKey);
+    },
+  },
   mutations: {
+    parseResponse(state, response: Record<FormpKeys, FormpItem>) {
+      state.list = [];
+      Object.entries(response).forEach(([key, value]: [string, FormpItem]) => {
+        state.list.push({ key: key as FormpKeys, ...value });
+      });
+    },
     clearFields(state) {
       state.fields = cloneDeep(formpField);
     },
-    updateFormPFields(state, selectedPkt: SelectedPkt) {
-      if (!selectedPkt) return;
+    updateFormPFields(state, selectedFormp: SelectedFormp) {
+      if (!selectedFormp) return;
 
       state.fields.forEach((field) => {
         if (field.key === 'lampiran' || field.key === 'pihak_luar') return;
@@ -22,7 +44,7 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
         if (field.key === 'sumber_dana') {
           field.children?.forEach((child) => {
             if (child.key === 'a' || child.key === 'b' || child.key === 'c') {
-              const newValue = selectedPkt?.sumber_dana?.[child.key];
+              const newValue = selectedFormp?.sumber_dana?.[child.key];
               if (newValue === null || newValue === undefined) {
                 child.value = 0;
                 return;
@@ -33,10 +55,10 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
         }
         // set biaya field
         else if (field.key === 'biaya') {
-          if (selectedPkt?.biaya) {
+          if (selectedFormp?.biaya) {
             const data: Array<FieldCostValue> = [];
-            // loop selectedPkt instead
-            Object.values(selectedPkt?.biaya).forEach((biayaItem) => {
+            // loop selectedFormp instead
+            Object.values(selectedFormp?.biaya).forEach((biayaItem) => {
               data.push(biayaItem);
             });
             field.value = data;
@@ -44,10 +66,34 @@ const module: Module<FormModule<FormpKeys>, RootStateStore> = {
             field.value = [];
           }
         } else {
-          field.value = selectedPkt?.[field.key];
+          field.value = selectedFormp?.[field.key];
           field.view && (field.view = '');
         }
       });
+    },
+  },
+  actions: {
+    getFormp({ commit, state }): void {
+      const formpKppmRef = firebase.database().ref('/formps/kppm/');
+      state.isGettingData = true;
+      formpKppmRef.on('value', (snapshot) => {
+        state.isGettingData = false;
+        commit('parseResponse', snapshot.val());
+
+        // update current selected fields
+        const selectedFormpNameValue = state.fields.find((field) => field.key === 'nama_program')
+          ?.value;
+        const selectedFormp = state.list.find(
+          (formp) => formp.nama_program === selectedFormpNameValue,
+        );
+        commit('updateFormPFields', selectedFormp);
+      });
+    },
+    chooseFormp({ commit, getters }, key: string): void {
+      if (!key) return;
+
+      const selectedFormp: SelectedFormp = getters.selectedFormp(key);
+      selectedFormp && commit('updateFormPFields', selectedFormp);
     },
   },
 };

@@ -1,19 +1,24 @@
 <template>
-  <div class="formp">
-    <form-proposal
-      :inputs="formInputs"
-      @pktchange="handlePktChanged"
-      @formsubmit="handleSubmit"
-      type="p"
-      class="formp__form-proposal"
-      show-pkt
-    />
-    <form-preview
-      :inputs="formInputs"
-      :is-loading="isSubmittingData"
-      type="p"
-      class="formp__form-preview"
-    />
+  <list-form
+    v-if="viewType === 'listView'"
+    :list="formpList"
+    @addclick="handleAddClicked"
+    @selected="handleListSelected"
+  />
+  <div v-else-if="viewType === 'formView'">
+    <div @click="viewType = 'listView'" class="p-mb-3">&lt; Kembali</div>
+    <div class="formp">
+      <form-proposal
+        :inputs="formInputs"
+        :is-loading="isSubmittingData"
+        :show-pkt="showPkt"
+        @pktchange="handlePktChanged"
+        @formsubmit="handleSubmit"
+        type="p"
+        class="formp__form-proposal"
+      />
+      <form-preview :inputs="formInputs" type="p" class="formp__form-preview" />
+    </div>
   </div>
 </template>
 
@@ -22,6 +27,7 @@ import firebase from 'firebase/app';
 import { computed, ComputedRef, defineComponent, nextTick, ref, unref } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import FormPreview from '@/components/FormPreview';
+import ListForm from '@/components/ListForm';
 import { useStore } from 'vuex';
 import {
   CostFormField,
@@ -29,6 +35,8 @@ import {
   FormFields,
   FormpItem,
   FormpKeys,
+  RequestData,
+  RootStateStoreWithModule,
   SelectedPkt,
 } from '@/types';
 import dayjs from 'dayjs';
@@ -38,12 +46,24 @@ export default defineComponent({
   components: {
     FormProposal,
     FormPreview,
+    ListForm,
   },
   setup() {
+    const viewType = ref<'listView' | 'formView'>('listView');
     const isAddingData = ref(true);
     const isSubmittingData = ref(false);
-    const store = useStore();
+    const showPkt = ref(true);
+    const store = useStore<RootStateStoreWithModule>();
     store.commit('formp/clearFields');
+
+    const scrollTop = () => {
+      const formProposalEl = document.querySelector('.form-proposal');
+      if (formProposalEl) formProposalEl.scrollTop = 0;
+    };
+
+    const formpList = computed(() => {
+      return store.state.formp.list;
+    });
 
     const formInputs: ComputedRef<FormFields<FormpKeys>> = computed<FormFields<FormpKeys>>(
       () => store.state.formp.fields,
@@ -54,18 +74,14 @@ export default defineComponent({
       store.commit('formp/updateFormPFields', selectedPkt);
 
       // scroll to top
-      nextTick(() => {
-        const formProposalEl = document.querySelector('.form-proposal');
-        if (formProposalEl) formProposalEl.scrollTop = 0;
-      });
+      nextTick(scrollTop);
     };
 
     const formpKppmRef = firebase.database().ref('/formps/kppm/');
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
-      /*  eslint-disable @typescript-eslint/camelcase */
-      const formpObj: FormpItem = {
+      const formpObj: FormpItem & RequestData = {
         badan_pembantu: '',
         bentuk_kegiatan: '',
         biaya: {},
@@ -80,10 +96,14 @@ export default defineComponent({
         tujuan: '',
         ukuran_hasil: '',
         waktu: '',
+        created_at: 0,
+        updated_at: 0,
       };
-      /* eslint-enable */
 
-      // set pkt item template with vuex data
+      const dayjsObj = dayjs();
+      formpObj.updated_at = dayjsObj.unix();
+
+      // set formp item template with vuex data
       unref(formInputs).forEach(
         (formpItem: DefaultFormField<FormpKeys> | CostFormField<FormpKeys>) => {
           // handle biaya only
@@ -109,17 +129,48 @@ export default defineComponent({
 
       // update to firebase
       if (unref(isAddingData)) {
-        const date = dayjs().format('YYYY-MM');
-        const newFormpKey = `${date}-${formpObj.nama_program.toLowerCase().replace(/\s/g, '-')}`;
+        formpObj.created_at = formpObj.updated_at;
+        const date = dayjsObj.format('YYYY-MM');
+        const newFormpKey = `${date}-${formpObj.nama_program.toLowerCase().replace(/\s/g, '-')}-${
+          formpObj.created_at
+        }`;
         await formpKppmRef.child(newFormpKey).set(formpObj);
       } else {
         // await formpKppmRef.update({ [`${unref(selectedPktKey)}`]: formpObj });
       }
-
       isSubmittingData.value = false;
     };
 
-    return { formInputs, handlePktChanged, isSubmittingData, handleSubmit };
+    const handleAddClicked = () => {
+      store.commit('formp/clearFields');
+      viewType.value = 'formView';
+      showPkt.value = true;
+
+      // scroll to top
+      nextTick(scrollTop);
+    };
+
+    const handleListSelected = (key: string) => {
+      store.commit('formp/clearFields');
+      viewType.value = 'formView';
+      store.dispatch('formp/chooseFormp', key);
+      showPkt.value = false;
+
+      // scroll to top
+      nextTick(scrollTop);
+    };
+
+    return {
+      showPkt,
+      formInputs,
+      handlePktChanged,
+      isSubmittingData,
+      handleSubmit,
+      formpList,
+      viewType,
+      handleAddClicked,
+      handleListSelected,
+    };
   },
 });
 </script>

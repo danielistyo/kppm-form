@@ -91,7 +91,6 @@ export default defineComponent({
         isSubmittingData.value = true;
 
         // create new template PktItem
-        /*  eslint-disable @typescript-eslint/camelcase */
         const pktObj: PktItem = {
           acuan: '',
           badan_pembantu: '',
@@ -108,7 +107,6 @@ export default defineComponent({
           ukuran_hasil: '',
           waktu: '',
         };
-        /* eslint-enable */
 
         // set pkt item template with vuex data
         unref(selectedPktFields).forEach(
@@ -233,21 +231,6 @@ export default defineComponent({
     width: 90px;
     top: 85px;
     right: 16px;
-  }
-
-  &__form-proposal {
-    margin-bottom: 60px;
-
-    ::v-deep {
-      .form-proposal__footer {
-        max-width: 768px;
-        position: fixed;
-        bottom: 10px;
-        right: 5px;
-        left: 5px;
-        margin: auto;
-      }
-    }
   }
 }
 </style>

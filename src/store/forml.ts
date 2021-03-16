@@ -6,6 +6,7 @@ const module: Module<FormModule<FormlKeys>, RootStateStore> = {
   namespaced: true,
   state: () => ({
     fields: formlField,
+    isGettingData: false,
   }),
 };
 

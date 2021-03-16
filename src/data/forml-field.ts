@@ -116,18 +116,7 @@ const fields: FormFields<FormlKeys> = [
     name: 'Biaya',
     type: 'cost-input',
     fieldValue: 'FieldValueCost',
-    value: [
-      {
-        name: 'Minuman',
-        count: 2,
-        price: 20000,
-      },
-      {
-        name: 'Makanan',
-        count: 2,
-        price: 20000,
-      },
-    ],
+    value: [],
   },
   {
     id: 13,

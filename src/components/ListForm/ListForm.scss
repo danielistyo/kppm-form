@@ -1,0 +1,27 @@
+.list-form {
+  max-width: 768px;
+  margin: auto;
+}
+
+.unit-list {
+  margin: -1rem 0;
+  position: relative;
+
+  &__number {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  &__name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  &__created {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  &__icon-right{
+    position: absolute;
+    right: 0px;
+    top:45%
+  }
+}
