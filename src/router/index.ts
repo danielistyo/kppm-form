@@ -7,16 +7,25 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/forml',
     name: 'FormL',
+    meta: {
+      title: 'Form L',
+    },
     component: FormL,
   },
   {
     path: '/formp',
     name: 'FormP',
+    meta: {
+      title: 'Form P',
+    },
     component: FormP,
   },
   {
     path: '/pkt',
     name: 'Pkt',
+    meta: {
+      title: 'PKT',
+    },
     component: Pkt,
   },
   {

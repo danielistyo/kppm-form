@@ -1,6 +1,7 @@
 <template>
   <div class="main-header">
     <i class="pi pi-bars main-header__toggle-sidebar" @click="showSidebar"></i>
+    <span class="main-header__title">{{ $route.meta.title }}</span>
   </div>
 </template>
 

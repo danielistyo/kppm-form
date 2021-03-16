@@ -13,4 +13,19 @@
     color: #fff;
     cursor: pointer;
   }
+
+  &__title {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 18px;
+    width: 100px;
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+  }
 }
