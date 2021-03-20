@@ -97,7 +97,7 @@ export type SumberDanaKey = 'a' | 'b' | 'c';
 type SumberDana = { [k in SumberDanaKey]: number };
 type BiayaItem = { [k: number]: FieldCostValue };
 
-export type RequestData = {
+type RequestData = {
   created_at: number;
   updated_at: number;
 };
@@ -117,7 +117,7 @@ export type FormpItem = {
   tujuan: string;
   ukuran_hasil: string;
   waktu: string;
-};
+} & RequestData;
 
 export type SelectedFormp = FormpItem & { key: FormpKeys };
 
