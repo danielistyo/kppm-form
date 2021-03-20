@@ -1,4 +1,5 @@
 <template>
+  <progress-spinner v-if="isGettingData || isSubmittingData" class="formp-loading" />
   <list-form
     v-if="viewType === 'listView'"
     :list="formpList"
@@ -6,25 +7,36 @@
     @selected="handleListSelected"
   />
   <div v-else-if="viewType === 'formView'">
-    <div @click="viewType = 'listView'" class="p-mb-3">&lt; Kembali</div>
     <div class="formp">
+      <!-- <div class="formp__delete-wrapper"> -->
+      <button-prime
+        v-if="selectedFormpKey && !isAddingData"
+        @click="deleteFormp"
+        icon="pi pi-times"
+        label="Hapus"
+        class="p-button-danger p-button-outlined p-button-sm formp__delete"
+      ></button-prime>
+      <!-- </div> -->
+
       <form-proposal
-        :inputs="formInputs"
-        :is-loading="isSubmittingData"
+        :inputs="selectedFormpFields"
+        :is-loading="isSubmittingData || isGettingData"
         :show-pkt="showPkt"
         @pktchange="handlePktChanged"
         @formsubmit="handleSubmit"
         type="p"
         class="formp__form-proposal"
       />
-      <form-preview :inputs="formInputs" type="p" class="formp__form-preview" />
+      <form-preview :inputs="selectedFormpFields" type="p" class="formp__form-preview" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import ProgressSpinner from 'primevue/progressspinner';
+import ButtonPrime from 'primevue/button';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, nextTick, ref, unref } from 'vue';
+import { computed, ComputedRef, defineComponent, ref, unref, watch, watchEffect } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import FormPreview from '@/components/FormPreview';
 import ListForm from '@/components/ListForm';
@@ -35,11 +47,12 @@ import {
   FormFields,
   FormpItem,
   FormpKeys,
-  RequestData,
   RootStateStoreWithModule,
   SelectedPkt,
 } from '@/types';
 import dayjs from 'dayjs';
+import { useRoute, useRouter } from 'vue-router';
+import { useConfirm } from 'primevue/useconfirm';
 
 export default defineComponent({
   name: 'FormP',
@@ -47,41 +60,43 @@ export default defineComponent({
     FormProposal,
     FormPreview,
     ListForm,
+    ProgressSpinner,
+    ButtonPrime,
   },
   setup() {
+    const confirm = useConfirm();
+    const router = useRouter();
+    const route = useRoute();
     const viewType = ref<'listView' | 'formView'>('listView');
     const isAddingData = ref(true);
     const isSubmittingData = ref(false);
+    const selectedFormpKey = ref<string>('');
     const showPkt = ref(true);
     const store = useStore<RootStateStoreWithModule>();
     store.commit('formp/clearFields');
 
-    const scrollTop = () => {
-      const formProposalEl = document.querySelector('.form-proposal');
-      if (formProposalEl) formProposalEl.scrollTop = 0;
-    };
+    const isGettingData = computed(() => {
+      return store.state.formp.isGettingData;
+    });
 
     const formpList = computed(() => {
       return store.state.formp.list;
     });
 
-    const formInputs: ComputedRef<FormFields<FormpKeys>> = computed<FormFields<FormpKeys>>(
+    const selectedFormpFields: ComputedRef<FormFields<FormpKeys>> = computed<FormFields<FormpKeys>>(
       () => store.state.formp.fields,
     );
 
     const handlePktChanged = (selectedPktKey: string): void => {
       const selectedPkt: SelectedPkt = store.getters['pkt/selectedPkt'](selectedPktKey);
       store.commit('formp/updateFormPFields', selectedPkt);
-
-      // scroll to top
-      nextTick(scrollTop);
     };
 
     const formpKppmRef = firebase.database().ref('/formps/kppm/');
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
-      const formpObj: FormpItem & RequestData = {
+      const formpObj: FormpItem = {
         badan_pembantu: '',
         bentuk_kegiatan: '',
         biaya: {},
@@ -104,7 +119,7 @@ export default defineComponent({
       formpObj.updated_at = dayjsObj.unix();
 
       // set formp item template with vuex data
-      unref(formInputs).forEach(
+      unref(selectedFormpFields).forEach(
         (formpItem: DefaultFormField<FormpKeys> | CostFormField<FormpKeys>) => {
           // handle biaya only
           if (formpItem.type === 'cost-input' && formpItem.key === 'biaya') {
@@ -135,34 +150,82 @@ export default defineComponent({
           formpObj.created_at
         }`;
         await formpKppmRef.child(newFormpKey).set(formpObj);
+
+        router.replace({ query: { action: 'edit', key: newFormpKey } });
       } else {
-        // await formpKppmRef.update({ [`${unref(selectedPktKey)}`]: formpObj });
+        await formpKppmRef.update({ [`${unref(selectedFormpKey)}`]: formpObj });
       }
       isSubmittingData.value = false;
     };
 
-    const handleAddClicked = () => {
-      store.commit('formp/clearFields');
-      viewType.value = 'formView';
-      showPkt.value = true;
-
-      // scroll to top
-      nextTick(scrollTop);
+    const deleteFormp = () => {
+      const programName = unref(selectedFormpFields).find((val) => val.key === 'nama_program')
+        ?.value;
+      if (programName) {
+        confirm.require({
+          message: `Anda yakin ingin menghapus Form P "${programName}"?`,
+          header: 'Perhatian!',
+          icon: 'pi pi-exclamation-triangle',
+          acceptClass: 'p-button-danger',
+          accept: async () => {
+            await formpKppmRef.child(unref(selectedFormpKey)).remove();
+            selectedFormpKey.value = '';
+            viewType.value = 'listView';
+          },
+          reject: () => {
+            confirm.close();
+          },
+        });
+      }
     };
+
+    const handleAddClicked = () => {
+      router.push({ query: { action: 'add' } });
+    };
+
+    watchEffect(() => {
+      if (unref(formpList).length) {
+        store.dispatch('formp/chooseFormp', unref(selectedFormpKey));
+      }
+    });
 
     const handleListSelected = (key: string) => {
       store.commit('formp/clearFields');
-      viewType.value = 'formView';
-      store.dispatch('formp/chooseFormp', key);
-      showPkt.value = false;
 
-      // scroll to top
-      nextTick(scrollTop);
+      router.push({ query: { action: 'edit', key } });
     };
+
+    interface QueryParams {
+      action?: 'add' | 'edit';
+      key?: string;
+    }
+
+    watch(
+      () => route.query,
+      (newQuery: QueryParams) => {
+        if (newQuery && newQuery.action) {
+          if (newQuery.action === 'add') {
+            store.commit('formp/clearFields');
+            viewType.value = 'formView';
+            isAddingData.value = true;
+            showPkt.value = true;
+            selectedFormpKey.value = '';
+          } else if (newQuery.action === 'edit' && newQuery.key) {
+            viewType.value = 'formView';
+            selectedFormpKey.value = newQuery.key;
+            showPkt.value = false;
+            isAddingData.value = false;
+          }
+        } else {
+          viewType.value = 'listView';
+        }
+      },
+      { immediate: true },
+    );
 
     return {
       showPkt,
-      formInputs,
+      selectedFormpFields,
       handlePktChanged,
       isSubmittingData,
       handleSubmit,
@@ -170,12 +233,35 @@ export default defineComponent({
       viewType,
       handleAddClicked,
       handleListSelected,
+      isGettingData,
+      isAddingData,
+      deleteFormp,
+      selectedFormpKey,
     };
   },
 });
 </script>
 
 <style lang="scss" scoped>
+.formp-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background: #0000007d;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+
+  ::v-deep {
+    .p-progress-spinner-svg {
+      width: 100px;
+      height: 100px;
+    }
+  }
+}
 .formp {
   display: flex;
   flex-direction: row;
@@ -184,19 +270,53 @@ export default defineComponent({
     max-width: 400px;
     height: calc(100vh - 16px - 50px);
     overflow: auto;
+
+    @media screen and (max-width: 768px) {
+      height: initial;
+    }
+  }
+
+  &__delete-wrapper {
+    position: relative;
+    max-width: 400px;
+  }
+  &__delete,
+  .p-button-danger[type='button'] {
+    position: absolute;
+    width: 90px;
+    top: 85px;
+    right: calc(1rem + 8px);
+    background-color: #fff;
+    z-index: 2;
+
+    @media screen and (min-width: 400px) {
+      left: 300px;
+    }
+  }
+
+  ::v-deep {
+    @media screen and (max-width: 768px) {
+      .form-preview {
+        display: none;
+      }
+    }
   }
 }
 </style>
 
 <style lang="scss">
 @media print {
-  .formp {
-    .form-proposal {
-      display: none;
-    }
-  }
-  body {
-    margin: 0;
+  .formp .form-preview {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    overflow-y: visible;
+    z-index: 100;
+    width: 100vw;
+    padding: 0;
   }
 }
 </style>

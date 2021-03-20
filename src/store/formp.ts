@@ -74,11 +74,21 @@ const module: Module<FormpStates, RootStateStore> = {
   },
   actions: {
     getFormp({ commit, state }): void {
-      const formpKppmRef = firebase.database().ref('/formps/kppm/');
+      const formpKppmRef = firebase
+        .database()
+        .ref('/formps/kppm/')
+        .orderByChild('created_at');
       state.isGettingData = true;
       formpKppmRef.on('value', (snapshot) => {
-        state.isGettingData = false;
-        commit('parseResponse', snapshot.val());
+        const orderedData: { [key: string]: FormpItem } = {};
+
+        snapshot.forEach((childSnapshot) => {
+          if (typeof childSnapshot.key === 'string') {
+            orderedData[childSnapshot.key] = childSnapshot.val();
+          }
+        });
+
+        commit('parseResponse', orderedData);
 
         // update current selected fields
         const selectedFormpNameValue = state.fields.find((field) => field.key === 'nama_program')
@@ -87,6 +97,8 @@ const module: Module<FormpStates, RootStateStore> = {
           (formp) => formp.nama_program === selectedFormpNameValue,
         );
         commit('updateFormPFields', selectedFormp);
+
+        state.isGettingData = false;
       });
     },
     chooseFormp({ commit, getters }, key: string): void {
