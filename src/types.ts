@@ -102,6 +102,32 @@ type RequestData = {
   updated_at: number;
 };
 
+// *********************** FORM L *********************
+export type FormlItem = {
+  badan_pembantu: string;
+  biaya: BiayaItem;
+  keberhasilan: string;
+  kendala: string;
+  lampiran: string;
+  nama_program: string;
+  nomor_program: string;
+  pelaksana: string;
+  pelaksanaan_kegiatan: string;
+  sumber_dana: SumberDana;
+  tempat: string;
+  tujuan: string;
+  usulan: string;
+  waktu: string;
+} & RequestData;
+
+export type SelectedForml = FormlItem & { key: FormlKeys };
+
+type ListFormlItem = Array<SelectedForml>;
+export interface FormlStates extends FormModule<FormlKeys> {
+  list: ListFormlItem;
+}
+
+// *************** FORM P *********************
 export type FormpItem = {
   badan_pembantu: string;
   bentuk_kegiatan: string;
@@ -125,6 +151,8 @@ type ListFormpItem = Array<SelectedFormp>;
 export interface FormpStates extends FormModule<FormpKeys> {
   list: ListFormpItem;
 }
+
+// ************************ PKT **************************
 
 export type PktItem = {
   acuan: string;
