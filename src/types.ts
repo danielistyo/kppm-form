@@ -143,7 +143,7 @@ export type PktItem = {
   waktu: string;
 };
 
-export type SelectedPkt = (PktItem & Choice) | undefined;
+export type SelectedPkt = PktItem & Choice;
 
 export type ListPktItem = Array<PktItem & Choice>;
 export interface PktStates extends FormModule<PktKeys> {

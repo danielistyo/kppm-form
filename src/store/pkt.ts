@@ -65,7 +65,8 @@ const module: Module<PktStates, RootStateStore> = {
       return state.list.map(({ nameChoice, valueChoice }) => ({ nameChoice, valueChoice }));
     },
     selectedPkt(state): Function {
-      return (key: string): SelectedPkt => state.list.find(({ nameChoice }) => nameChoice === key);
+      return (key: string): SelectedPkt | undefined =>
+        state.list.find(({ nameChoice }) => nameChoice === key);
     },
   },
   actions: {
