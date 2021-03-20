@@ -1,14 +1,11 @@
 .form-preview {
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
   $width: calc(100vw - 400px);
   $margin: 16px;
   $headerHeight: 50px;
 
   font-size: calc(#{$width} / 48);
-  margin-right: $margin;
-  margin-left: $margin;
+  padding-right: $margin;
+  padding-left: $margin;
   margin-bottom: $margin;
   width: $width;
   height: calc(100vh - #{$margin} - #{$headerHeight});

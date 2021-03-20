@@ -12,10 +12,10 @@
       v-for="(unit, index) in list"
       :key="index"
       @click="$emit('selected', unit.key)"
-      class="p-mb-2"
+      class="p-mb-2 unit-list"
     >
       <template #content>
-        <div class="unit-list">
+        <div>
           <div class="unit-list__number">{{ unit.nomor_program }}</div>
           <div class="unit-list__name">{{ unit.nama_program }}</div>
           <div class="unit-list__created">

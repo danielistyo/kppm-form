@@ -1,11 +1,22 @@
 .list-form {
   max-width: 768px;
   margin: auto;
+  cursor: pointer;
 }
 
 .unit-list {
-  margin: -1rem 0;
   position: relative;
+
+  &:hover {
+    background-color: #ddd;
+    transition: background-color 0.4s;
+  }
+
+  ::v-deep {
+    .p-card-content {
+      padding: 0;
+    }
+  }
 
   &__number {
     font-size: 20px;
@@ -19,9 +30,9 @@
     margin-top: 10px;
     font-size: 14px;
   }
-  &__icon-right{
+  &__icon-right {
     position: absolute;
-    right: 0px;
-    top:45%
+    right: 10px;
+    top: 45%;
   }
 }

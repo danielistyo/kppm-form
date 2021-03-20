@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watch } from 'vue';
+import { defineComponent, nextTick, PropType, ref, toRef, watch } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
@@ -95,7 +95,7 @@ export default defineComponent({
     type: {
       type: String,
       required: true,
-      validator(val: string) {
+      validator: (val: string) => {
         return ['l', 'p', 'pkt'].includes(val);
       },
     },
@@ -118,6 +118,18 @@ export default defineComponent({
     watch(selectedPktKey, (newSelectedPktKey) => {
       emit('pktchange', newSelectedPktKey);
     });
+
+    watch(
+      toRef(props, 'isLoading'),
+      () => {
+        nextTick(() => {
+          const firstInput = document.querySelector('.form-proposal input') as HTMLElement;
+          firstInput?.focus();
+        });
+      },
+      { immediate: true, deep: true },
+    );
+
     return { selectedPktKey };
   },
 });
