@@ -222,7 +222,6 @@ export default defineComponent({
 
   &__add {
     margin-left: 12px;
-    width: 20%;
   }
 
   &__delete,
