@@ -66,7 +66,7 @@ const module: Module<FormlStates, RootStateStore> = {
             field.value = [];
           }
         } else {
-          field.value = selectedForml?.[field.key];
+          field.value = selectedForml?.[field.key] || field.value;
           field.view && (field.view = '');
         }
       });

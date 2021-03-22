@@ -6,7 +6,6 @@
   font-size: calc(#{$width} / 48);
   padding-right: $margin;
   padding-left: $margin;
-  margin-bottom: $margin;
   width: $width;
   height: calc(100vh - #{$margin} - #{$headerHeight});
   overflow-y: auto;

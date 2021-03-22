@@ -61,7 +61,7 @@
         </div>
         <div class="form-preview__requester requester">
           <div>Surabaya, ..............................</div>
-          <div>Ketua Komis/Panitia/Tim</div>
+          <div>Ketua Komisi/Panitia/Tim</div>
           <br />
           <div class="requester__sign"></div>
         </div>

@@ -8,7 +8,6 @@
   />
   <div v-else-if="viewType === 'formView'">
     <div class="formp">
-      <!-- <div class="formp__delete-wrapper"> -->
       <button-prime
         v-if="selectedFormpKey && !isAddingData"
         @click="deleteFormp"
@@ -16,7 +15,6 @@
         label="Hapus"
         class="p-button-danger p-button-outlined p-button-sm formp__delete"
       ></button-prime>
-      <!-- </div> -->
 
       <form-proposal
         :inputs="selectedFormpFields"
@@ -47,6 +45,7 @@ import {
   FormFields,
   FormpItem,
   FormpKeys,
+  FormQueryParams,
   RootStateStoreWithModule,
   SelectedPkt,
 } from '@/types';
@@ -195,14 +194,9 @@ export default defineComponent({
       router.push({ query: { action: 'edit', key } });
     };
 
-    interface QueryParams {
-      action?: 'add' | 'edit';
-      key?: string;
-    }
-
     watch(
       () => route.query,
-      (newQuery: QueryParams) => {
+      (newQuery: FormQueryParams) => {
         if (newQuery && newQuery.action) {
           if (newQuery.action === 'add') {
             store.commit('formp/clearFields');
@@ -267,19 +261,16 @@ export default defineComponent({
   flex-direction: row;
 
   &__form-proposal {
-    max-width: 400px;
+    width: 400px;
     height: calc(100vh - 16px - 50px);
     overflow: auto;
 
     @media screen and (max-width: 768px) {
       height: initial;
+      max-width: 400px;
     }
   }
 
-  &__delete-wrapper {
-    position: relative;
-    max-width: 400px;
-  }
   &__delete,
   .p-button-danger[type='button'] {
     position: absolute;

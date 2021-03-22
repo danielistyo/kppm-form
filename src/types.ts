@@ -186,7 +186,12 @@ export interface RootStateStoreWithModule {
   master: null | string;
   pkt: PktStates;
   formp: FormpStates;
-  forml: FormModule<FormlKeys>;
+  forml: FormlStates;
 }
 
 /**** END STORE TYPE *****/
+
+export interface FormQueryParams {
+  action?: 'add' | 'edit';
+  key?: string;
+}

@@ -25,6 +25,7 @@ export default defineComponent({
     const store = useStore<RootStateStoreWithModule>();
     store.dispatch('pkt/getPkt');
     store.dispatch('formp/getFormp');
+    store.dispatch('forml/getForml');
 
     const showSidebar = ref(false);
     emitter.on('sidebar:show', (isShow) => {

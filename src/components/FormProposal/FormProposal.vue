@@ -123,8 +123,15 @@ export default defineComponent({
       toRef(props, 'isLoading'),
       () => {
         nextTick(() => {
+          // because there is bug on simple editor component, then we need to set focus on first element then lose it.
+          // so we can use backspace on desktop to go back previous page
           const firstInput = document.querySelector('.form-proposal input') as HTMLElement;
           firstInput?.focus();
+          firstInput?.blur();
+
+          // scroll to top of form proposal component
+          const formProposalEl = document.querySelector('.form-proposal');
+          if (formProposalEl) formProposalEl.scrollTop = 0;
         });
       },
       { immediate: true, deep: true },
