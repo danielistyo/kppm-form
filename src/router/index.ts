@@ -1,40 +1,49 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import FormL from '@/views/FormL.vue';
-import FormP from '@/views/FormP.vue';
-import Pkt from '@/views/Pkt.vue';
 
 const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/login',
+    name: 'Login',
+    meta: {
+      title: 'Login',
+    },
+    component: () => import(/* webpackChunkName: "login-page" */ '../views/Login.vue'),
+  },
   {
     path: '/forml',
     name: 'FormL',
     meta: {
       title: 'Form L',
+      requiresAuth: true,
     },
-    component: FormL,
+    component: () => import(/* webpackChunkName: "forml-page" */ '../views/FormL.vue'),
   },
   {
     path: '/formp',
     name: 'FormP',
     meta: {
       title: 'Form P',
+      requiresAuth: true,
     },
-    component: FormP,
+    component: () => import(/* webpackChunkName: "formp-page" */ '../views/FormP.vue'),
   },
   {
     path: '/pkt',
     name: 'Pkt',
     meta: {
       title: 'PKT',
+      requiresAuth: true,
     },
-    component: Pkt,
+    component: () => import(/* webpackChunkName: "pkt-page" */ '../views/Pkt.vue'),
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    path: '/',
+    name: 'Dashboard',
+    meta: {
+      title: 'Dashboard',
+      requiresAuth: true,
+    },
+    component: () => import(/* webpackChunkName: "dashboard-page" */ '../views/Dashboard.vue'),
   },
 ];
 
