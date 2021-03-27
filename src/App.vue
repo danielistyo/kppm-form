@@ -1,8 +1,10 @@
 <template>
-  <main-header />
-  <main-sidebar v-model:visible="showSidebar" />
+  <main-header :show-sidebar="showSidebar" />
+  <main-sidebar v-if="showSidebar" v-model:visible="isSidebarOpen" />
   <confirm-dialog />
-  <div class="main-container"><router-view /></div>
+  <div class="main-container">
+    <router-view />
+  </div>
 </template>
 
 <script lang="ts">
@@ -13,6 +15,7 @@ import MainHeader from './components/MainHeader/MainHeader.vue';
 import emitter from '@/emitter';
 import { useStore } from 'vuex';
 import { RootStateStoreWithModule } from './types';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'App',
@@ -26,13 +29,32 @@ export default defineComponent({
     store.dispatch('pkt/getPkt');
     store.dispatch('formp/getFormp');
     store.dispatch('forml/getForml');
+    store.dispatch('auth/subscribeAuthStatus');
 
-    const showSidebar = ref(false);
+    const isSidebarOpen = ref(false);
     emitter.on('sidebar:show', (isShow) => {
-      showSidebar.value = isShow;
+      isSidebarOpen.value = isShow;
     });
 
-    return { showSidebar };
+    const showSidebar = ref(true);
+
+    const router = useRouter();
+    router.beforeEach((to, from, next) => {
+      const isAuthorizedPage = to.matched.some((record) => record.meta.requiresAuth);
+      const isLogin = store.state.auth.isLogin;
+
+      if (to.name !== 'Login' && isAuthorizedPage && !isLogin) {
+        next({ name: 'Login' });
+        showSidebar.value = false;
+      } else if (to.name === 'Login' && isLogin) {
+        next({ name: 'Dashboard' });
+        showSidebar.value = true;
+      } else {
+        next();
+        showSidebar.value = to.name !== 'Login';
+      }
+    });
+    return { isSidebarOpen, showSidebar };
   },
 });
 </script>
