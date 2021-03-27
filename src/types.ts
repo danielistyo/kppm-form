@@ -178,6 +178,10 @@ export interface PktStates extends FormModule<PktKeys> {
   list: ListPktItem;
 }
 
+export interface AuthStates {
+  isLogin: boolean;
+  name: string;
+}
 export interface RootStateStore {
   master: null | string;
 }
@@ -187,6 +191,7 @@ export interface RootStateStoreWithModule {
   pkt: PktStates;
   formp: FormpStates;
   forml: FormlStates;
+  auth: AuthStates;
 }
 
 /**** END STORE TYPE *****/
