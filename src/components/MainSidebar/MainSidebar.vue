@@ -78,9 +78,13 @@ export default defineComponent({
     };
 
     const handleLogout = () => {
-      firebase.auth().signOut();
-      router.push({ name: 'Login' });
-      emitter.emit('sidebar:show', false);
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          router.push({ name: 'Login' });
+          emitter.emit('sidebar:show', false);
+        });
     };
 
     return {

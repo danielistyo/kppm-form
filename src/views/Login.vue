@@ -27,7 +27,7 @@ export default defineComponent({
         privacyPolicyUrl: function() {
           window.location.assign(process.env.BASE_URL);
         },
-        signInFlow: 'popup',
+        signInFlow: 'redirect',
       };
 
       // Initialize the FirebaseUI Widget using Firebase.
