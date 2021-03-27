@@ -2,7 +2,7 @@
   &__logo {
     display: flex;
     align-items: center;
-    margin-top: 35px;
+    padding-top: 35px;
     padding-bottom: 15px;
   }
 
@@ -61,5 +61,23 @@
         color: #fff;
       }
     }
+  }
+
+  &__logout.p-button-text:enabled {
+    &:active,
+    &:focus {
+      background-color: transparent;
+    }
+
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: left;
+  }
+}
+
+::v-deep {
+  .p-sidebar-content {
+    height: 100%;
   }
 }

@@ -7,6 +7,14 @@
     <hr class="main-sidebar__divider" />
     <div class="main-sidebar__menus">
       <div
+        @click="handleMenuClicked('Dashboard')"
+        :class="{ 'main-sidebar__menu--active': selectedMenu === 'Dashboard' }"
+        class="main-sidebar__menu"
+      >
+        <i :class="{ 'pi--active': selectedMenu === 'Dashboard' }" class="pi pi-th-large"></i>
+        Dashboard
+      </div>
+      <div
         @click="handleMenuClicked('Pkt')"
         :class="{ 'main-sidebar__menu--active': selectedMenu === 'Pkt' }"
         class="main-sidebar__menu"
@@ -28,6 +36,12 @@
         <i :class="{ 'pi--active': selectedMenu === 'FormL' }" class="pi pi-check-square"></i>Form L
       </div>
     </div>
+    <button-prime
+      @click="handleLogout"
+      icon="pi pi-sign-out"
+      label="Keluar"
+      class="p-button-text main-sidebar__logout"
+    />
   </prime-sidebar>
 </template>
 
@@ -36,17 +50,20 @@ import { defineComponent, ref, watch } from 'vue';
 import PrimeSidebar from 'primevue/sidebar';
 import { useRoute, useRouter } from 'vue-router';
 import emitter from '@/emitter';
+import ButtonPrime from 'primevue/button';
+import firebase from 'firebase/app';
 
 export default defineComponent({
   name: 'MainSidebar',
   components: {
     PrimeSidebar,
+    ButtonPrime,
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
 
-    type MenuValues = 'Pkt' | 'FormL' | 'FormP';
+    type MenuValues = 'Pkt' | 'FormL' | 'FormP' | 'Dashboard';
     const selectedMenu = ref<MenuValues>('Pkt');
     watch<MenuValues>(
       () => route.name as MenuValues,
@@ -60,9 +77,16 @@ export default defineComponent({
       emitter.emit('sidebar:show', false);
     };
 
+    const handleLogout = () => {
+      firebase.auth().signOut();
+      router.push({ name: 'Login' });
+      emitter.emit('sidebar:show', false);
+    };
+
     return {
       handleMenuClicked,
       selectedMenu,
+      handleLogout,
     };
   },
 });
