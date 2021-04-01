@@ -1,9 +1,11 @@
 <template>
+  <progress-spinner v-if="isLoading" class="login-loading" />
   <div id="firebaseui-auth-container"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from '@vue/runtime-core';
+import ProgressSpinner from 'primevue/progressspinner';
+import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 import firebase from 'firebase/app';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
@@ -12,9 +14,14 @@ import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'Login',
+  components: {
+    ProgressSpinner,
+  },
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    const isLoading = ref(false);
 
     onMounted(() => {
       // FirebaseUI config.
@@ -49,18 +56,21 @@ export default defineComponent({
                 store.commit('auth/setGroup', user.group);
               };
 
+              isLoading.value = true;
               userRef
-                .get()
+                .once('value')
                 .then((res) => {
                   if (!res.val()) {
                     // store new user to db
                     userRef.set({ name: displayName, email, group: '' }).then((res) => {
                       setUserToStore({ name: displayName, email, group: res.val().group });
                     });
+                  } else {
+                    setUserToStore({ name: displayName, email, group: res.val().group });
                   }
-                  setUserToStore({ name: displayName, email, group: res.val().group });
                 })
                 .finally(() => {
+                  isLoading.value = false;
                   router.push({ name: 'Dashboard' });
                 });
             }
@@ -75,6 +85,8 @@ export default defineComponent({
       // The start method will wait until the DOM is loaded.
       ui.start('#firebaseui-auth-container', uiConfig);
     });
+
+    return { isLoading };
   },
 });
 </script>
@@ -85,6 +97,23 @@ export default defineComponent({
 
   ::v-deep(.firebaseui-tospp-full-message) {
     display: none;
+  }
+}
+.login-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  background: #0000007d;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+
+  ::v-deep(.p-progress-spinner-svg) {
+    width: 100px;
+    height: 100px;
   }
 }
 </style>
