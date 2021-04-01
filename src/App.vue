@@ -2,6 +2,7 @@
   <main-header :show-sidebar="showSidebar" />
   <main-sidebar v-if="showSidebar" v-model:visible="isSidebarOpen" />
   <confirm-dialog />
+  <toast />
   <div class="main-container">
     <router-view />
   </div>
@@ -10,6 +11,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 import MainSidebar from './components/MainSidebar/MainSidebar.vue';
 import MainHeader from './components/MainHeader/MainHeader.vue';
 import emitter from '@/emitter';
@@ -23,6 +25,7 @@ export default defineComponent({
     ConfirmDialog,
     MainSidebar,
     MainHeader,
+    Toast,
   },
   setup() {
     const store = useStore<RootStateStoreWithModule>();

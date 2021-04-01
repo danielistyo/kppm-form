@@ -37,6 +37,7 @@
 <script lang="tsx">
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 import firebase from 'firebase/app';
 import { computed, defineComponent, nextTick, onUnmounted, ref, unref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
@@ -62,6 +63,7 @@ export default defineComponent({
     const store = useStore<RootStateStoreWithModule>();
 
     const confirm = useConfirm();
+    const toast = useToast();
 
     const isAddingData = ref(false);
     const isSubmittingData = ref(false);
@@ -89,7 +91,7 @@ export default defineComponent({
       store.dispatch('pkt/unsubscribePktValue');
     });
 
-    const pktKppmRef = firebase.database().ref(`/pkt/${store.state.auth.group}/`);
+    const pktRef = firebase.database().ref(`/pkt/${store.state.auth.group}/`);
 
     const submitPkt = () => {
       const submitData = async () => {
@@ -137,15 +139,52 @@ export default defineComponent({
           },
         );
 
+        // check existence of key
+        const currentPktKey = pktObj.nama_program.toLowerCase().replace(' ', '-');
+        const isDuplicated = !!(await pktRef.child(currentPktKey).once('value')).val();
+        const showDuplicatedToast = () => {
+          toast.add({
+            severity: 'error',
+            summary: 'Terjadi Kesalahan!',
+            detail: 'Nama Program sudah ada. Silakan pakai nama lain.',
+            life: 5000,
+          });
+        };
+
+        const showSuccessToast = () => {
+          toast.add({
+            severity: 'success',
+            summary: 'Berhasil disimpan!',
+            life: 3000,
+          });
+        };
+
         // update to firebase
         if (unref(isAddingData)) {
-          const newPktKey = `${new Date().getFullYear()}-${pktObj.nama_program
-            .toLowerCase()
-            .replace(' ', '-')}`;
-          await pktKppmRef.child(newPktKey).set(pktObj);
-          selectedPktKey.value = newPktKey;
+          if (isDuplicated) {
+            showDuplicatedToast();
+          } else {
+            await pktRef.child(currentPktKey).set(pktObj);
+            selectedPktKey.value = currentPktKey;
+            showSuccessToast();
+          }
         } else {
-          await pktKppmRef.update({ [`${unref(selectedPktKey)}`]: pktObj });
+          if (unref(selectedPktKey) !== currentPktKey && isDuplicated) {
+            showDuplicatedToast();
+          }
+          // when selected pkt key is same with nama program value, process update
+          else if (unref(selectedPktKey) === currentPktKey) {
+            await pktRef.update({ [`${unref(selectedPktKey)}`]: pktObj });
+            showSuccessToast();
+          }
+          // it needs remove old key and its value. then create new one
+          else if (unref(selectedPktKey) !== currentPktKey && !isDuplicated) {
+            pktRef.child(unref(selectedPktKey)).remove();
+            // just wait below not above. because we want to those 2 request non blocking
+            await pktRef.child(currentPktKey).set(pktObj);
+            selectedPktKey.value = currentPktKey;
+            showSuccessToast();
+          }
         }
 
         isSubmittingData.value = false;
@@ -175,7 +214,7 @@ export default defineComponent({
           icon: 'pi pi-exclamation-triangle',
           acceptClass: 'p-button-danger',
           accept: async () => {
-            await pktKppmRef.child(unref(selectedPktKey)).remove();
+            await pktRef.child(unref(selectedPktKey)).remove();
             selectedPktKey.value = '';
           },
           reject: () => {

@@ -50,7 +50,7 @@ const fields: FormFields<FormpKeys> = [
     key: 'ukuran_hasil',
     name: 'Ukuran Hasil',
     fieldValue: 'FieldValueDefault',
-    type: 'input-text',
+    type: 'text-area',
     value: '',
   },
   {
