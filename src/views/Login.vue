@@ -62,8 +62,8 @@ export default defineComponent({
                 .then((res) => {
                   if (!res.val()) {
                     // store new user to db
-                    userRef.set({ name: displayName, email, group: '' }).then((res) => {
-                      setUserToStore({ name: displayName, email, group: res.val().group });
+                    userRef.set({ name: displayName, email, group: '' }).then(() => {
+                      setUserToStore({ name: displayName, email, group: '' });
                     });
                   } else {
                     setUserToStore({ name: displayName, email, group: res.val().group });
