@@ -12,10 +12,8 @@
     transition: background-color 0.4s;
   }
 
-  ::v-deep {
-    .p-card-content {
-      padding: 0;
-    }
+  ::v-deep(.p-card-content) {
+    padding: 0;
   }
 
   &__number {

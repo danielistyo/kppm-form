@@ -84,10 +84,8 @@ export default defineComponent({
 #firebaseui-auth-container {
   margin-top: 200px;
 
-  ::v-deep {
-    .firebaseui-tospp-full-message {
-      display: none;
-    }
+  ::v-deep(.firebaseui-tospp-full-message) {
+    display: none;
   }
 }
 </style>

@@ -76,8 +76,6 @@
   }
 }
 
-::v-deep {
-  .p-sidebar-content {
-    height: 100%;
-  }
+::v-deep(.p-sidebar-content) {
+  height: 100%;
 }

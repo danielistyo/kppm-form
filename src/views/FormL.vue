@@ -263,11 +263,9 @@ export default defineComponent({
   height: 100vh;
   z-index: 3;
 
-  ::v-deep {
-    .p-progress-spinner-svg {
-      width: 100px;
-      height: 100px;
-    }
+  ::v-deep(.p-progress-spinner-svg) {
+    width: 100px;
+    height: 100px;
   }
 }
 .forml {
@@ -285,11 +283,9 @@ export default defineComponent({
     }
   }
 
-  ::v-deep {
-    @media screen and (max-width: 768px) {
-      .form-preview {
-        display: none;
-      }
+  @media screen and (max-width: 768px) {
+    ::v-deep(.form-preview) {
+      display: none;
     }
   }
 
