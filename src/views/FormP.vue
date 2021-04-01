@@ -34,7 +34,16 @@
 import ProgressSpinner from 'primevue/progressspinner';
 import ButtonPrime from 'primevue/button';
 import firebase from 'firebase/app';
-import { computed, ComputedRef, defineComponent, ref, unref, watch, watchEffect } from 'vue';
+import {
+  computed,
+  ComputedRef,
+  defineComponent,
+  onUnmounted,
+  ref,
+  unref,
+  watch,
+  watchEffect,
+} from 'vue';
 import FormProposal from '@/components/FormProposal';
 import FormPreview from '@/components/FormPreview';
 import ListForm from '@/components/ListForm';
@@ -91,7 +100,12 @@ export default defineComponent({
       store.commit('formp/updateFormPFields', selectedPkt);
     };
 
-    const formpKppmRef = firebase.database().ref('/formps/kppm/');
+    store.dispatch('formp/getFormp');
+    onUnmounted(() => {
+      store.dispatch('formp/unsubscribeFormpValue');
+    });
+
+    const formpKppmRef = firebase.database().ref(`/formps/${store.state.auth.group}/`);
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 

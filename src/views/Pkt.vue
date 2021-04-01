@@ -38,7 +38,7 @@
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import firebase from 'firebase/app';
-import { computed, defineComponent, nextTick, ref, unref, watch } from 'vue';
+import { computed, defineComponent, nextTick, onUnmounted, ref, unref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import PktDropdown from '@/components/@globals/PktDropdown';
 import { useStore } from 'vuex';
@@ -84,7 +84,12 @@ export default defineComponent({
     };
 
     /* ************* firebase stuff - START ************* */
-    const pktKppmRef = firebase.database().ref('/pkt/kppm/');
+    store.dispatch('pkt/getPkt');
+    onUnmounted(() => {
+      store.dispatch('pkt/unsubscribePktValue');
+    });
+
+    const pktKppmRef = firebase.database().ref(`/pkt/${store.state.auth.group}/`);
 
     const submitPkt = () => {
       const submitData = async () => {

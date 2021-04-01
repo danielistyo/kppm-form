@@ -1,6 +1,14 @@
 import pktField from '@/data/pkt-field';
 import cloneDeep from 'lodash/fp/cloneDeep';
-import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue, SelectedPkt } from '@/types';
+import {
+  PktStates,
+  RootStateStore,
+  PktItem,
+  Choices,
+  FieldCostValue,
+  SelectedPkt,
+  RootStateStoreWithModule,
+} from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 
@@ -75,7 +83,10 @@ const module: Module<PktStates, RootStateStore> = {
   },
   actions: {
     getPkt({ commit, state }): void {
-      const pktKppmRef = firebase.database().ref('/pkt/kppm/');
+      const pktKppmRef = firebase
+        .database()
+        // .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`);
+        .ref(`/pkt/kppm/`);
       state.isGettingData = true;
       onPktValueChange = pktKppmRef.on(
         'value',
@@ -94,11 +105,11 @@ const module: Module<PktStates, RootStateStore> = {
         },
       );
     },
-    unsubscribePktValue() {
+    unsubscribePktValue({ rootState }) {
       onPktValueChange &&
         firebase
           .database()
-          .ref('/pkt/kppm/')
+          .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onPktValueChange);
     },
     choosePkt({ commit, getters }, key: string): void {

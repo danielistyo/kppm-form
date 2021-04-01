@@ -26,7 +26,6 @@ export default defineComponent({
   },
   setup() {
     const store = useStore<RootStateStoreWithModule>();
-    store.dispatch('auth/subscribeAuthStatus');
 
     const isSidebarOpen = ref(false);
     emitter.on('sidebar:show', (isShow) => {
@@ -38,12 +37,13 @@ export default defineComponent({
     const router = useRouter();
     router.beforeEach((to, from, next) => {
       const isAuthorizedPage = to.matched.some((record) => record.meta.requiresAuth);
-      const isLogin = store.state.auth.isLogin;
+      const { isLogin, email, group } = store.state.auth;
+      const isUserAuthenticated = isLogin && email && group;
 
-      if (to.name !== 'Login' && isAuthorizedPage && !isLogin) {
+      if (to.name !== 'Login' && isAuthorizedPage && !isUserAuthenticated) {
         next({ name: 'Login' });
         showSidebar.value = false;
-      } else if (to.name === 'Login' && isLogin) {
+      } else if (to.name === 'Login' && isUserAuthenticated) {
         next({ name: 'Dashboard' });
         showSidebar.value = true;
       } else {

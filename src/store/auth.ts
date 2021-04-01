@@ -1,5 +1,5 @@
 import { AuthStates, RootStateStore } from '@/types';
-import { Module, Store } from 'vuex';
+import { Module } from 'vuex';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import { Router } from 'vue-router';
@@ -21,27 +21,27 @@ const module: Module<AuthStates, RootStateStore> = {
     setName(state, val: string) {
       state.name = val;
     },
+    setEmail(state, val: string) {
+      state.email = val;
+    },
+    setGroup(state, val: string) {
+      state.group = val;
+    },
   },
   actions: {
-    subscribeAuthStatus({ commit, dispatch }) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          commit('setIsLogin', true);
-          commit('setName', user.displayName);
-
-          dispatch('pkt/getPkt', null, { root: true });
-          dispatch('formp/getFormp', null, { root: true });
-          dispatch('forml/getForml', null, { root: true });
-        } else {
-          commit('setIsLogin', false);
-          commit('setName', '');
-          (this as Store<RootStateStore> & RouterProperty)?.$router?.replace({ name: 'Login' });
-
-          dispatch('pkt/unsubscribePktValue', null, { root: true });
-          dispatch('formp/unsubscribeFormpValue', null, { root: true });
-          dispatch('forml/unsubscribeFormlValue', null, { root: true });
-        }
-      });
+    logout({ dispatch }) {
+      return firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          dispatch('clearUserData');
+        });
+    },
+    clearUserData({ commit }) {
+      commit('setIsLogin', false);
+      commit('setName', '');
+      commit('setEmail', '');
+      commit('setGroup', '');
     },
   },
 };

@@ -51,7 +51,7 @@ import PrimeSidebar from 'primevue/sidebar';
 import { useRoute, useRouter } from 'vue-router';
 import emitter from '@/emitter';
 import ButtonPrime from 'primevue/button';
-import firebase from 'firebase/app';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'MainSidebar',
@@ -62,6 +62,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const store = useStore();
 
     type MenuValues = 'Pkt' | 'FormL' | 'FormP' | 'Dashboard';
     const selectedMenu = ref<MenuValues>('Pkt');
@@ -78,13 +79,10 @@ export default defineComponent({
     };
 
     const handleLogout = () => {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          router.push({ name: 'Login' });
-          emitter.emit('sidebar:show', false);
-        });
+      store.dispatch('auth/logout').then(() => {
+        router.push({ name: 'Login' });
+        emitter.emit('sidebar:show', false);
+      });
     };
 
     return {

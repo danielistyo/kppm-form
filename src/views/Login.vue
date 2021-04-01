@@ -8,11 +8,14 @@ import firebase from 'firebase/app';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'Login',
   setup() {
     const router = useRouter();
+    const store = useStore();
+
     onMounted(() => {
       // FirebaseUI config.
       const uiConfig = {
@@ -31,7 +34,7 @@ export default defineComponent({
         signInFlow: 'redirect',
         callbacks: {
           signInSuccessWithAuthResult(authResult: firebase.auth.UserCredential) {
-            if (authResult.user) {
+            if (authResult.user && authResult.user.displayName && authResult.user.email) {
               const { uid, displayName, email } = authResult.user;
 
               const userRef = firebase
@@ -39,14 +42,28 @@ export default defineComponent({
                 .ref('/users/')
                 .child(uid);
 
-              userRef.get().then((res) => {
-                if (!res.val()) {
-                  // store new user to db
-                  userRef.set({ name: displayName, email, group: '' });
-                }
-              });
+              const setUserToStore = (user: { name: string; email: string; group: string }) => {
+                store.commit('auth/setIsLogin', true);
+                store.commit('auth/setName', user.name);
+                store.commit('auth/setEmail', user.email);
+                store.commit('auth/setGroup', user.group);
+              };
 
-              router.push({ name: 'Dashboard' });
+              userRef
+                .get()
+                .then((res) => {
+                  if (!res.val()) {
+                    // store new user to db
+                    userRef.set({ name: displayName, email, group: '' }).then((res) => {
+                      setUserToStore({ name: displayName, email, group: res.val().group });
+                    });
+                  }
+                  setUserToStore({ name: displayName, email, group: res.val().group });
+                })
+                .finally(() => {
+                  store.dispatch('forml/getForml');
+                  router.push({ name: 'Dashboard' });
+                });
             }
             return false;
           },
