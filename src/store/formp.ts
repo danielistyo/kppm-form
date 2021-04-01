@@ -11,6 +11,10 @@ import {
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 
+let onFormpValueChange:
+  | ((a: firebase.database.DataSnapshot, b?: string | null | undefined) => any)
+  | undefined;
+
 const module: Module<FormpStates, RootStateStore> = {
   namespaced: true,
   state: () => ({
@@ -79,27 +83,40 @@ const module: Module<FormpStates, RootStateStore> = {
         .ref('/formps/kppm/')
         .orderByChild('created_at');
       state.isGettingData = true;
-      formpKppmRef.on('value', (snapshot) => {
-        const orderedData: { [key: string]: FormpItem } = {};
+      onFormpValueChange = formpKppmRef.on(
+        'value',
+        (snapshot) => {
+          const orderedData: { [key: string]: FormpItem } = {};
 
-        snapshot.forEach((childSnapshot) => {
-          if (typeof childSnapshot.key === 'string') {
-            orderedData[childSnapshot.key] = childSnapshot.val();
-          }
-        });
+          snapshot.forEach((childSnapshot) => {
+            if (typeof childSnapshot.key === 'string') {
+              orderedData[childSnapshot.key] = childSnapshot.val();
+            }
+          });
 
-        commit('parseResponse', orderedData);
+          commit('parseResponse', orderedData);
 
-        // update current selected fields
-        const selectedFormpNameValue = state.fields.find((field) => field.key === 'nama_program')
-          ?.value;
-        const selectedFormp = state.list.find(
-          (formp) => formp.nama_program === selectedFormpNameValue,
-        );
-        commit('updateFormPFields', selectedFormp);
+          // update current selected fields
+          const selectedFormpNameValue = state.fields.find((field) => field.key === 'nama_program')
+            ?.value;
+          const selectedFormp = state.list.find(
+            (formp) => formp.nama_program === selectedFormpNameValue,
+          );
+          commit('updateFormPFields', selectedFormp);
 
-        state.isGettingData = false;
-      });
+          state.isGettingData = false;
+        },
+        (err) => {
+          console.error(err);
+        },
+      );
+    },
+    unsubscribeFormpValue() {
+      onFormpValueChange &&
+        firebase
+          .database()
+          .ref('/formps/kppm/')
+          .off('value', onFormpValueChange);
     },
     chooseFormp({ commit, getters }, key: string): void {
       if (!key) return;

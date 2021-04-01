@@ -4,6 +4,10 @@ import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue, SelectedPk
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 
+let onPktValueChange:
+  | ((a: firebase.database.DataSnapshot, b?: string | null | undefined) => any)
+  | undefined;
+
 const module: Module<PktStates, RootStateStore> = {
   namespaced: true,
   state: () => ({
@@ -73,16 +77,29 @@ const module: Module<PktStates, RootStateStore> = {
     getPkt({ commit, state }): void {
       const pktKppmRef = firebase.database().ref('/pkt/kppm/');
       state.isGettingData = true;
-      pktKppmRef.on('value', (snapshot) => {
-        state.isGettingData = false;
-        commit('parseResponse', snapshot.val());
+      onPktValueChange = pktKppmRef.on(
+        'value',
+        (snapshot) => {
+          state.isGettingData = false;
+          commit('parseResponse', snapshot.val());
 
-        // update current selected fields
-        // const selectedPktNameValue = state.fields.find((field) => field.key === 'nama_program')
-        //   ?.value;
-        // const selectedPkt = state.list.find((pkt) => pkt.nama_program === selectedPktNameValue);
-        // commit('updatePktFields', selectedPkt);
-      });
+          // update current selected fields
+          const selectedPktNameValue = state.fields.find((field) => field.key === 'nama_program')
+            ?.value;
+          const selectedPkt = state.list.find((pkt) => pkt.nama_program === selectedPktNameValue);
+          commit('updatePktFields', selectedPkt);
+        },
+        (err) => {
+          console.error(err);
+        },
+      );
+    },
+    unsubscribePktValue() {
+      onPktValueChange &&
+        firebase
+          .database()
+          .ref('/pkt/kppm/')
+          .off('value', onPktValueChange);
     },
     choosePkt({ commit, getters }, key: string): void {
       if (!key) return;

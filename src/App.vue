@@ -26,9 +26,6 @@ export default defineComponent({
   },
   setup() {
     const store = useStore<RootStateStoreWithModule>();
-    store.dispatch('pkt/getPkt');
-    store.dispatch('formp/getFormp');
-    store.dispatch('forml/getForml');
     store.dispatch('auth/subscribeAuthStatus');
 
     const isSidebarOpen = ref(false);

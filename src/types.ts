@@ -181,6 +181,8 @@ export interface PktStates extends FormModule<PktKeys> {
 export interface AuthStates {
   isLogin: boolean;
   name: string;
+  email: string;
+  group: string;
 }
 export interface RootStateStore {
   master: null | string;

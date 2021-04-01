@@ -7,14 +7,15 @@ import { defineComponent, onMounted } from '@vue/runtime-core';
 import firebase from 'firebase/app';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'Login',
   setup() {
+    const router = useRouter();
     onMounted(() => {
       // FirebaseUI config.
       const uiConfig = {
-        signInSuccessUrl: process.env.BASE_URL,
         signInOptions: [
           // Leave the lines as is for the providers you want to offer your users.
           firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -28,10 +29,33 @@ export default defineComponent({
           window.location.assign(process.env.BASE_URL);
         },
         signInFlow: 'redirect',
+        callbacks: {
+          signInSuccessWithAuthResult(authResult: firebase.auth.UserCredential) {
+            if (authResult.user) {
+              const { uid, displayName, email } = authResult.user;
+
+              const userRef = firebase
+                .database()
+                .ref('/users/')
+                .child(uid);
+
+              userRef.get().then((res) => {
+                if (!res.val()) {
+                  // store new user to db
+                  userRef.set({ name: displayName, email, group: '' });
+                }
+              });
+
+              router.push({ name: 'Dashboard' });
+            }
+            return false;
+          },
+        },
       };
 
       // Initialize the FirebaseUI Widget using Firebase.
-      const ui = new firebaseui.auth.AuthUI(firebase.auth());
+      const ui =
+        firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
       // The start method will wait until the DOM is loaded.
       ui.start('#firebaseui-auth-container', uiConfig);
     });
