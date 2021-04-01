@@ -61,7 +61,6 @@ export default defineComponent({
                   setUserToStore({ name: displayName, email, group: res.val().group });
                 })
                 .finally(() => {
-                  store.dispatch('forml/getForml');
                   router.push({ name: 'Dashboard' });
                 });
             }
