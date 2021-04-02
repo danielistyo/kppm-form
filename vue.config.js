@@ -13,5 +13,8 @@ module.exports = {
       maskIcon: 'favicon.ico',
       msTileImage: 'favicon.ico',
     },
+    workboxOptions: {
+      exclude: [/\.map$/, /_redirects/],
+    },
   },
 };
