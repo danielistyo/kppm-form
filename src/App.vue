@@ -37,6 +37,8 @@ export default defineComponent({
 
     const showSidebar = ref(true);
 
+    store.dispatch('pkt/getPkt');
+
     const router = useRouter();
     router.beforeEach((to, from, next) => {
       const isAuthorizedPage = to.matched.some((record) => record.meta.requiresAuth);
