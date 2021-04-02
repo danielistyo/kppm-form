@@ -55,7 +55,6 @@ export default defineComponent({
                 store.commit('auth/setEmail', user.email);
                 store.commit('auth/setGroup', user.group);
               };
-              store.dispatch('pkt/getPkt');
 
               isLoading.value = true;
               userRef
@@ -65,9 +64,13 @@ export default defineComponent({
                     // store new user to db
                     userRef.set({ name: displayName, email, group: '' }).then(() => {
                       setUserToStore({ name: displayName, email, group: '' });
+
+                      store.dispatch('pkt/getPkt');
                     });
                   } else {
                     setUserToStore({ name: displayName, email, group: res.val().group });
+
+                    store.dispatch('pkt/getPkt');
                   }
                 })
                 .finally(() => {
