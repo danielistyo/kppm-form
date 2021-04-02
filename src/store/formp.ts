@@ -32,9 +32,11 @@ const module: Module<FormpStates, RootStateStore> = {
   mutations: {
     parseResponse(state, response: Record<FormpKeys, FormpItem>) {
       state.list = [];
-      Object.entries(response).forEach(([key, value]: [string, FormpItem]) => {
-        state.list.push({ key: key as FormpKeys, ...value });
-      });
+      Object.entries(response)
+        .reverse()
+        .forEach(([key, value]: [string, FormpItem]) => {
+          state.list.push({ key: key as FormpKeys, ...value });
+        });
     },
     clearFields(state) {
       state.fields = cloneDeep(formpField);
