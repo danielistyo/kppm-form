@@ -61,6 +61,7 @@ import {
 import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 
 export default defineComponent({
   name: 'FormP',
@@ -73,6 +74,7 @@ export default defineComponent({
   },
   setup() {
     const confirm = useConfirm();
+    const toast = useToast();
     const router = useRouter();
     const route = useRoute();
     const viewType = ref<'listView' | 'formView'>('listView');
@@ -155,20 +157,30 @@ export default defineComponent({
         },
       );
 
-      // update to firebase
-      if (unref(isAddingData)) {
-        formpObj.created_at = formpObj.updated_at;
-        const date = dayjsObj.format('YYYY-MM');
-        const newFormpKey = `${date}-${formpObj.nama_program.toLowerCase().replace(/\s/g, '-')}-${
-          formpObj.created_at
-        }`;
-        await formpRef.child(newFormpKey).set(formpObj);
+      try {
+        // update to firebase
+        if (unref(isAddingData)) {
+          formpObj.created_at = formpObj.updated_at;
+          const newFormp = await formpRef.push();
+          newFormp.set(formpObj);
 
-        router.replace({ query: { action: 'edit', key: newFormpKey } });
-      } else {
-        await formpRef.update({ [`${unref(selectedFormpKey)}`]: formpObj });
+          router.replace({ query: { action: 'edit', key: newFormp.key } });
+        } else {
+          await formpRef.update({ [`${unref(selectedFormpKey)}`]: formpObj });
+        }
+        isSubmittingData.value = false;
+        toast.add({
+          severity: 'success',
+          summary: 'Form P berhasil disimpan!',
+          life: 3000,
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'error',
+          summary: 'Terjadi Kesalahan!',
+          life: 5000,
+        });
       }
-      isSubmittingData.value = false;
     };
 
     const deleteFormp = () => {
@@ -181,9 +193,25 @@ export default defineComponent({
           icon: 'pi pi-exclamation-triangle',
           acceptClass: 'p-button-danger',
           accept: async () => {
-            await formpRef.child(unref(selectedFormpKey)).remove();
-            selectedFormpKey.value = '';
-            viewType.value = 'listView';
+            try {
+              await formpRef.child(unref(selectedFormpKey)).remove();
+              selectedFormpKey.value = '';
+              viewType.value = 'listView';
+
+              toast.add({
+                severity: 'success',
+                summary: 'Form P berhasil dihapus!',
+                life: 3000,
+              });
+              router.replace({ query: {} });
+            } catch (error) {
+              console.log(error);
+              toast.add({
+                severity: 'error',
+                summary: 'Terjadi Kesalahan!',
+                life: 5000,
+              });
+            }
           },
           reject: () => {
             confirm.close();
