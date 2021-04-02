@@ -59,6 +59,7 @@ import { useRoute, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import firebase from 'firebase/app';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 
 export default defineComponent({
   name: 'FormL',
@@ -71,6 +72,7 @@ export default defineComponent({
   },
   setup() {
     const confirm = useConfirm();
+    const toast = useToast();
     const router = useRouter();
     const route = useRoute();
     const isAddingData = ref(true);
@@ -154,22 +156,32 @@ export default defineComponent({
         },
       );
 
-      // add new data
-      if (unref(isAddingData)) {
-        formlObj.created_at = formlObj.updated_at;
-        const date = dayjsObj.format('YYYY-MM');
-        const newFormlKey = `${date}-${formlObj.nama_program.toLowerCase().replace(/\s/g, '-')}-${
-          formlObj.created_at
-        }`;
-        await formlRef.child(newFormlKey).set(formlObj);
+      try {
+        // add new data
+        if (unref(isAddingData)) {
+          formlObj.created_at = formlObj.updated_at;
+          const newForml = await formlRef.push();
+          newForml.set(formlObj);
 
-        router.replace({ query: { action: 'edit', key: newFormlKey } });
+          router.replace({ query: { action: 'edit', key: newForml.key } });
+        }
+        // update existing data
+        else {
+          await formlRef.update({ [`${unref(selectedFormlKey)}`]: formlObj });
+        }
+        isSubmittingData.value = false;
+        toast.add({
+          severity: 'success',
+          summary: 'Form L berhasil disimpan!',
+          life: 3000,
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'error',
+          summary: 'Terjadi Kesalahan!',
+          life: 5000,
+        });
       }
-      // update existing data
-      else {
-        await formlRef.update({ [`${unref(selectedFormlKey)}`]: formlObj });
-      }
-      isSubmittingData.value = false;
     };
 
     const deleteForml = () => {
@@ -182,9 +194,25 @@ export default defineComponent({
           icon: 'pi pi-exclamation-triangle',
           acceptClass: 'p-button-danger',
           accept: async () => {
-            await formlRef.child(unref(selectedFormlKey)).remove();
-            selectedFormlKey.value = '';
-            viewType.value = 'listView';
+            try {
+              await formlRef.child(unref(selectedFormlKey)).remove();
+              selectedFormlKey.value = '';
+              viewType.value = 'listView';
+
+              toast.add({
+                severity: 'success',
+                summary: 'Form L berhasil dihapus!',
+                life: 3000,
+              });
+              router.replace({ query: {} });
+            } catch (error) {
+              console.log(error);
+              toast.add({
+                severity: 'error',
+                summary: 'Terjadi Kesalahan!',
+                life: 5000,
+              });
+            }
           },
           reject: () => {
             confirm.close();

@@ -19,7 +19,7 @@
           <div class="unit-list__number">{{ unit.nomor_program }}</div>
           <div class="unit-list__name">{{ unit.nama_program }}</div>
           <div class="unit-list__created">
-            <i class="pi pi-calendar" /> {{ convertToDate(unit.key) }}
+            <i class="pi pi-calendar" /> {{ convertToDate(unit.created_at) }}
           </div>
           <i class="unit-list__icon-right pi pi-angle-right" />
         </div>
@@ -47,10 +47,7 @@ export default {
     },
   },
   setup() {
-    const convertToDate = (key: string) => {
-      const splittedKey = key.split('-');
-      const timestamp: number = parseInt(splittedKey[splittedKey.length - 1]);
-
+    const convertToDate = (timestamp: number) => {
       return dayjs.unix(timestamp).format('DD-MM-YYYY HH:ss');
     };
     return { convertToDate };
