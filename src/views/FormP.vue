@@ -105,7 +105,7 @@ export default defineComponent({
       store.dispatch('formp/unsubscribeFormpValue');
     });
 
-    const formpKppmRef = firebase.database().ref(`/formps/${store.state.auth.group}/`);
+    const formpRef = firebase.database().ref(`/formps/${store.state.auth.group}/`);
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
@@ -162,11 +162,11 @@ export default defineComponent({
         const newFormpKey = `${date}-${formpObj.nama_program.toLowerCase().replace(/\s/g, '-')}-${
           formpObj.created_at
         }`;
-        await formpKppmRef.child(newFormpKey).set(formpObj);
+        await formpRef.child(newFormpKey).set(formpObj);
 
         router.replace({ query: { action: 'edit', key: newFormpKey } });
       } else {
-        await formpKppmRef.update({ [`${unref(selectedFormpKey)}`]: formpObj });
+        await formpRef.update({ [`${unref(selectedFormpKey)}`]: formpObj });
       }
       isSubmittingData.value = false;
     };
@@ -181,7 +181,7 @@ export default defineComponent({
           icon: 'pi pi-exclamation-triangle',
           acceptClass: 'p-button-danger',
           accept: async () => {
-            await formpKppmRef.child(unref(selectedFormpKey)).remove();
+            await formpRef.child(unref(selectedFormpKey)).remove();
             selectedFormpKey.value = '';
             viewType.value = 'listView';
           },

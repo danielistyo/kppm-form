@@ -82,11 +82,10 @@ const module: Module<PktStates, RootStateStore> = {
     },
   },
   actions: {
-    getPkt({ commit, state }): void {
+    getPkt({ commit, state, rootState }): void {
       const pktKppmRef = firebase
         .database()
-        // .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`);
-        .ref(`/pkt/kppm/`);
+        .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`);
       state.isGettingData = true;
       onPktValueChange = pktKppmRef.on(
         'value',

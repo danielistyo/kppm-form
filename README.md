@@ -1,3 +1,3 @@
 # kppm-form
 
-Form Management for KPPM
+Form Management for GKJW Rungkut

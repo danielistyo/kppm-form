@@ -6,6 +6,7 @@ import {
   FormlKeys,
   FormlStates,
   RootStateStore,
+  RootStateStoreWithModule,
   SelectedForml,
 } from '@/types';
 import { Module } from 'vuex';
@@ -77,10 +78,10 @@ const module: Module<FormlStates, RootStateStore> = {
     },
   },
   actions: {
-    getForml({ commit, state }): void {
+    getForml({ commit, state, rootState }): void {
       const formlKppmRef = firebase
         .database()
-        .ref('/formls/kppm/')
+        .ref(`/formls/${(rootState as RootStateStoreWithModule).auth.group}/`)
         .orderByChild('created_at');
 
       state.isGettingData = true;
@@ -113,11 +114,11 @@ const module: Module<FormlStates, RootStateStore> = {
         },
       );
     },
-    unsubscribeFormlValue() {
+    unsubscribeFormlValue({ rootState }) {
       onFormlValueChange &&
         firebase
           .database()
-          .ref('/formls/kppm/')
+          .ref(`/formls/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onFormlValueChange);
     },
     chooseForml({ commit, getters }, key: string): void {

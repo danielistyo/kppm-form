@@ -102,7 +102,7 @@ export default defineComponent({
       store.dispatch('forml/unsubscribeFormlValue');
     });
 
-    const formlKppmRef = firebase.database().ref(`/formls/${store.state.auth.group}/`);
+    const formlRef = firebase.database().ref(`/formls/${store.state.auth.group}/`);
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
@@ -161,13 +161,13 @@ export default defineComponent({
         const newFormlKey = `${date}-${formlObj.nama_program.toLowerCase().replace(/\s/g, '-')}-${
           formlObj.created_at
         }`;
-        await formlKppmRef.child(newFormlKey).set(formlObj);
+        await formlRef.child(newFormlKey).set(formlObj);
 
         router.replace({ query: { action: 'edit', key: newFormlKey } });
       }
       // update existing data
       else {
-        await formlKppmRef.update({ [`${unref(selectedFormlKey)}`]: formlObj });
+        await formlRef.update({ [`${unref(selectedFormlKey)}`]: formlObj });
       }
       isSubmittingData.value = false;
     };
@@ -182,7 +182,7 @@ export default defineComponent({
           icon: 'pi pi-exclamation-triangle',
           acceptClass: 'p-button-danger',
           accept: async () => {
-            await formlKppmRef.child(unref(selectedFormlKey)).remove();
+            await formlRef.child(unref(selectedFormlKey)).remove();
             selectedFormlKey.value = '';
             viewType.value = 'listView';
           },

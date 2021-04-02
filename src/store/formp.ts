@@ -7,6 +7,7 @@ import {
   RootStateStore,
   FormpKeys,
   SelectedFormp,
+  RootStateStoreWithModule,
 } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
@@ -77,10 +78,10 @@ const module: Module<FormpStates, RootStateStore> = {
     },
   },
   actions: {
-    getFormp({ commit, state }): void {
+    getFormp({ commit, state, rootState }): void {
       const formpKppmRef = firebase
         .database()
-        .ref('/formps/kppm/')
+        .ref(`/formps/${(rootState as RootStateStoreWithModule).auth.group}/`)
         .orderByChild('created_at');
       state.isGettingData = true;
       onFormpValueChange = formpKppmRef.on(
@@ -111,11 +112,11 @@ const module: Module<FormpStates, RootStateStore> = {
         },
       );
     },
-    unsubscribeFormpValue() {
+    unsubscribeFormpValue({ rootState }) {
       onFormpValueChange &&
         firebase
           .database()
-          .ref('/formps/kppm/')
+          .ref(`/formps/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onFormpValueChange);
     },
     chooseFormp({ commit, getters }, key: string): void {
