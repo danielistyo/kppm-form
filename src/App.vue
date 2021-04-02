@@ -37,7 +37,7 @@ export default defineComponent({
 
     const showSidebar = ref(true);
 
-    store.dispatch('pkt/getPkt');
+    store.state.auth.isLogin && store.dispatch('pkt/getPkt');
 
     const router = useRouter();
     router.beforeEach((to, from, next) => {
