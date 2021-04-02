@@ -55,6 +55,7 @@ export default defineComponent({
                 store.commit('auth/setEmail', user.email);
                 store.commit('auth/setGroup', user.group);
               };
+              store.dispatch('pkt/getPkt');
 
               isLoading.value = true;
               userRef
