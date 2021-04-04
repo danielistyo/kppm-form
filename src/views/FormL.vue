@@ -123,7 +123,8 @@ export default defineComponent({
         tujuan: '',
         usulan: '',
         waktu: '',
-        created_at: 0,
+        created_at:
+          unref(formlList).find((forml) => forml.key === unref(selectedFormlKey))?.created_at || 0,
         updated_at: 0,
       };
 

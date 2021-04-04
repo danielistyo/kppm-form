@@ -126,7 +126,8 @@ export default defineComponent({
         tujuan: '',
         ukuran_hasil: '',
         waktu: '',
-        created_at: 0,
+        created_at:
+          unref(formpList).find((forml) => forml.key === unref(selectedFormpKey))?.created_at || 0,
         updated_at: 0,
       };
 
