@@ -115,11 +115,14 @@ const module: Module<FormpStates, RootStateStore> = {
       );
     },
     unsubscribeFormpValue({ rootState }) {
-      onFormpValueChange &&
+      if (onFormpValueChange) {
         firebase
           .database()
           .ref(`/formps/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onFormpValueChange);
+      } else {
+        return Promise.resolve('there is no formp subscription');
+      }
     },
     chooseFormp({ commit, getters }, key: string): void {
       if (!key) return;

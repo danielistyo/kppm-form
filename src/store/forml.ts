@@ -117,11 +117,14 @@ const module: Module<FormlStates, RootStateStore> = {
       );
     },
     unsubscribeFormlValue({ rootState }) {
-      onFormlValueChange &&
+      if (onFormlValueChange) {
         firebase
           .database()
           .ref(`/formls/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onFormlValueChange);
+      } else {
+        return Promise.resolve('there is no forml subscription');
+      }
     },
     chooseForml({ commit, getters }, key: string): void {
       if (!key) return;

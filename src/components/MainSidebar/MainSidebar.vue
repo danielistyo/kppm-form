@@ -78,7 +78,9 @@ export default defineComponent({
       emitter.emit('sidebar:show', false);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+      await store.dispatch('formp/unsubscribeFormpValue');
+      await store.dispatch('forml/unsubscribeFormlValue');
       store.dispatch('auth/logout').then(() => {
         router.push({ name: 'Login' });
         emitter.emit('sidebar:show', false);

@@ -112,11 +112,14 @@ const module: Module<PktStates, RootStateStore> = {
       );
     },
     unsubscribePktValue({ rootState }) {
-      onPktValueChange &&
-        firebase
+      if (onPktValueChange) {
+        return firebase
           .database()
           .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`)
           .off('value', onPktValueChange);
+      } else {
+        return Promise.resolve('there is no pkt subscription');
+      }
     },
     choosePkt({ commit, getters }, key: string): void {
       if (!key) return;

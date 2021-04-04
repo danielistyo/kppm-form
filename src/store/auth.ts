@@ -29,8 +29,8 @@ const module: Module<AuthStates, RootStateStore> = {
     },
   },
   actions: {
-    logout({ dispatch }) {
-      dispatch('pkt/unsubscribePktValue', null, { root: true });
+    async logout({ dispatch }) {
+      await dispatch('pkt/unsubscribePktValue', null, { root: true });
       return firebase
         .auth()
         .signOut()
