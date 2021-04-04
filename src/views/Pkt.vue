@@ -136,7 +136,7 @@ export default defineComponent({
         );
 
         // check existence of key
-        const currentPktKey = pktObj.nama_program.toLowerCase().replace(' ', '-');
+        const currentPktKey = pktObj.nama_program.toLowerCase().replaceAll(' ', '-');
         const isDuplicated = !!(await pktRef.child(currentPktKey).once('value')).val();
         const showDuplicatedToast = () => {
           toast.add({
@@ -176,7 +176,7 @@ export default defineComponent({
           // it needs remove old key and its value. then create new one
           else if (unref(selectedPktKey) !== currentPktKey && !isDuplicated) {
             pktRef.child(unref(selectedPktKey)).remove();
-            // just wait below not above. because we want to those 2 request non blocking
+            // just wait below not above. because we want to make those 2 requests non blocking
             await pktRef.child(currentPktKey).set(pktObj);
             selectedPktKey.value = currentPktKey;
             showSuccessToast();
