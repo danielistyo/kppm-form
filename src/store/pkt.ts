@@ -74,7 +74,10 @@ const module: Module<PktStates, RootStateStore> = {
   },
   getters: {
     choices(state): Choices {
-      return state.list.map(({ nameChoice, valueChoice }) => ({ nameChoice, valueChoice }));
+      return state.list.map(({ nameChoice, valueChoice }) => ({
+        nameChoice: nameChoice.replaceAll('-', ' '),
+        valueChoice,
+      }));
     },
     selectedPkt(state): Function {
       return (key: string): SelectedPkt | undefined =>
@@ -83,11 +86,11 @@ const module: Module<PktStates, RootStateStore> = {
   },
   actions: {
     getPkt({ commit, state, rootState }): void {
-      const pktKppmRef = firebase
+      const pktRef = firebase
         .database()
         .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`);
       state.isGettingData = true;
-      onPktValueChange = pktKppmRef.on(
+      onPktValueChange = pktRef.on(
         'value',
         (snapshot) => {
           state.isGettingData = false;
