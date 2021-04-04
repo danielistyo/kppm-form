@@ -36,11 +36,12 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const totalPrice = computed(() =>
-      props.value.reduce((total: number, item: FieldCostValue): number => {
+    const totalPrice = computed(() => {
+      const number = props.value.reduce((total: number, item: FieldCostValue): number => {
         return total + item.price * item.count;
-      }, 0),
-    );
+      }, 0);
+      return new Intl.NumberFormat('id', { style: 'currency', currency: 'IDR' }).format(number);
+    });
     return { totalPrice };
   },
 });

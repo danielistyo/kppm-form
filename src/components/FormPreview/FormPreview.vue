@@ -47,7 +47,9 @@
             <td v-show="childIdx === 0" :rowspan="field.children.length">{{ index + 1 }}</td>
             <td v-show="childIdx === 0" :rowspan="field.children.length">{{ field.name }}</td>
             <td>{{ child.name }}</td>
-            <td>{{ child.value }}</td>
+            <td>
+              <component :is="child.fieldValue" :value="child.value" />
+            </td>
           </tr>
         </template>
       </table>
@@ -79,6 +81,7 @@ import { FormFields, FormlKeys, FormpKeys } from '@/types';
 import { computed, ComputedRef, defineComponent, PropType } from 'vue';
 import FieldValueCost from './components/FieldValueCost.vue';
 import FieldValueDefault from './components/FieldValueDefault.vue';
+import FieldValueSourceFund from './components/FieldValueSourceFund.vue';
 
 type FieldType = FormFields<FormpKeys | FormlKeys>;
 type ComputedFieldType = ComputedRef<FieldType>;
@@ -88,6 +91,7 @@ export default defineComponent({
   components: {
     FieldValueCost,
     FieldValueDefault,
+    FieldValueSourceFund,
   },
   props: {
     inputs: {

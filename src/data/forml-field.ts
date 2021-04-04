@@ -131,7 +131,7 @@ const fields: FormFields<FormlKeys> = [
         name: 'Sumber A',
         type: 'input-number',
         props: { prefix: 'Rp ' },
-        fieldValue: 'FieldValueDefault',
+        fieldValue: 'FieldValueSourceFund',
         value: 0,
       },
       {
@@ -140,7 +140,7 @@ const fields: FormFields<FormlKeys> = [
         name: 'Sumber B',
         type: 'input-number',
         props: { prefix: 'Rp ' },
-        fieldValue: 'FieldValueDefault',
+        fieldValue: 'FieldValueSourceFund',
         value: 0,
       },
       {
@@ -149,7 +149,7 @@ const fields: FormFields<FormlKeys> = [
         name: 'Sumber C',
         type: 'input-number',
         props: { prefix: 'Rp ' },
-        fieldValue: 'FieldValueDefault',
+        fieldValue: 'FieldValueSourceFund',
         value: 0,
       },
     ],
