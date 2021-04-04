@@ -1,6 +1,9 @@
 <template>
   <progress-spinner v-if="isLoading" class="login-loading" />
   <div id="firebaseui-auth-container"></div>
+  <Message v-if="isUserGroupless" severity="error" class="login-group-alert">
+    <b>Akun anda belum mempunyai grup. Silakan hubungi Admin untuk menambahkan grup.</b>
+  </Message>
 </template>
 
 <script lang="ts">
@@ -11,17 +14,20 @@ import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import Message from 'primevue/message';
 
 export default defineComponent({
   name: 'Login',
   components: {
     ProgressSpinner,
+    Message,
   },
   setup() {
     const router = useRouter();
     const store = useStore();
 
     const isLoading = ref(false);
+    const isUserGroupless = ref(false);
 
     onMounted(() => {
       // FirebaseUI config.
@@ -67,10 +73,16 @@ export default defineComponent({
 
                       store.dispatch('pkt/getPkt');
                     });
+
+                    // show groupless alert when registering new account
+                    isUserGroupless.value = true;
                   } else {
                     setUserToStore({ name: displayName, email, group: res.val().group });
 
                     store.dispatch('pkt/getPkt');
+
+                    // show groupless alert when user doesn't have group
+                    !res.val().group && (isUserGroupless.value = true);
                   }
                 })
                 .finally(() => {
@@ -90,7 +102,7 @@ export default defineComponent({
       ui.start('#firebaseui-auth-container', uiConfig);
     });
 
-    return { isLoading };
+    return { isLoading, isUserGroupless };
   },
 });
 </script>
@@ -119,5 +131,9 @@ export default defineComponent({
     width: 100px;
     height: 100px;
   }
+}
+.login-group-alert {
+  max-width: 500px;
+  margin: auto;
 }
 </style>
