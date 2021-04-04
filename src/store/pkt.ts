@@ -30,11 +30,15 @@ const module: Module<PktStates, RootStateStore> = {
     clearFields(state) {
       state.fields = cloneDeep(pktField);
     },
-    parseResponse(state, response: Record<string, PktItem>) {
+    parseResponse(state, response: Record<string, PktItem> | null) {
       state.list = [];
-      Object.entries(response).forEach(([key, value]: [string, PktItem]) => {
-        state.list.push({ nameChoice: key, valueChoice: key, ...value });
-      });
+      if (response) {
+        Object.entries(response).forEach(([key, value]: [string, PktItem]) => {
+          state.list.push({ nameChoice: key, valueChoice: key, ...value });
+        });
+      } else {
+        state.list = [];
+      }
     },
     // update all fields value using selected pkt
     updatePktFields(state, selectedPkt: SelectedPkt) {
