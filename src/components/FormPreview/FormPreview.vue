@@ -25,6 +25,10 @@
 
       <table class="form-preview__main-table">
         <template v-for="(field, index) in mainTableFields" :key="index">
+          <!-- 
+            TODO: need to create new component to handle table row. 
+            ex: TableRowDefault, TableRowCost, etc 
+          -->
           <!-- row for field which doesn't have children -->
           <tr v-if="!field.children">
             <td>{{ index + 1 }}</td>
