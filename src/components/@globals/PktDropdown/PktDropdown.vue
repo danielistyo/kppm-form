@@ -50,4 +50,14 @@ export default defineComponent({
 });
 </script>
 
-<style></style>
+<style lang="scss">
+.pkt__choices {
+  .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    overflow: visible;
+  }
+}
+</style>
