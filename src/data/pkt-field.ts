@@ -23,6 +23,16 @@ const fields: FormFields<PktKeys> = [
     value: '',
   },
   {
+    key: 'acuan',
+    name: 'Acuan',
+    fieldValue: 'FieldValueDefault',
+    type: 'simple-editor',
+    props: {
+      formats: ['bold', 'italic', 'underline', 'list'],
+    },
+    value: '',
+  },
+  {
     key: 'sasaran_kuantitas',
     name: 'Sasaran Kuantitas',
     fieldValue: 'FieldValueDefault',
