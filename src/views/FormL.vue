@@ -336,13 +336,17 @@ export default defineComponent({
 
 <style lang="scss">
 @media print {
-  .forml {
-    .form-proposal {
-      display: none;
-    }
-  }
-  body {
-    margin: 0;
+  .forml .form-preview {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    overflow-y: visible;
+    z-index: 100;
+    width: 100vw;
+    padding: 0;
   }
 }
 </style>
