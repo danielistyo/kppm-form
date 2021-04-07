@@ -81,14 +81,14 @@ const module: Module<FormlStates, RootStateStore> = {
   },
   actions: {
     getForml({ commit, state, rootState }): void {
-      const formlKppmRef = firebase
+      const formlRef = firebase
         .database()
-        .ref(`/formls/${(rootState as RootStateStoreWithModule).auth.group}/`)
+        .ref(`/formls/${(rootState as RootStateStoreWithModule)?.auth?.group}/`)
         .orderByChild('created_at');
 
       state.isGettingData = true;
 
-      onFormlValueChange = formlKppmRef.on(
+      onFormlValueChange = formlRef.on(
         'value',
         (snapshot) => {
           const orderedData: { [key: string]: FormlItem } = {};
