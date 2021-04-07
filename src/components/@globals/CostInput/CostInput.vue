@@ -64,7 +64,6 @@ export default defineComponent({
 
     const handleDeleteClicked = (selectedIndex: number): void => {
       const costItems = props.modelValue.filter((obj, costIndex) => {
-        console.log(selectedIndex, costIndex);
         return costIndex !== selectedIndex;
       });
       emit('update:modelValue', costItems);
