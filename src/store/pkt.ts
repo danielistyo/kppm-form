@@ -34,7 +34,7 @@ const module: Module<PktStates, RootStateStore> = {
       state.list = [];
       if (response) {
         Object.entries(response).forEach(([key, value]: [string, PktItem]) => {
-          state.list.push({ nameChoice: key, valueChoice: key, ...value });
+          state.list.push({ nameChoice: value.nama_program, valueChoice: key, ...value });
         });
       } else {
         state.list = [];
@@ -79,13 +79,13 @@ const module: Module<PktStates, RootStateStore> = {
   getters: {
     choices(state): Choices {
       return state.list.map(({ nameChoice, valueChoice }) => ({
-        nameChoice: nameChoice.replaceAll('-', ' '),
+        nameChoice,
         valueChoice,
       }));
     },
     selectedPkt(state): Function {
       return (key: string): SelectedPkt | undefined =>
-        state.list.find(({ nameChoice }) => nameChoice === key);
+        state.list.find(({ valueChoice }) => valueChoice === key);
     },
   },
   actions: {
