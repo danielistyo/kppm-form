@@ -35,7 +35,7 @@
     <paginator
       @page="handlePageChange"
       :totalRecords="totalRecords"
-      :rows="5"
+      :rows="perPage"
       template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
     />
   </div>
@@ -73,6 +73,7 @@ export default defineComponent({
       return dayjs.unix(timestamp).format('DD-MM-YYYY HH:mm');
     };
 
+    const perPage = ref(10);
     const page = ref(0);
     const filteredList = computed<ListFormpItem>(() => {
       if (unref(selectedPktKey)) {
@@ -88,13 +89,10 @@ export default defineComponent({
       if (unref(selectedPktKey)) {
         generatedList = unref(filteredList);
       }
-      return generatedList.slice(unref(page), unref(page) + 5);
+      return generatedList.slice(unref(page), unref(page) + unref(perPage));
     });
 
     const totalRecords = computed<number>(() => {
-      if (unref(selectedPktKey)) {
-        return unref(paginatedList).length;
-      }
       return unref(filteredList).length;
     });
 
@@ -107,7 +105,14 @@ export default defineComponent({
       page.value = $event.page;
     };
 
-    return { convertToDate, handlePageChange, paginatedList, selectedPktKey, totalRecords };
+    return {
+      convertToDate,
+      handlePageChange,
+      paginatedList,
+      selectedPktKey,
+      totalRecords,
+      perPage,
+    };
   },
 });
 </script>
