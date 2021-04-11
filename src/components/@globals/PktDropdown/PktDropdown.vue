@@ -1,9 +1,9 @@
 <template>
   <dropdown
     v-model="value"
-    :options="pktChoices"
+    :options="completePktChoices"
     :disabled="isGettingPkt || disabled"
-    :placeholder="isGettingPkt ? 'Loading...' : 'Pilih PKT Anda di sini'"
+    :placeholder="isGettingPkt ? 'Loading...' : placeholder"
     optionLabel="nameChoice"
     optionValue="valueChoice"
     class="pkt__choices"
@@ -11,7 +11,7 @@
 </template>
 
 <script lang="tsx">
-import { defineComponent } from 'vue';
+import { defineComponent, unref } from 'vue';
 import { computed } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import pktComposables from '@/composables/pkt';
@@ -28,7 +28,15 @@ export default defineComponent({
     },
     modelValue: {
       type: String,
-      required: true,
+      default: '',
+    },
+    placeholder: {
+      type: String,
+      default: 'Pilih PKT Anda di sini',
+    },
+    showAllOption: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { emit }) {
@@ -41,9 +49,22 @@ export default defineComponent({
       },
     });
 
+    const completePktChoices = computed(() => {
+      if (props.showAllOption) {
+        return [
+          {
+            nameChoice: 'Semua',
+            valueChoice: '',
+          },
+          ...unref(pktChoices),
+        ];
+      }
+      return unref(pktChoices);
+    });
+
     return {
       isGettingPkt,
-      pktChoices,
+      completePktChoices,
       value,
     };
   },
