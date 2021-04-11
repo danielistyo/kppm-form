@@ -1,10 +1,16 @@
 <template>
   <div class="list-form">
-    <div class="p-text-right">
+    <div class="list-form__header">
+      <pkt-dropdown
+        v-model="selectedPktKey"
+        placeholder="Cari berdasarkan PKT"
+        class="list-form__pkt-dropdown"
+        show-all-option
+      />
       <button-prime
         @click="$emit('addclick')"
         icon="pi pi-plus"
-        class="p-button-primary p-button-sm p-mb-2"
+        class="p-button-primary list-form__add"
         label="Tambah"
       />
     </div>
@@ -28,7 +34,7 @@
     </card>
     <paginator
       @page="handlePageChange"
-      :totalRecords="list.length"
+      :totalRecords="totalRecords"
       :rows="5"
       template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
     />
@@ -41,7 +47,9 @@ import Paginator from 'primevue/paginator';
 import Card from 'primevue/card';
 import dayjs from 'dayjs';
 import { ref, unref } from '@vue/reactivity';
-import { computed, defineComponent } from '@vue/runtime-core';
+import { computed, defineComponent, PropType } from '@vue/runtime-core';
+import PktDropdown from '@/components/@globals/PktDropdown';
+import { ListFormpItem } from '@/types';
 
 export default defineComponent({
   name: 'ListForm',
@@ -49,22 +57,45 @@ export default defineComponent({
     Card,
     ButtonPrime,
     Paginator,
+    PktDropdown,
   },
   emits: ['selected', 'addclick'],
   props: {
     list: {
-      type: Array,
+      type: Array as PropType<ListFormpItem>,
       required: true,
     },
   },
   setup(props) {
+    const selectedPktKey = ref<string | null>(null);
+
     const convertToDate = (timestamp: number) => {
       return dayjs.unix(timestamp).format('DD-MM-YYYY HH:mm');
     };
 
     const page = ref(0);
+    const filteredList = computed<ListFormpItem>(() => {
+      if (unref(selectedPktKey)) {
+        return props.list.filter((unit) => {
+          return unit.pkt === unref(selectedPktKey);
+        });
+      }
+      return props.list;
+    });
+
     const paginatedList = computed(() => {
-      return props.list.slice(unref(page), unref(page) + 5);
+      let generatedList = props.list;
+      if (unref(selectedPktKey)) {
+        generatedList = unref(filteredList);
+      }
+      return generatedList.slice(unref(page), unref(page) + 5);
+    });
+
+    const totalRecords = computed<number>(() => {
+      if (unref(selectedPktKey)) {
+        return unref(paginatedList).length;
+      }
+      return unref(filteredList).length;
     });
 
     const handlePageChange = ($event: {
@@ -76,7 +107,7 @@ export default defineComponent({
       page.value = $event.page;
     };
 
-    return { convertToDate, handlePageChange, paginatedList };
+    return { convertToDate, handlePageChange, paginatedList, selectedPktKey, totalRecords };
   },
 });
 </script>

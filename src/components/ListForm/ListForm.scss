@@ -2,6 +2,22 @@
   max-width: 768px;
   margin: auto;
   cursor: pointer;
+
+  &__pkt-dropdown {
+    margin-right: 10px;
+    width: 230px;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  &__add {
+    font-size: 0.875rem;
+    padding: 0.62475rem 0.875rem;
+  }
 }
 
 .unit-list {
