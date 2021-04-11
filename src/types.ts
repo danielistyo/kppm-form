@@ -46,6 +46,7 @@ export type Choice = { nameChoice: string; valueChoice: string };
 export type Choices = Array<Choice>;
 
 export type FormpKeys =
+  | 'pkt'
   | 'badan_pembantu'
   | 'bentuk_kegiatan'
   | 'biaya'
@@ -62,6 +63,7 @@ export type FormpKeys =
   | 'waktu';
 
 export type FormlKeys =
+  | 'pkt'
   | 'badan_pembantu'
   | 'biaya'
   | 'keberhasilan'
@@ -104,6 +106,7 @@ type RequestData = {
 
 // *********************** FORM L *********************
 export type FormlItem = {
+  pkt: string;
   badan_pembantu: string;
   biaya: BiayaItem;
   keberhasilan: string;
@@ -122,13 +125,14 @@ export type FormlItem = {
 
 export type SelectedForml = FormlItem & { key: FormlKeys };
 
-type ListFormlItem = Array<SelectedForml>;
+export type ListFormlItem = Array<SelectedForml>;
 export interface FormlStates extends FormModule<FormlKeys> {
   list: ListFormlItem;
 }
 
 // *************** FORM P *********************
 export type FormpItem = {
+  pkt: string;
   badan_pembantu: string;
   bentuk_kegiatan: string;
   biaya: BiayaItem;
@@ -147,7 +151,7 @@ export type FormpItem = {
 
 export type SelectedFormp = FormpItem & { key: FormpKeys };
 
-type ListFormpItem = Array<SelectedFormp>;
+export type ListFormpItem = Array<SelectedFormp>;
 export interface FormpStates extends FormModule<FormpKeys> {
   list: ListFormpItem;
 }

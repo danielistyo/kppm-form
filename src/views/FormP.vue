@@ -97,7 +97,9 @@ export default defineComponent({
       () => store.state.formp.fields,
     );
 
+    const pktKey = ref<string>('');
     const handlePktChanged = (selectedPktKey: string): void => {
+      pktKey.value = selectedPktKey;
       const selectedPkt: SelectedPkt = store.getters['pkt/selectedPkt'](selectedPktKey);
       store.commit('formp/updateFormPFields', selectedPkt);
     };
@@ -112,6 +114,7 @@ export default defineComponent({
       isSubmittingData.value = true;
 
       const formpObj: FormpItem = {
+        pkt: unref(pktKey),
         badan_pembantu: '',
         bentuk_kegiatan: '',
         biaya: {},
