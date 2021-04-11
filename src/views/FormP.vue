@@ -114,6 +114,7 @@ export default defineComponent({
       isSubmittingData.value = true;
 
       const formpObj: FormpItem = {
+        creator_id: firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         bentuk_kegiatan: '',

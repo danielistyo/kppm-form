@@ -111,6 +111,7 @@ export default defineComponent({
       isSubmittingData.value = true;
 
       const formlObj: FormlItem = {
+        creator_id: firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         biaya: {},

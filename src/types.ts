@@ -46,6 +46,9 @@ export type Choice = { nameChoice: string; valueChoice: string };
 export type Choices = Array<Choice>;
 
 export type FormpKeys =
+  | 'creator_id'
+  | 'creator_name'
+  | 'approver_id'
   | 'pkt'
   | 'badan_pembantu'
   | 'bentuk_kegiatan'
@@ -63,6 +66,9 @@ export type FormpKeys =
   | 'waktu';
 
 export type FormlKeys =
+  | 'creator_id'
+  | 'creator_name'
+  | 'approver_id'
   | 'pkt'
   | 'badan_pembantu'
   | 'biaya'
@@ -95,6 +101,8 @@ export type PktKeys =
   | 'ukuran_hasil'
   | 'waktu';
 
+type UserIdKey = { creator_id: string; creator_name?: string; approver_id?: string };
+
 export type SumberDanaKey = 'a' | 'b' | 'c';
 type SumberDana = { [k in SumberDanaKey]: number };
 type BiayaItem = { [k: number]: FieldCostValue };
@@ -121,7 +129,8 @@ export type FormlItem = {
   tujuan: string;
   usulan: string;
   waktu: string;
-} & RequestData;
+} & RequestData &
+  UserIdKey;
 
 export type SelectedForml = FormlItem & { key: FormlKeys };
 
@@ -147,7 +156,8 @@ export type FormpItem = {
   tujuan: string;
   ukuran_hasil: string;
   waktu: string;
-} & RequestData;
+} & RequestData &
+  UserIdKey;
 
 export type SelectedFormp = FormpItem & { key: FormpKeys };
 
