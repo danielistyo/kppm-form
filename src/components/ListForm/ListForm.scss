@@ -41,8 +41,20 @@
     font-weight: bold;
   }
   &__created {
+    margin-top: 3px;
+    font-size: 14px;
+
+    ::v-deep(.pi) {
+      font-size: 12px;
+    }
+  }
+  &__creator {
     margin-top: 10px;
     font-size: 14px;
+
+    ::v-deep(.pi) {
+      font-size: 12px;
+    }
   }
   &__icon-right {
     position: absolute;

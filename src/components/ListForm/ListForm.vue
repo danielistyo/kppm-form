@@ -24,13 +24,13 @@
         <div>
           <div class="unit-list__number">{{ unit.nomor_program }}</div>
           <div class="unit-list__name">{{ unit.nama_program }}</div>
-          <div class="unit-list__created">
-            <i class="pi pi-calendar" />
-            {{ convertToDate(unit.created_at) }}
-          </div>
           <div class="unit-list__creator">
             <i class="pi pi-user" />
             {{ unit.creator_name }}
+          </div>
+          <div class="unit-list__created">
+            <i class="pi pi-calendar" />
+            {{ convertToDate(unit.created_at) }}
           </div>
           <i class="unit-list__icon-right pi pi-angle-right" />
         </div>
@@ -75,7 +75,7 @@ export default defineComponent({
     const selectedPktKey = ref<string | null>(null);
 
     const convertToDate = (timestamp: number) => {
-      return dayjs.unix(timestamp).format('DD-MM-YYYY HH:mm');
+      return dayjs.unix(timestamp).format('DD MMMM YYYY HH:mm');
     };
 
     const perPage = ref(10);
