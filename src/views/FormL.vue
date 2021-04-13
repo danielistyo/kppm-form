@@ -110,8 +110,12 @@ export default defineComponent({
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
+      const currentFormPData = unref(formlList).find(
+        (forml) => forml.key === unref(selectedFormlKey),
+      );
+
       const formlObj: FormlItem = {
-        creator_id: firebase?.auth()?.currentUser?.uid || '',
+        creator_id: currentFormPData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         biaya: {},
@@ -127,8 +131,7 @@ export default defineComponent({
         tujuan: '',
         usulan: '',
         waktu: '',
-        created_at:
-          unref(formlList).find((forml) => forml.key === unref(selectedFormlKey))?.created_at || 0,
+        created_at: currentFormPData?.created_at || 0,
         updated_at: 0,
       };
 

@@ -113,8 +113,11 @@ export default defineComponent({
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
+      const currentFormPData = unref(formpList).find(
+        (forml) => forml.key === unref(selectedFormpKey),
+      );
       const formpObj: FormpItem = {
-        creator_id: firebase?.auth()?.currentUser?.uid || '',
+        creator_id: currentFormPData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         bentuk_kegiatan: '',
@@ -130,8 +133,7 @@ export default defineComponent({
         tujuan: '',
         ukuran_hasil: '',
         waktu: '',
-        created_at:
-          unref(formpList).find((forml) => forml.key === unref(selectedFormpKey))?.created_at || 0,
+        created_at: currentFormPData?.created_at || 0,
         updated_at: 0,
       };
 
