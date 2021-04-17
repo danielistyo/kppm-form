@@ -51,7 +51,7 @@ import Paginator from 'primevue/paginator';
 import Card from 'primevue/card';
 import dayjs from 'dayjs';
 import { ref, unref } from '@vue/reactivity';
-import { computed, defineComponent, PropType, watchEffect } from '@vue/runtime-core';
+import { computed, defineComponent, PropType, watchEffect } from 'vue';
 import PktDropdown from '@/components/@globals/PktDropdown';
 import { ListFormpItem } from '@/types';
 import firebase from 'firebase/app';
@@ -94,7 +94,9 @@ export default defineComponent({
       if (unref(selectedPktKey)) {
         generatedList = unref(filteredList);
       }
-      return generatedList.slice(unref(page), unref(page) + unref(perPage));
+      const startIndex = unref(page) * unref(perPage);
+      const endIndex = startIndex + unref(perPage);
+      return generatedList.slice(startIndex, endIndex);
     });
 
     const getCreatorName = () => {
@@ -125,6 +127,9 @@ export default defineComponent({
       pageCount: number;
     }) => {
       page.value = $event.page;
+
+      // scroll to the top of the page
+      document.documentElement.scrollTop = 0;
     };
 
     getCreatorName();
