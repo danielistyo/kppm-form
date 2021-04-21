@@ -20,8 +20,15 @@ export interface CostFormField<K> extends BasicFormField<K> {
 }
 
 export interface DefaultFormField<K> extends BasicFormField<K> {
-  type: 'input-text' | 'input-number' | 'simple-editor' | 'calendar-input' | 'text-area' | null;
-  value?: string | number | Array<FieldCostValue>;
+  type:
+    | 'input-text'
+    | 'input-number'
+    | 'simple-editor'
+    | 'calendar-input'
+    | 'text-area'
+    | 'image-uploader'
+    | null;
+  value?: string | number | Array<FieldCostValue> | Array<string>;
 }
 
 export type FormFields<K> = Array<DefaultFormField<K> | CostFormField<K>>;
@@ -119,7 +126,7 @@ export type FormlItem = {
   biaya: BiayaItem;
   keberhasilan: string;
   kendala: string;
-  lampiran: string;
+  lampiran: Array<string>;
   nama_program: string;
   nomor_program: string;
   pelaksana: string;
@@ -145,7 +152,7 @@ export type FormpItem = {
   badan_pembantu: string;
   bentuk_kegiatan: string;
   biaya: BiayaItem;
-  lampiran: string;
+  lampiran: Array<string>;
   nama_program: string;
   nomor_program: string;
   pelaksana: string;
