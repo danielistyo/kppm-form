@@ -110,18 +110,54 @@ export default defineComponent({
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
-      const currentFormPData = unref(formlList).find(
+      const currentFormLData = unref(formlList).find(
         (forml) => forml.key === unref(selectedFormlKey),
       );
+      // remove deleted image first
+      const draftLampiran = selectedFormlFields.value.find((field) => field.key === 'lampiran');
+      // when current image doesn't exist in draft forml lampiran at all, then remove all images
+      if (currentFormLData?.lampiran) {
+        if (Array.isArray(draftLampiran?.value) && !draftLampiran?.value.length) {
+          await currentFormLData?.lampiran?.forEach(async (currentImage: string) => {
+            const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+            const filename = res?.length ? res[0] : '';
+            await firebase
+              .storage()
+              .ref()
+              .child('uploads/')
+              .child(filename)
+              .delete();
+          });
+        }
+        // when current image doesn't exist in draft forml lampiran, then remove image
+        else {
+          await currentFormLData?.lampiran?.forEach(async (currentImage: string) => {
+            if (
+              Array.isArray(draftLampiran?.value) &&
+              draftLampiran?.value.length &&
+              !(draftLampiran?.value as string[]).includes(currentImage)
+            ) {
+              const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+              const filename = res?.length ? res[0] : '';
+              await firebase
+                .storage()
+                .ref()
+                .child('uploads/')
+                .child(filename)
+                .delete();
+            }
+          });
+        }
+      }
 
       const formlObj: FormlItem = {
-        creator_id: currentFormPData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
+        creator_id: currentFormLData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         biaya: {},
         keberhasilan: '',
         kendala: '',
-        lampiran: '',
+        lampiran: [],
         nama_program: '',
         nomor_program: '',
         pelaksana: '',
@@ -131,7 +167,7 @@ export default defineComponent({
         tujuan: '',
         usulan: '',
         waktu: '',
-        created_at: currentFormPData?.created_at || 0,
+        created_at: currentFormLData?.created_at || 0,
         updated_at: 0,
       };
 
@@ -154,6 +190,8 @@ export default defineComponent({
             formlItem?.children?.forEach((child) => {
               if (typeof child.value === 'number') formlObj.sumber_dana[child.key] = child.value;
             });
+          } else if (formlItem.key === 'lampiran') {
+            formlObj[formlItem.key] = formlItem.value as string[];
           }
           // for the other key
           else {

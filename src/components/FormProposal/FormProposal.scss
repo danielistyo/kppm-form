@@ -30,4 +30,30 @@
   &__footer {
     margin-top: 20px;
   }
+
+  ::v-deep(.p-fileupload-buttonbar) {
+    text-align: center;
+
+    & > span,
+    button {
+      margin-top: 5px;
+      padding: 8px;
+    }
+  }
+
+  ::v-deep(.p-fileupload) {
+    .p-fileupload-row > div {
+      padding: 5px;
+
+      &:nth-child(3) {
+        display: none;
+      }
+
+      &:nth-child(2) {
+        width: 50%;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
 }

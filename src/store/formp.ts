@@ -45,10 +45,13 @@ const module: Module<FormpStates, RootStateStore> = {
       if (!selectedFormp) return;
 
       state.fields.forEach((field) => {
-        if (field.key === 'lampiran' || field.key === 'pihak_luar') return;
-
+        if (field.key === 'lampiran') {
+          // set empty array when lampiran doesnt exist
+          field.value = selectedFormp?.[field.key] || [];
+          return;
+        }
         // set sumber dana field
-        if (field.key === 'sumber_dana') {
+        else if (field.key === 'sumber_dana') {
           field.children?.forEach((child) => {
             if (child.key === 'a' || child.key === 'b' || child.key === 'c') {
               const newValue = selectedFormp?.sumber_dana?.[child.key];

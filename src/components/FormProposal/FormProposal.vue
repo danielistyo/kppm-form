@@ -66,6 +66,7 @@ import SimpleEditor from '@/components/@globals/SimpleEditor';
 import CalendarInput from '@/components/@globals/CalendarInput';
 import PktDropdown from '@/components/@globals/PktDropdown';
 import CostInput from '@/components/@globals/CostInput';
+import ImageUploader from '@/components/ImageUploader';
 import Card from 'primevue/card';
 import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
 import ButtonPrime from 'primevue/button';
@@ -85,6 +86,7 @@ export default defineComponent({
     Dropdown,
     PktDropdown,
     ButtonPrime,
+    ImageUploader,
   },
   emits: ['pktchange', 'formsubmit'],
   props: {

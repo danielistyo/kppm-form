@@ -11,9 +11,9 @@ const fields: FormFields<FormpKeys> = [
   {
     key: 'lampiran',
     name: 'Lampiran',
-    type: 'input-text',
+    type: 'image-uploader',
     fieldValue: 'FieldValueDefault',
-    value: '',
+    value: [],
   },
   {
     key: 'nomor_program',

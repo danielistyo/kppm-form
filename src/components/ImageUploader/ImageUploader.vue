@@ -108,7 +108,7 @@ export default defineComponent({
           }
           // then add all children
           props.modelValue.forEach((url) => {
-            wrapperSelectedFile?.insertAdjacentHTML('afterbegin', getSelectedFileTemplate(url));
+            wrapperSelectedFile?.insertAdjacentHTML('beforeend', getSelectedFileTemplate(url));
 
             document
               .querySelector('.existing-image-remove-button')

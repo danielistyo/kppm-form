@@ -116,13 +116,48 @@ export default defineComponent({
       const currentFormPData = unref(formpList).find(
         (forml) => forml.key === unref(selectedFormpKey),
       );
+
+      // remove deleted image first
+      const draftLampiran = selectedFormpFields.value.find((field) => field.key === 'lampiran');
+      // when current image doesn't exist in draft formp lampiran at all, then remove all images
+      if (Array.isArray(draftLampiran?.value) && !draftLampiran?.value.length) {
+        await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
+          const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+          const filename = res?.length ? res[0] : '';
+          await firebase
+            .storage()
+            .ref()
+            .child('uploads/')
+            .child(filename)
+            .delete();
+        });
+      }
+      // when current image doesn't exist in draft formp lampiran, then remove image
+      else {
+        await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
+          if (
+            Array.isArray(draftLampiran?.value) &&
+            draftLampiran?.value.length &&
+            !(draftLampiran?.value as string[]).includes(currentImage)
+          ) {
+            const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+            const filename = res?.length ? res[0] : '';
+            await firebase
+              .storage()
+              .ref()
+              .child('uploads/')
+              .child(filename)
+              .delete();
+          }
+        });
+      }
       const formpObj: FormpItem = {
         creator_id: currentFormPData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
         pkt: unref(pktKey),
         badan_pembantu: '',
         bentuk_kegiatan: '',
         biaya: {},
-        lampiran: '',
+        lampiran: [],
         nama_program: '',
         nomor_program: '',
         pelaksana: '',
@@ -154,6 +189,8 @@ export default defineComponent({
             formpItem?.children?.forEach((child) => {
               if (typeof child.value === 'number') formpObj.sumber_dana[child.key] = child.value;
             });
+          } else if (formpItem.key === 'lampiran') {
+            formpObj[formpItem.key] = formpItem.value as string[];
           }
           // for the other key
           else if (formpItem.key !== 'biaya') {

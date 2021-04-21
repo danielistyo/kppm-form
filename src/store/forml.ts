@@ -45,10 +45,14 @@ const module: Module<FormlStates, RootStateStore> = {
       if (!selectedForml) return;
 
       state.fields.forEach((field) => {
-        if (field.key === 'lampiran') return;
+        if (field.key === 'lampiran') {
+          // set empty array when lampiran doesnt exist
+          field.value = selectedForml?.[field.key] || [];
+          return;
+        }
 
         // set sumber dana field
-        if (field.key === 'sumber_dana') {
+        else if (field.key === 'sumber_dana') {
           field.children?.forEach((child) => {
             if (child.key === 'a' || child.key === 'b' || child.key === 'c') {
               const newValue = selectedForml?.sumber_dana?.[child.key];
