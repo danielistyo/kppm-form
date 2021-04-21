@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import ProgressSpinner from 'primevue/progressspinner';
-import { defineComponent, onMounted, ref } from '@vue/runtime-core';
+import { defineComponent, onMounted, ref } from 'vue';
 import firebase from 'firebase/app';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
