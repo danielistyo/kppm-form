@@ -90,6 +90,7 @@ export default defineComponent({
   },
   emits: ['pktchange', 'formsubmit'],
   props: {
+    /* TODO: it shouldn't be used for vmodel directly. Because it will mutate this props and vuex data also */
     inputs: {
       type: Array as PropType<FieldType>,
       required: true,
