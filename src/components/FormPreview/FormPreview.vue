@@ -77,7 +77,7 @@
         </div>
       </div>
 
-      <div class="form-preview__attachment attachments">
+      <div v-if="attachmentFiles.length" class="form-preview__attachment attachments">
         <h4>Lampiran:</h4>
         <div class="attachments__images">
           <img v-for="(imageUrl, index) in attachmentFiles" :key="index" :src="imageUrl" />
