@@ -130,22 +130,24 @@ export default defineComponent({
       };
       const draftLampiran = selectedFormpFields.value.find((field) => field.key === 'lampiran');
       // when current image doesn't exist in draft formp lampiran at all, then remove all images
-      if (Array.isArray(draftLampiran?.value) && !draftLampiran?.value.length) {
-        await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
-          await removeFirebaseImage(currentImage);
-        });
-      }
-      // when current image doesn't exist in draft formp lampiran, then remove image
-      else {
-        await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
-          if (
-            Array.isArray(draftLampiran?.value) &&
-            draftLampiran?.value.length &&
-            !(draftLampiran?.value as string[]).includes(currentImage)
-          ) {
+      if (currentFormPData?.lampiran) {
+        if (Array.isArray(draftLampiran?.value) && !draftLampiran?.value.length) {
+          await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
             await removeFirebaseImage(currentImage);
-          }
-        });
+          });
+        }
+        // when current image doesn't exist in draft formp lampiran, then remove image
+        else {
+          await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
+            if (
+              Array.isArray(draftLampiran?.value) &&
+              draftLampiran?.value.length &&
+              !(draftLampiran?.value as string[]).includes(currentImage)
+            ) {
+              await removeFirebaseImage(currentImage);
+            }
+          });
+        }
       }
       const formpObj: FormpItem = {
         creator_id: currentFormPData?.creator_id || firebase?.auth()?.currentUser?.uid || '',
