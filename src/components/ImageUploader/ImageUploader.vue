@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, PropType, ref, toRef, unref, watchEffect } from 'vue';
+import { defineComponent, nextTick, PropType, ref, toRef, unref, watch } from 'vue';
 import FileUpload from 'primevue/fileupload';
 import { resizeImg } from '@/helpers/image';
 import firebase from 'firebase/app';
@@ -48,36 +48,32 @@ export default defineComponent({
     const fileUpload = ref<null | { files: Array<string> }>(null);
 
     // create image element in ImageUploader when there is initial value
-    watchEffect(() => {
-      // Clear files data of FileUpload component,
-      // then all selected files will be clear.
-      // This is hacked of FileUpload component.
-      // Because we will handle selected file by our selves
-      if (fileUpload.value) fileUpload.value.files = [];
+    watch(
+      toRef(props, 'modelValue'),
+      (modelValue) => {
+        // start to handle selected files
+        if (Array.isArray(modelValue) && modelValue.length) {
+          const buttonRemoveClickHandler = async (e: any) => {
+            isLoading.value = true;
+            const nameFile: string | null =
+              e.target.getAttribute('data-name') ||
+              e.target.parentElement.getAttribute('data-name') ||
+              '';
 
-      // start to handle selected files
-      if (toRef(props, 'modelValue').value && Array.isArray(props.modelValue)) {
-        const buttonRemoveClickHandler = async (e: any) => {
-          isLoading.value = true;
-          const nameFile: string | null =
-            e.target.getAttribute('data-name') ||
-            e.target.parentElement.getAttribute('data-name') ||
-            '';
+            if (nameFile) {
+              emit(
+                'update:modelValue',
+                modelValue.filter((url) => !url.includes(nameFile)),
+              );
+              document.getElementById(`existingImage${nameFile}`)?.remove();
+              isLoading.value = false;
+            }
+          };
+          const getSelectedFileTemplate = (src: string) => {
+            const res = src.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+            const filename = res?.length ? res[0] : '';
 
-          if (nameFile) {
-            emit(
-              'update:modelValue',
-              props.modelValue.filter((url) => !url.includes(nameFile)),
-            );
-            document.getElementById(`existingImage${nameFile}`)?.remove();
-            isLoading.value = false;
-          }
-        };
-        const getSelectedFileTemplate = (src: string) => {
-          const res = src.match(/(?<=%2F)(.*)(?=\?alt=media)/);
-          const filename = res?.length ? res[0] : '';
-
-          return `
+            return `
               <div id="existingImage${filename}" class="p-fileupload-row">
                 <div>
                   <img role="presentation" alt="${filename}" width="50" src="${src}"/>
@@ -96,29 +92,39 @@ export default defineComponent({
                 </div>
               </div>
               `;
-        };
-        nextTick(() => {
-          const wrapperSelectedFile = document.querySelector('.p-fileupload-content');
+          };
+          nextTick(() => {
+            const wrapperSelectedFile = document.querySelector('.p-fileupload-content');
 
-          // remove all children first
-          if (wrapperSelectedFile) {
-            for (let i = 0; i < wrapperSelectedFile.children.length; i++) {
-              wrapperSelectedFile.children?.item(i)?.remove();
+            // remove all children first
+            if (wrapperSelectedFile) {
+              const childrenLength = wrapperSelectedFile.children.length;
+              for (let i = 0; i < childrenLength; i++) {
+                // always remove first item
+                wrapperSelectedFile.children?.item(0)?.remove();
+              }
             }
-          }
-          // then add all children
-          props.modelValue.forEach((url) => {
-            wrapperSelectedFile?.insertAdjacentHTML('beforeend', getSelectedFileTemplate(url));
+            // then add all children
+            modelValue.forEach((url) => {
+              wrapperSelectedFile?.insertAdjacentHTML('beforeend', getSelectedFileTemplate(url));
 
-            document
-              .querySelector('.existing-image-remove-button')
-              ?.addEventListener('click', buttonRemoveClickHandler);
+              document
+                .querySelector('.existing-image-remove-button')
+                ?.addEventListener('click', buttonRemoveClickHandler);
+            });
           });
-        });
-      }
-    });
+        }
+      },
+      { immediate: true },
+    );
 
     const handleUpload = async ({ files }: { files: Array<File & { objectURL: Blob }> }) => {
+      // Clear files data of FileUpload component,
+      // then all selected files will be clear.
+      // This is hacked of FileUpload component.
+      // Because we will handle selected file by our selves
+      if (fileUpload.value) fileUpload.value.files = [];
+
       isLoading.value = true;
       // get last image only
       const image = files[files.length - 1];

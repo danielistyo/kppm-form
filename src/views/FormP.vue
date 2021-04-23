@@ -118,18 +118,21 @@ export default defineComponent({
       );
 
       // remove deleted image first
+      const removeFirebaseImage = async (currentImage: string): Promise<void> => {
+        const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+        const filename = res?.length ? res[0] : '';
+        await firebase
+          .storage()
+          .ref()
+          .child('uploads/')
+          .child(filename)
+          .delete();
+      };
       const draftLampiran = selectedFormpFields.value.find((field) => field.key === 'lampiran');
       // when current image doesn't exist in draft formp lampiran at all, then remove all images
       if (Array.isArray(draftLampiran?.value) && !draftLampiran?.value.length) {
         await currentFormPData?.lampiran?.forEach(async (currentImage: string) => {
-          const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
-          const filename = res?.length ? res[0] : '';
-          await firebase
-            .storage()
-            .ref()
-            .child('uploads/')
-            .child(filename)
-            .delete();
+          await removeFirebaseImage(currentImage);
         });
       }
       // when current image doesn't exist in draft formp lampiran, then remove image
@@ -140,14 +143,7 @@ export default defineComponent({
             draftLampiran?.value.length &&
             !(draftLampiran?.value as string[]).includes(currentImage)
           ) {
-            const res = currentImage.match(/(?<=%2F)(.*)(?=\?alt=media)/);
-            const filename = res?.length ? res[0] : '';
-            await firebase
-              .storage()
-              .ref()
-              .child('uploads/')
-              .child(filename)
-              .delete();
+            await removeFirebaseImage(currentImage);
           }
         });
       }
