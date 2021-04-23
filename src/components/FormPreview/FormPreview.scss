@@ -16,6 +16,11 @@
     margin: 0;
     padding: 0;
     font-size: calc(100vw / 48);
+    img, tr {
+      page-break-before: auto; /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+      page-break-after: auto; /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
+      page-break-inside: avoid; /* or 'auto' */
+    }
   }
 
   &__paper {
@@ -98,6 +103,11 @@
     }
   }
 
+  &__attachment {
+    margin-top: 1em;
+    padding-top: 1em;
+  }
+
   &__footer {
     margin-top: 3em;
   }
@@ -157,5 +167,15 @@
     font-size: 1.3em;
     font-weight: bold;
     vertical-align: middle;
+  }
+}
+
+.attachments {
+  &__images {
+    img {
+      vertical-align: top;
+      padding: 0.5em;
+      max-width: 50%;
+    }
   }
 }

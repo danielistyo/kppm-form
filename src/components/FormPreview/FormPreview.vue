@@ -19,7 +19,7 @@
         <tr v-for="(field, index) in topTableFields" :key="index">
           <td>{{ field.name }}</td>
           <td>:</td>
-          <td>{{ field.value }}</td>
+          <td>{{ getValue(field.value) }}</td>
         </tr>
       </table>
 
@@ -76,19 +76,23 @@
           <div class="form-preview__approver-note-box"></div>
         </div>
       </div>
+
+      <div class="form-preview__attachment attachments">
+        <h4>Lampiran:</h4>
+        <div class="attachments__images">
+          <img v-for="(imageUrl, index) in attachmentFiles" :key="index" :src="imageUrl" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { FormFields, FormlKeys, FormpKeys } from '@/types';
-import { computed, ComputedRef, defineComponent, PropType } from 'vue';
+import { computed, defineComponent, PropType } from 'vue';
 import FieldValueCost from './components/FieldValueCost.vue';
 import FieldValueDefault from './components/FieldValueDefault.vue';
 import FieldValueSourceFund from './components/FieldValueSourceFund.vue';
-
-type FieldType = FormFields<FormpKeys | FormlKeys>;
-type ComputedFieldType = ComputedRef<FieldType>;
 
 export default defineComponent({
   name: 'FormPreview',
@@ -99,7 +103,7 @@ export default defineComponent({
   },
   props: {
     inputs: {
-      type: Array as PropType<FieldType>,
+      type: Array as PropType<FormFields<FormpKeys | FormlKeys>>,
       required: true,
     },
     type: {
@@ -108,14 +112,27 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const topTableFields: ComputedFieldType = computed<FieldType>(() => props.inputs.slice(0, 2));
+    const topTableFields = computed<FormFields<FormpKeys | FormlKeys>>(() =>
+      props.inputs.slice(0, 2),
+    );
 
-    const mainTableFields: ComputedFieldType = computed<FieldType>(() => props.inputs.slice(2));
+    const mainTableFields = computed<FormFields<FormpKeys | FormlKeys>>(() =>
+      props.inputs.slice(2),
+    );
+
+    const attachmentFiles = computed(
+      () => props.inputs.find((input) => input.key === 'lampiran')?.value,
+    );
 
     const title = computed<string>(() =>
       props.type === 'l' ? 'LAPORAN' : 'PENGAJUAN PELAKSANAAN',
     );
-    return { topTableFields, mainTableFields, title };
+
+    const getValue = (val: string | string[]) => {
+      if (Array.isArray(val)) return val.length;
+      return val;
+    };
+    return { topTableFields, mainTableFields, title, getValue, attachmentFiles };
   },
 });
 </script>
