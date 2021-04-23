@@ -106,8 +106,10 @@ export default defineComponent({
             }
             // then add all children
             modelValue.forEach((url) => {
-              wrapperSelectedFile?.insertAdjacentHTML('beforeend', getSelectedFileTemplate(url));
+              //  afterbegin will add element first to children
+              wrapperSelectedFile?.insertAdjacentHTML('afterbegin', getSelectedFileTemplate(url));
 
+              // then it will give event listener to first element which is element that we just added above
               document
                 .querySelector('.existing-image-remove-button')
                 ?.addEventListener('click', buttonRemoveClickHandler);
