@@ -1,7 +1,20 @@
 <template>
   <div class="form-proposal">
     <card>
-      <template #title> Form {{ type.toUpperCase() }} </template>
+      <template #title>
+        Form {{ type.toUpperCase() }}
+        <template v-if="options.length">
+          <button-prime
+            @click="toggleMenu"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
+            icon="pi pi-ellipsis-v"
+            class="p-button-primary p-button-lg p-button-text"
+            style="float:right;padding:0.2rem"
+          />
+          <Menu :model="options" ref="menu" popup />
+        </template>
+      </template>
       <template #content>
         <div class="p-fluid">
           <div v-if="showPkt" class="p-field form-proposal__field">
@@ -57,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, PropType, ref, toRef, watch } from 'vue';
+import { computed, defineComponent, nextTick, PropType, ref, toRef, watch } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
 import TextArea from 'primevue/textarea';
@@ -70,6 +83,7 @@ import ImageUploader from '@/components/ImageUploader';
 import Card from 'primevue/card';
 import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
 import ButtonPrime from 'primevue/button';
+import Menu from 'primevue/menu';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
 
@@ -87,8 +101,9 @@ export default defineComponent({
     PktDropdown,
     ButtonPrime,
     ImageUploader,
+    Menu,
   },
-  emits: ['pktchange', 'formsubmit'],
+  emits: ['pktchange', 'formsubmit', 'remove', 'propose'],
   props: {
     /* TODO: it shouldn't be used for vmodel directly. Because it will mutate this props and vuex data also */
     inputs: {
@@ -109,6 +124,10 @@ export default defineComponent({
     showPkt: {
       type: Boolean,
       default: false,
+    },
+    menuOptions: {
+      type: Array as PropType<Array<'hapus' | 'ajukan'>>,
+      default: () => [],
     },
     submitLabel: {
       type: String,
@@ -140,7 +159,31 @@ export default defineComponent({
       { immediate: true, deep: true },
     );
 
-    return { selectedPktKey };
+    const menu = ref();
+    const toggleMenu = (event: Event) => {
+      menu.value.toggle(event);
+    };
+    const menuOptions = {
+      hapus: {
+        label: 'Hapus',
+        icon: 'pi pi-times',
+        command: () => {
+          emit('remove');
+        },
+      },
+      ajukan: {
+        label: 'Ajukan',
+        icon: 'pi pi-send',
+        command: () => {
+          emit('propose');
+        },
+      },
+    };
+
+    const options = computed(() =>
+      props.menuOptions.map((option: 'hapus' | 'ajukan') => menuOptions[option]),
+    );
+    return { selectedPktKey, options, menu, toggleMenu };
   },
 });
 </script>

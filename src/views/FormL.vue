@@ -7,20 +7,15 @@
     @selected="handleListSelected"
   />
   <div v-else-if="viewType === 'formView'" class="forml">
-    <button-prime
-      v-if="selectedFormlKey && !isAddingData"
-      @click="deleteForml"
-      icon="pi pi-times"
-      label="Hapus"
-      class="p-button-danger p-button-outlined p-button-sm formp__delete"
-    ></button-prime>
-
     <form-proposal
       :inputs="selectedFormlFields"
       :is-loading="isSubmittingData || isGettingData"
       :show-pkt="showPkt"
+      :status="selectedFormlData ? selectedFormlData.status : null"
+      :menuOptions="menuOptions"
       @pktchange="handlePktChanged"
       @formsubmit="handleSubmit"
+      @remove="deleteForml"
       type="l"
       class="forml__form-proposal"
     />
@@ -230,7 +225,7 @@ export default defineComponent({
     const deleteForml = () => {
       const programName = unref(selectedFormlFields).find((val) => val.key === 'nama_program')
         ?.value;
-      if (programName) {
+      if (typeof programName === 'string') {
         confirm.require({
           message: `Anda yakin ingin menghapus Form L "${programName}"?`,
           header: 'Perhatian!',
@@ -302,7 +297,18 @@ export default defineComponent({
       },
       { immediate: true },
     );
+
+    const menuOptions = ref<string[]>([]);
+    watchEffect(() => {
+      if (unref(selectedFormlKey) && !unref(isAddingData)) {
+        menuOptions.value = ['hapus', ...menuOptions.value];
+      } else {
+        menuOptions.value = [];
+      }
+    });
+
     return {
+      menuOptions,
       selectedFormlFields,
       selectedFormlKey,
       isAddingData,

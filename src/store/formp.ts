@@ -76,7 +76,7 @@ const module: Module<FormpStates, RootStateStore> = {
             field.value = [];
           }
         } else {
-          field.value = selectedFormp?.[field.key];
+          field.value = selectedFormp?.[field.key] === undefined ? '' : selectedFormp?.[field.key];
           field.view && (field.view = '');
         }
       });

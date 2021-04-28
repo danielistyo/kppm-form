@@ -8,20 +8,14 @@
   />
   <div v-else-if="viewType === 'formView'">
     <div class="formp">
-      <button-prime
-        v-if="selectedFormpKey && !isAddingData"
-        @click="deleteFormp"
-        icon="pi pi-times"
-        label="Hapus"
-        class="p-button-danger p-button-outlined p-button-sm formp__delete"
-      ></button-prime>
-
       <form-proposal
         :inputs="selectedFormpFields"
         :is-loading="isSubmittingData || isGettingData"
         :show-pkt="showPkt"
+        :menuOptions="menuOptions"
         @pktchange="handlePktChanged"
         @formsubmit="handleSubmit"
+        @remove="deleteFormp"
         type="p"
         class="formp__form-proposal"
       />
@@ -32,7 +26,6 @@
 
 <script lang="ts">
 import ProgressSpinner from 'primevue/progressspinner';
-import ButtonPrime from 'primevue/button';
 import firebase from 'firebase/app';
 import {
   computed,
@@ -62,6 +55,7 @@ import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
+import { APPROVAL_STATUS_DRAFT } from '@/constants';
 
 export default defineComponent({
   name: 'FormP',
@@ -70,7 +64,6 @@ export default defineComponent({
     FormPreview,
     ListForm,
     ProgressSpinner,
-    ButtonPrime,
   },
   setup() {
     const confirm = useConfirm();
@@ -168,6 +161,7 @@ export default defineComponent({
         waktu: '',
         created_at: currentFormPData?.created_at || 0,
         updated_at: 0,
+        status: APPROVAL_STATUS_DRAFT,
       };
 
       const dayjsObj = dayjs();
@@ -301,7 +295,17 @@ export default defineComponent({
       { immediate: true },
     );
 
+    const menuOptions = ref<string[]>([]);
+    watchEffect(() => {
+      if (unref(selectedFormpKey) && !unref(isAddingData)) {
+        menuOptions.value = ['hapus', ...menuOptions.value];
+      } else {
+        menuOptions.value = [];
+      }
+    });
+
     return {
+      menuOptions,
       showPkt,
       selectedFormpFields,
       handlePktChanged,
