@@ -161,6 +161,21 @@ const module: Module<FormlStates, RootStateStore> = {
       const selectedForml: SelectedForml = getters.selectedForml(key);
       selectedForml && commit('updateFormLFields', selectedForml);
     },
+    updateStatus({ state, rootState }, { selectedKey, status }) {
+      const forml = cloneDeep(state.list.find((item) => item.key === selectedKey));
+      if (forml) {
+        const { key, ...clearData } = forml;
+        clearData.status = status;
+        return firebase
+          .database()
+          .ref(`/formls/${(rootState as RootStateStoreWithModule)?.auth?.group}/`)
+          .update({ [selectedKey]: clearData })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+      return Promise.resolve(null);
+    },
   },
 };
 

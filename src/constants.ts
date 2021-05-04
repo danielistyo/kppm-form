@@ -1,1 +1,7 @@
 export const FIELD_BIAYA_ID = 12;
+
+// STATUS
+export const APPROVAL_STATUS_REJECTED = 4;
+export const APPROVAL_STATUS_APPROVED = 3;
+export const APPROVAL_STATUS_WAITING = 2;
+export const APPROVAL_STATUS_DRAFT = 1;

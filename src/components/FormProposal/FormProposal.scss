@@ -1,6 +1,10 @@
 .form-proposal {
   overflow-y: auto;
 
+  &__status {
+    vertical-align: bottom;
+  }
+
   &__field {
     padding-bottom: 1rem;
     border-bottom: solid 1px #d6d6d6;

@@ -108,7 +108,22 @@ export type PktKeys =
   | 'ukuran_hasil'
   | 'waktu';
 
-type UserIdKey = { creator_id: string; creator_name?: string; approver_id?: string };
+type ApprovalStatusRejected = 4;
+type ApprovalStatusApproved = 3;
+type ApprovalStatusWaiting = 2;
+type ApprovalStatusDraft = 1;
+export type ApprovalStatus =
+  | ApprovalStatusRejected
+  | ApprovalStatusApproved
+  | ApprovalStatusWaiting
+  | ApprovalStatusDraft;
+
+type ApprovalData = {
+  creator_id: string;
+  creator_name?: string;
+  approver_id?: string;
+  status: ApprovalStatus;
+};
 
 export type SumberDanaKey = 'a' | 'b' | 'c';
 type SumberDana = { [k in SumberDanaKey]: number };
@@ -137,9 +152,9 @@ export type FormlItem = {
   usulan: string;
   waktu: string;
 } & RequestData &
-  UserIdKey;
+  ApprovalData;
 
-export type SelectedForml = FormlItem & { key: FormlKeys };
+export type SelectedForml = FormlItem & { key: string };
 
 export type ListFormlItem = Array<SelectedForml>;
 export interface FormlStates extends FormModule<FormlKeys> {
@@ -164,9 +179,9 @@ export type FormpItem = {
   ukuran_hasil: string;
   waktu: string;
 } & RequestData &
-  UserIdKey;
+  ApprovalData;
 
-export type SelectedFormp = FormpItem & { key: FormpKeys };
+export type SelectedFormp = FormpItem & { key: string };
 
 export type ListFormpItem = Array<SelectedFormp>;
 export interface FormpStates extends FormModule<FormpKeys> {

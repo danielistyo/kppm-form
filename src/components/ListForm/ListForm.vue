@@ -22,7 +22,13 @@
     >
       <template #content>
         <div>
-          <div class="unit-list__number">{{ unit.nomor_program }}</div>
+          <div>
+            <span class="unit-list__number">{{ unit.nomor_program }}</span>
+            <tag-label
+              :severity="getStatus(unit.status).severity"
+              :value="getStatus(unit.status).value"
+            />
+          </div>
           <div class="unit-list__name">{{ unit.nama_program }}</div>
           <div class="unit-list__creator">
             <i class="pi pi-user" />
@@ -46,6 +52,7 @@
 </template>
 
 <script lang="ts">
+import TagLabel from 'primevue/tag';
 import ButtonPrime from 'primevue/button';
 import Paginator from 'primevue/paginator';
 import Card from 'primevue/card';
@@ -55,6 +62,7 @@ import { computed, defineComponent, PropType, watchEffect } from 'vue';
 import PktDropdown from '@/components/@globals/PktDropdown';
 import { ListFormpItem } from '@/types';
 import firebase from 'firebase/app';
+import { getStatus } from '@/helpers/status';
 
 export default defineComponent({
   name: 'ListForm',
@@ -63,6 +71,7 @@ export default defineComponent({
     ButtonPrime,
     Paginator,
     PktDropdown,
+    TagLabel,
   },
   emits: ['selected', 'addclick'],
   props: {
@@ -141,6 +150,7 @@ export default defineComponent({
       selectedPktKey,
       totalRecords,
       perPage,
+      getStatus,
     };
   },
 });

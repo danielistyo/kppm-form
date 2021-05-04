@@ -1,5 +1,5 @@
 <template>
-  <editor-input v-model="computedValue" :disabled="disabled">
+  <editor-input v-model="computedValue" v-if="!disabled">
     <template #toolbar>
       <span class="ql-formats">
         <button class="ql-bold"></button>
@@ -12,6 +12,7 @@
       </span>
     </template>
   </editor-input>
+  <div v-else v-html="computedValue || '&nbsp;'" class="simple-editor__readonly"></div>
 </template>
 
 <script lang="ts">
@@ -48,4 +49,4 @@ export default defineComponent({
 });
 </script>
 
-<style></style>
+<style lang="scss" src="./SimpleEditor.scss" scoped></style>

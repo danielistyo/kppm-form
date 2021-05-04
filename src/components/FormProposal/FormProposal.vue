@@ -3,6 +3,13 @@
     <card>
       <template #title>
         Form {{ type.toUpperCase() }}
+        <tag-label
+          v-if="status"
+          class="form-proposal__status"
+          :severity="getStatus(status).severity"
+          :value="getStatus(status).value"
+        />
+
         <template v-if="options.length">
           <button-prime
             @click="toggleMenu"
@@ -37,7 +44,9 @@
                     :modelValue="input.value"
                     @update:modelValue="updateInputData(type, input.key, $event, null)"
                     :is="child.type"
+                    :key="input.key + childIndex"
                     :id="child.name + 'ID'"
+                    :disabled="status === APPROVAL_STATUS_WAITING"
                     v-bind="child.props"
                     class="form-proposal__field-input-child"
                   />
@@ -50,7 +59,9 @@
                 :view="input.view"
                 @update:view="updateInputData(type, input.key, null, $event)"
                 :is="input.type"
+                :key="input.key"
                 :id="input.name + 'ID'"
+                :disabled="status === APPROVAL_STATUS_WAITING"
                 class="form-proposal__field-input"
                 v-bind="input.props"
               />
@@ -63,7 +74,7 @@
     <div class="form-proposal__footer">
       <button-prime
         @click="$emit('formsubmit')"
-        :disabled="isLoading"
+        :disabled="isLoading || status === APPROVAL_STATUS_WAITING"
         class="form-proposal__submit"
       >
         {{ submitLabel }}
@@ -73,6 +84,7 @@
 </template>
 
 <script lang="ts">
+import TagLabel from 'primevue/tag';
 import { computed, defineComponent, nextTick, PropType, ref, toRef, watch } from 'vue';
 import Dropdown from 'primevue/dropdown';
 import InputText from 'primevue/inputtext';
@@ -84,9 +96,19 @@ import PktDropdown from '@/components/@globals/PktDropdown';
 import CostInput from '@/components/@globals/CostInput';
 import ImageUploader from '@/components/ImageUploader';
 import Card from 'primevue/card';
-import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
+import {
+  ApprovalStatus,
+  FieldCostValue,
+  FormFields,
+  FormlKeys,
+  FormpKeys,
+  PktKeys,
+  RootStateStoreWithModule,
+} from '@/types';
 import ButtonPrime from 'primevue/button';
+import { getStatus } from '@/helpers/status';
 import Menu from 'primevue/menu';
+import { APPROVAL_STATUS_WAITING } from '@/constants';
 import { useStore } from 'vuex';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
@@ -105,9 +127,10 @@ export default defineComponent({
     PktDropdown,
     ButtonPrime,
     ImageUploader,
+    TagLabel,
     Menu,
   },
-  emits: ['pktchange', 'formsubmit', 'remove', 'propose'],
+  emits: ['pktchange', 'formsubmit', 'remove', 'propose', 'cancel'],
   props: {
     inputs: {
       type: Array as PropType<FieldType>,
@@ -135,6 +158,10 @@ export default defineComponent({
     submitLabel: {
       type: String,
       default: 'Kirim',
+    },
+    status: {
+      type: Number as PropType<ApprovalStatus>,
+      default: null,
     },
   },
   setup(props, { emit }) {
@@ -187,6 +214,13 @@ export default defineComponent({
           emit('propose');
         },
       },
+      batalkan: {
+        label: 'Batalkan',
+        icon: 'pi pi-times',
+        command: () => {
+          emit('cancel');
+        },
+      },
     };
 
     const options = computed(() =>
@@ -210,10 +244,12 @@ export default defineComponent({
 
     return {
       updateInputData,
+      getStatus,
       selectedPktKey,
       options,
       menu,
       toggleMenu,
+      APPROVAL_STATUS_WAITING,
     };
   },
 });

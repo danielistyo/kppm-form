@@ -260,7 +260,7 @@ export default defineComponent({
       router.push({ query: { action: 'add' } });
     };
 
-    watchEffect(() => {
+    watch([formpList, selectedFormpKey], () => {
       if (unref(formpList).length) {
         store.dispatch('formp/chooseFormp', unref(selectedFormpKey));
       }
@@ -290,6 +290,7 @@ export default defineComponent({
           }
         } else {
           viewType.value = 'listView';
+          selectedFormpKey.value = '';
         }
       },
       { immediate: true },
@@ -298,7 +299,7 @@ export default defineComponent({
     const menuOptions = ref<string[]>([]);
     watchEffect(() => {
       if (unref(selectedFormpKey) && !unref(isAddingData)) {
-        menuOptions.value = ['hapus', ...menuOptions.value];
+        menuOptions.value = ['hapus'];
       } else {
         menuOptions.value = [];
       }

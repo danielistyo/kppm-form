@@ -11,11 +11,13 @@
       :inputs="selectedFormlFields"
       :is-loading="isSubmittingData || isGettingData"
       :show-pkt="showPkt"
-      :status="selectedFormlData ? selectedFormlData.status : null"
+      :status="selectedFormlData ? selectedFormlData.status || 1 : null"
       :menuOptions="menuOptions"
       @pktchange="handlePktChanged"
       @formsubmit="handleSubmit"
       @remove="deleteForml"
+      @propose="proposeForml"
+      @cancel="cancelForml"
       type="l"
       class="forml__form-proposal"
     />
@@ -24,6 +26,7 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable */
 import ProgressSpinner from 'primevue/progressspinner';
 import ButtonPrime from 'primevue/button';
 import {
@@ -55,6 +58,11 @@ import dayjs from 'dayjs';
 import firebase from 'firebase/app';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
+import {
+  APPROVAL_STATUS_DRAFT,
+  APPROVAL_STATUS_REJECTED,
+  APPROVAL_STATUS_WAITING,
+} from '@/constants';
 
 export default defineComponent({
   name: 'FormL',
@@ -83,6 +91,9 @@ export default defineComponent({
 
     const formlList = computed(() => {
       return store.state.forml.list;
+    });
+    const selectedFormlData = computed(() => {
+      return unref(formlList).find((item) => item.key === unref(selectedFormlKey));
     });
 
     const selectedFormlFields: ComputedRef<FormFields<FormlKeys>> = computed<FormFields<FormlKeys>>(
@@ -161,6 +172,7 @@ export default defineComponent({
         waktu: '',
         created_at: currentFormLData?.created_at || 0,
         updated_at: 0,
+        status: APPROVAL_STATUS_DRAFT,
       };
 
       const dayjsObj = dayjs();
@@ -259,6 +271,40 @@ export default defineComponent({
       }
     };
 
+    const proposeForml = () => {
+      isSubmittingData.value = true;
+      store
+        .dispatch('forml/updateStatus', {
+          selectedKey: unref(selectedFormlKey),
+          status: APPROVAL_STATUS_WAITING,
+        })
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Form L sedang diajukan. Mohon tunggu.',
+            life: 3000,
+          });
+          isSubmittingData.value = false;
+        });
+    };
+
+    const cancelForml = () => {
+      isSubmittingData.value = true;
+      store
+        .dispatch('forml/updateStatus', {
+          selectedKey: unref(selectedFormlKey),
+          status: APPROVAL_STATUS_DRAFT,
+        })
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Pengajuan Form L dibatalkan.',
+            life: 3000,
+          });
+          isSubmittingData.value = false;
+        });
+    };
+
     const handleAddClicked = () => {
       router.push({ query: { action: 'add' } });
     };
@@ -269,7 +315,7 @@ export default defineComponent({
       router.push({ query: { action: 'edit', key } });
     };
 
-    watchEffect(() => {
+    watch([formlList, selectedFormlKey], () => {
       if (unref(formlList).length) {
         store.dispatch('forml/chooseForml', unref(selectedFormlKey));
       }
@@ -293,6 +339,7 @@ export default defineComponent({
           }
         } else {
           viewType.value = 'listView';
+          selectedFormlKey.value = '';
         }
       },
       { immediate: true },
@@ -300,8 +347,18 @@ export default defineComponent({
 
     const menuOptions = ref<string[]>([]);
     watchEffect(() => {
-      if (unref(selectedFormlKey) && !unref(isAddingData)) {
-        menuOptions.value = ['hapus', ...menuOptions.value];
+      if (!unref(isAddingData)) {
+        const tempMenu: string[] = [];
+        const status = unref(selectedFormlData)?.status || 1;
+        if ([APPROVAL_STATUS_DRAFT, APPROVAL_STATUS_REJECTED].includes(status)) {
+          tempMenu.push('hapus');
+        }
+
+        if (status === APPROVAL_STATUS_DRAFT) tempMenu.push('ajukan');
+
+        if (status === APPROVAL_STATUS_WAITING) tempMenu.push('batalkan');
+
+        menuOptions.value = tempMenu;
       } else {
         menuOptions.value = [];
       }
@@ -311,6 +368,7 @@ export default defineComponent({
       menuOptions,
       selectedFormlFields,
       selectedFormlKey,
+      selectedFormlData,
       isAddingData,
       isSubmittingData,
       viewType,
@@ -322,6 +380,8 @@ export default defineComponent({
       handleSubmit,
       handlePktChanged,
       deleteForml,
+      proposeForml,
+      cancelForml,
     };
   },
 });
