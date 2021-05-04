@@ -10,6 +10,7 @@
       multiple
       customUpload
       auto
+      :disabled="disabled"
       @uploader="handleUpload"
     />
 
@@ -36,6 +37,10 @@ export default defineComponent({
     modelValue: {
       type: Array as PropType<Array<string>>,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { emit }) {
@@ -83,6 +88,7 @@ export default defineComponent({
                 <div>
                   <button
                     class="p-button p-component p-button-icon-only existing-image-remove-button"
+                    ${props.disabled ? 'disabled="true"' : ''}
                     type="button"
                     data-name="${filename}"
                   >
