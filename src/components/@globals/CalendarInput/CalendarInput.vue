@@ -4,8 +4,9 @@
     v-model="computedValue"
     v-bind="$attrs"
     :selectionMode="selectionMode"
+    :disabled="disabled"
   />
-  <input-text v-else v-model="computedValue" v-bind="$attrs" />
+  <input-text v-else v-model="computedValue" v-bind="$attrs" :disabled="disabled" />
   <div class="calendar-input__options">
     Opsi:
     <template v-for="(md, index) in mode" :key="index">
@@ -46,6 +47,10 @@ export default defineComponent({
       type: String,
       required: false,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, context) {
     const mode = ['single', 'multiple', 'range', 'text'];
@@ -54,7 +59,8 @@ export default defineComponent({
 
     watch(
       toRef(props, 'modelValue'),
-      (modelValue) => {
+      (val) => {
+        const modelValue = unref(val);
         if (typeof modelValue === 'string') {
           if (modelValue === '') return;
           else if (/\d{2}-\d{2}-\d{4} - \d{2}-\d{2}-\d{4}/.test(modelValue)) {
@@ -132,12 +138,14 @@ export default defineComponent({
     });
 
     const clickHandler = (choice: Mode) => {
+      if (props.disabled) return;
+
       let value: string | Array<string> = '';
       if (choice === 'multiple' || choice === 'range') {
         value = [];
       }
-      context.emit('update:modelValue', value);
       context.emit('update:view', '');
+      context.emit('update:modelValue', value);
       selectionMode.value = choice;
     };
 

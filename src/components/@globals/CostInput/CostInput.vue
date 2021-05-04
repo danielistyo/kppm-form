@@ -15,10 +15,16 @@
         v-model:price="computedValue[index].price"
         v-model:frequency="computedValue[index].frequency"
         :use-frequency="useFrequency"
+        :disabled="disabled"
         @delete="handleDeleteClicked(index)"
       />
     </template>
-    <pr-button @click="handleAddClicked" label="Tambah" class="p-button-sm cost-input__add" />
+    <pr-button
+      @click="handleAddClicked"
+      :disabled="disabled"
+      label="Tambah"
+      class="p-button-sm cost-input__add"
+    />
   </div>
 </template>
 
@@ -41,6 +47,10 @@ export default defineComponent({
       required: true,
     },
     useFrequency: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },

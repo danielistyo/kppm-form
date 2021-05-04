@@ -1,5 +1,5 @@
 <template>
-  <editor-input v-model="computedValue">
+  <editor-input v-model="computedValue" :disabled="disabled">
     <template #toolbar>
       <span class="ql-formats">
         <button class="ql-bold"></button>
@@ -28,6 +28,10 @@ export default defineComponent({
     modelValue: {
       type: String,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { emit }) {

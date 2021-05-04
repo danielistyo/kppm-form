@@ -1,8 +1,14 @@
 <template>
   <div class="p-d-inline-flex p-mb-2 p-ai-center">
-    <input-text v-model="computedName" style="width:35.2941176%" class="p-mr-2 p-p-1" />
+    <input-text
+      v-model="computedName"
+      :disabled="disabled"
+      style="width:35.2941176%"
+      class="p-mr-2 p-p-1"
+    />
     <input-number
       v-model="computedCount"
+      :disabled="disabled"
       style="width:14.7058824%"
       class="p-mr-2"
       inputClass="p-p-1"
@@ -10,12 +16,14 @@
     <input-number
       v-if="useFrequency"
       v-model="computedFrequency"
+      :disabled="disabled"
       style="width:14.7058824%"
       class="p-mr-2"
       inputClass="p-p-1"
     />
     <input-number
       v-model="computedPrice"
+      :disabled="disabled"
       style="width:35.2941176%"
       mode="currency"
       currency="IDR"
@@ -60,8 +68,12 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
-  setup(props: Readonly<CostItem>, { emit }) {
+  setup(props, { emit }) {
     const computedName = computed({
       get() {
         return props.name;
@@ -96,7 +108,7 @@ export default defineComponent({
     });
 
     const handleDelete = () => {
-      emit('delete');
+      if (!props.disabled) emit('delete');
     };
 
     return {
