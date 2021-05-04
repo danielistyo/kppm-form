@@ -82,6 +82,31 @@ const module: Module<FormlStates, RootStateStore> = {
         }
       });
     },
+    updateFormLField(
+      state,
+      {
+        key,
+        value,
+        view,
+      }: {
+        key: string;
+        value: string | number | Array<FieldCostValue> | Array<string> | null;
+        view: string | null;
+      },
+    ) {
+      const copyOfFields = cloneDeep(state.fields);
+      // find object as key value, then update value and view
+      copyOfFields.find((field) => {
+        const isFound = field.key === key;
+        if (isFound) {
+          if (value !== null) field.value = value;
+          if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+        }
+        return isFound;
+      });
+      // assign to state
+      state.fields = copyOfFields;
+    },
   },
   actions: {
     getForml({ commit, state, rootState }): void {

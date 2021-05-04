@@ -34,7 +34,8 @@
                     {{ child.name }}
                   </label>
                   <component
-                    v-model="child.value"
+                    :modelValue="input.value"
+                    @update:modelValue="updateInputData(type, input.key, $event, null)"
                     :is="child.type"
                     :id="child.name + 'ID'"
                     v-bind="child.props"
@@ -44,8 +45,10 @@
               </template>
               <component
                 v-else
-                v-model="input.value"
-                v-model:view="input.view"
+                :modelValue="input.value"
+                @update:modelValue="updateInputData(type, input.key, $event, null)"
+                :view="input.view"
+                @update:view="updateInputData(type, input.key, null, $event)"
                 :is="input.type"
                 :id="input.name + 'ID'"
                 class="form-proposal__field-input"
@@ -84,6 +87,7 @@ import Card from 'primevue/card';
 import { FormFields, FormlKeys, FormpKeys, PktKeys } from '@/types';
 import ButtonPrime from 'primevue/button';
 import Menu from 'primevue/menu';
+import { useStore } from 'vuex';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
 
@@ -105,13 +109,12 @@ export default defineComponent({
   },
   emits: ['pktchange', 'formsubmit', 'remove', 'propose'],
   props: {
-    /* TODO: it shouldn't be used for vmodel directly. Because it will mutate this props and vuex data also */
     inputs: {
       type: Array as PropType<FieldType>,
       required: true,
     },
     type: {
-      type: String,
+      type: String as PropType<'l' | 'p' | 'pkt'>,
       required: true,
       validator: (val: string) => {
         return ['l', 'p', 'pkt'].includes(val);
@@ -135,6 +138,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const store = useStore<RootStateStoreWithModule>();
     const selectedPktKey = ref<string>('');
 
     watch(selectedPktKey, (newSelectedPktKey) => {
@@ -153,7 +157,12 @@ export default defineComponent({
 
           // scroll to top of form proposal component
           const formProposalEl = document.querySelector('.form-proposal');
-          if (formProposalEl) formProposalEl.scrollTop = 0;
+          if (formProposalEl) {
+            // for desktop
+            formProposalEl.scrollTop = 0;
+            // for mobile
+            document.documentElement.scrollTop = 0;
+          }
         });
       },
       { immediate: true, deep: true },
@@ -183,7 +192,29 @@ export default defineComponent({
     const options = computed(() =>
       props.menuOptions.map((option: 'hapus' | 'ajukan') => menuOptions[option]),
     );
-    return { selectedPktKey, options, menu, toggleMenu };
+
+    const updateInputData = (
+      type: string,
+      key: string,
+      value: string | number | Array<FieldCostValue> | Array<string>,
+      view: string,
+    ) => {
+      nextTick(() => {
+        store.commit(`form${type}/updateFormLField`, {
+          key,
+          value,
+          view,
+        });
+      });
+    };
+
+    return {
+      updateInputData,
+      selectedPktKey,
+      options,
+      menu,
+      toggleMenu,
+    };
   },
 });
 </script>
