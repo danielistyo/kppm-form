@@ -7,7 +7,6 @@ import {
   RootStateStore,
   FormpKeys,
   SelectedFormp,
-  RootStateStoreWithModule,
 } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
@@ -81,12 +80,48 @@ const module: Module<FormpStates, RootStateStore> = {
         }
       });
     },
+
+    updateField(
+      state,
+      {
+        key,
+        keyChild,
+        value,
+        view,
+      }: {
+        key: string;
+        keyChild: string;
+        value: string | number | Array<FieldCostValue> | Array<string> | null;
+        view: string | null;
+      },
+    ) {
+      const copyOfFields = cloneDeep(state.fields);
+      // find object as key value, then update value and view
+      copyOfFields.find((field) => {
+        const isFound = field.key === key;
+        if (isFound) {
+          if (keyChild) {
+            const child = field.children?.find((child) => child.key === keyChild);
+            if (child) {
+              if (value !== null) child.value = value;
+              if (typeof child.view === 'string' && typeof view === 'string') child.view = view;
+            }
+          } else {
+            if (value !== null) field.value = value;
+            if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+          }
+        }
+        return isFound;
+      });
+      // assign to state
+      state.fields = copyOfFields;
+    },
   },
   actions: {
-    getFormp({ commit, state, rootState }): void {
+    getFormp({ commit, state, rootGetters }): void {
       const formpKppmRef = firebase
         .database()
-        .ref(`/formps/${(rootState as RootStateStoreWithModule).auth.group}/`)
+        .ref(`/formps/${rootGetters['auth/selectedGroup']}/`)
         .orderByChild('created_at');
       state.isGettingData = true;
       onFormpValueChange = formpKppmRef.on(
@@ -117,11 +152,11 @@ const module: Module<FormpStates, RootStateStore> = {
         },
       );
     },
-    unsubscribeFormpValue({ rootState }) {
+    unsubscribeFormpValue({ rootGetters }) {
       if (onFormpValueChange) {
         firebase
           .database()
-          .ref(`/formps/${(rootState as RootStateStoreWithModule).auth.group}/`)
+          .ref(`/formps/${rootGetters['auth/selectedGroup']}/`)
           .off('value', onFormpValueChange);
       } else {
         return Promise.resolve('there is no formp subscription');

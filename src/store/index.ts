@@ -7,6 +7,8 @@ import auth from './auth';
 import createPersistedState from 'vuex-persistedstate';
 
 const store = createStore<RootStateStore>({
+  /* @ts-ignore */
+  // there is a bug from vuex type. then we need to skip line below
   state() {
     return { master: null };
   },

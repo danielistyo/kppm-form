@@ -53,9 +53,6 @@ export type Choice = { nameChoice: string; valueChoice: string };
 export type Choices = Array<Choice>;
 
 export type FormpKeys =
-  | 'creator_id'
-  | 'creator_name'
-  | 'approver_id'
   | 'pkt'
   | 'badan_pembantu'
   | 'bentuk_kegiatan'
@@ -73,9 +70,6 @@ export type FormpKeys =
   | 'waktu';
 
 export type FormlKeys =
-  | 'creator_id'
-  | 'creator_name'
-  | 'approver_id'
   | 'pkt'
   | 'badan_pembantu'
   | 'biaya'
@@ -121,7 +115,7 @@ export type ApprovalStatus =
 type ApprovalData = {
   creator_id: string;
   creator_name?: string;
-  approver_id?: string;
+  approver_ids?: string[];
   status: ApprovalStatus;
 };
 
@@ -214,14 +208,20 @@ export interface PktStates extends FormModule<PktKeys> {
   list: ListPktItem;
 }
 
+export type Groups = 'kppm' | 'kpsg';
 export interface AuthStates {
   isLogin: boolean;
   name: string;
   email: string;
-  group: string;
+  group: { [g in Groups]?: string } | null;
+  selectedGroupName: string | null;
 }
 export interface RootStateStore {
   master: null | string;
+  auth: AuthStates;
+  pkt: PktStates;
+  formp: FormpStates;
+  forml: FormlStates;
 }
 
 export interface RootStateStoreWithModule {

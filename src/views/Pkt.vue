@@ -43,13 +43,7 @@ import { computed, defineComponent, nextTick, ref, unref, watch } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import PktDropdown from '@/components/@globals/PktDropdown';
 import { useStore } from 'vuex';
-import {
-  CostFormField,
-  DefaultFormField,
-  PktItem,
-  PktKeys,
-  RootStateStoreWithModule,
-} from '@/types';
+import { CostFormField, DefaultFormField, PktItem, PktKeys, RootStateStore } from '@/types';
 import usePkt from '@/composables/pkt';
 
 export default defineComponent({
@@ -60,7 +54,7 @@ export default defineComponent({
     ButtonPrime,
   },
   setup() {
-    const store = useStore<RootStateStoreWithModule>();
+    const store = useStore<RootStateStore>();
 
     const confirm = useConfirm();
     const toast = useToast();
@@ -87,7 +81,7 @@ export default defineComponent({
 
     /* ************* firebase stuff - START ************* */
 
-    const pktRef = firebase.database().ref(`/pkt/${store.state.auth.group}/`);
+    const pktRef = firebase.database().ref(`/pkt/${store.getters['auth/selectedGroup']}/`);
 
     const submitPkt = () => {
       const submitData = async () => {

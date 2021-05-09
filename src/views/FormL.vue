@@ -50,7 +50,7 @@ import {
   FormlItem,
   FormlKeys,
   FormQueryParams,
-  RootStateStoreWithModule,
+  RootStateStore,
   SelectedPkt,
 } from '@/types';
 import { useRoute, useRouter } from 'vue-router';
@@ -83,7 +83,7 @@ export default defineComponent({
     const viewType = ref<'listView' | 'formView'>('listView');
     const selectedFormlKey = ref<string>('');
     const showPkt = ref(true);
-    const store = useStore<RootStateStoreWithModule>();
+    const store = useStore<RootStateStore>();
 
     const isGettingData = computed(() => {
       return store.state.forml.isGettingData;
@@ -112,7 +112,7 @@ export default defineComponent({
       store.dispatch('forml/unsubscribeFormlValue');
     });
 
-    const formlRef = firebase.database().ref(`/formls/${store.state.auth.group}/`);
+    const formlRef = firebase.database().ref(`/formls/${store.getters['auth/selectedGroup']}/`);
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 

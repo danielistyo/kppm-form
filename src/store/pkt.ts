@@ -1,14 +1,6 @@
 import pktField from '@/data/pkt-field';
 import cloneDeep from 'lodash/fp/cloneDeep';
-import {
-  PktStates,
-  RootStateStore,
-  PktItem,
-  Choices,
-  FieldCostValue,
-  SelectedPkt,
-  RootStateStoreWithModule,
-} from '@/types';
+import { PktStates, RootStateStore, PktItem, Choices, FieldCostValue, SelectedPkt } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 
@@ -75,6 +67,31 @@ const module: Module<PktStates, RootStateStore> = {
         }
       });
     },
+    updateField(
+      state,
+      {
+        key,
+        value,
+        view,
+      }: {
+        key: string;
+        value: string | number | Array<FieldCostValue> | Array<string> | null;
+        view: string | null;
+      },
+    ) {
+      const copyOfFields = cloneDeep(state.fields);
+      // find object as key value, then update value and view
+      copyOfFields.find((field) => {
+        const isFound = field.key === key;
+        if (isFound) {
+          if (value !== null) field.value = value;
+          if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+        }
+        return isFound;
+      });
+      // assign to state
+      state.fields = copyOfFields;
+    },
   },
   getters: {
     choices(state): Choices {
@@ -89,10 +106,8 @@ const module: Module<PktStates, RootStateStore> = {
     },
   },
   actions: {
-    getPkt({ commit, state, rootState }): void {
-      const pktRef = firebase
-        .database()
-        .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`);
+    getPkt({ commit, state, rootGetters }): void {
+      const pktRef = firebase.database().ref(`/pkt/${rootGetters['auth/selectedGroup']}/`);
       state.isGettingData = true;
       onPktValueChange = pktRef.on(
         'value',
@@ -111,11 +126,11 @@ const module: Module<PktStates, RootStateStore> = {
         },
       );
     },
-    unsubscribePktValue({ rootState }) {
+    unsubscribePktValue({ rootGetters }) {
       if (onPktValueChange) {
         return firebase
           .database()
-          .ref(`/pkt/${(rootState as RootStateStoreWithModule).auth.group}/`)
+          .ref(`/pkt/${rootGetters['auth/selectedGroup']}/`)
           .off('value', onPktValueChange);
       } else {
         return Promise.resolve('there is no pkt subscription');

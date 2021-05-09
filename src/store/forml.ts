@@ -6,7 +6,6 @@ import {
   FormlKeys,
   FormlStates,
   RootStateStore,
-  RootStateStoreWithModule,
   SelectedForml,
 } from '@/types';
 import { Module } from 'vuex';
@@ -82,14 +81,16 @@ const module: Module<FormlStates, RootStateStore> = {
         }
       });
     },
-    updateFormLField(
+    updateField(
       state,
       {
         key,
+        keyChild,
         value,
         view,
       }: {
         key: string;
+        keyChild: string;
         value: string | number | Array<FieldCostValue> | Array<string> | null;
         view: string | null;
       },
@@ -99,8 +100,16 @@ const module: Module<FormlStates, RootStateStore> = {
       copyOfFields.find((field) => {
         const isFound = field.key === key;
         if (isFound) {
-          if (value !== null) field.value = value;
-          if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+          if (keyChild) {
+            const child = field.children?.find((child) => child.key === keyChild);
+            if (child) {
+              if (value !== null) child.value = value;
+              if (typeof child.view === 'string' && typeof view === 'string') child.view = view;
+            }
+          } else {
+            if (value !== null) field.value = value;
+            if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+          }
         }
         return isFound;
       });
@@ -109,10 +118,10 @@ const module: Module<FormlStates, RootStateStore> = {
     },
   },
   actions: {
-    getForml({ commit, state, rootState }): void {
+    getForml({ commit, state, rootGetters }): void {
       const formlRef = firebase
         .database()
-        .ref(`/formls/${(rootState as RootStateStoreWithModule)?.auth?.group}/`)
+        .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
         .orderByChild('created_at');
 
       state.isGettingData = true;
@@ -145,11 +154,11 @@ const module: Module<FormlStates, RootStateStore> = {
         },
       );
     },
-    unsubscribeFormlValue({ rootState }) {
+    unsubscribeFormlValue({ rootGetters }) {
       if (onFormlValueChange) {
         firebase
           .database()
-          .ref(`/formls/${(rootState as RootStateStoreWithModule).auth.group}/`)
+          .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
           .off('value', onFormlValueChange);
       } else {
         return Promise.resolve('there is no forml subscription');
@@ -161,14 +170,14 @@ const module: Module<FormlStates, RootStateStore> = {
       const selectedForml: SelectedForml = getters.selectedForml(key);
       selectedForml && commit('updateFormLFields', selectedForml);
     },
-    updateStatus({ state, rootState }, { selectedKey, status }) {
+    updateStatus({ state, rootGetters }, { selectedKey, status }) {
       const forml = cloneDeep(state.list.find((item) => item.key === selectedKey));
       if (forml) {
         const { key, ...clearData } = forml;
         clearData.status = status;
         return firebase
           .database()
-          .ref(`/formls/${(rootState as RootStateStoreWithModule)?.auth?.group}/`)
+          .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
           .update({ [selectedKey]: clearData })
           .catch((err) => {
             console.error(err);

@@ -1,10 +1,7 @@
-import { AuthStates, RootStateStore } from '@/types';
+import { AuthStates, RootStateStore, Groups } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
 import 'firebase/auth';
-import { Router } from 'vue-router';
-
-type RouterProperty = { $router: Router };
 
 const module: Module<AuthStates, RootStateStore> = {
   namespaced: true,
@@ -12,8 +9,30 @@ const module: Module<AuthStates, RootStateStore> = {
     isLogin: false,
     name: '',
     email: '',
-    group: '',
+    group: null, // { kppm: 'read, write, approve' }
+    selectedGroupName: null,
   }),
+  getters: {
+    isMultipleGroup(state): boolean {
+      return !!state.group && Object.keys(state.group).length > 1;
+    },
+    selectedGroup(state, getters): string | null {
+      if (!state.group) return null;
+
+      if (getters.isMultipleGroup && !state.selectedGroupName) {
+        const firstGroup = Object.keys(state.group)[0];
+        if (firstGroup) return firstGroup;
+      }
+
+      if (Object.keys(state.group).length === 1) {
+        const firstGroup = Object.keys(state.group)[0];
+        if (firstGroup) {
+          return firstGroup;
+        }
+      }
+      return null;
+    },
+  },
   mutations: {
     setIsLogin(state, val: boolean) {
       state.isLogin = val;
@@ -24,7 +43,7 @@ const module: Module<AuthStates, RootStateStore> = {
     setEmail(state, val: string) {
       state.email = val;
     },
-    setGroup(state, val: string) {
+    setGroup(state, val: { [g in Groups]?: string }) {
       state.group = val;
     },
   },

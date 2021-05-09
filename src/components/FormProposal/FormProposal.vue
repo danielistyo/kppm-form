@@ -41,8 +41,8 @@
                     {{ child.name }}
                   </label>
                   <component
-                    :modelValue="input.value"
-                    @update:modelValue="updateInputData(type, input.key, $event, null)"
+                    :modelValue="child.value"
+                    @update:modelValue="updateInputData(type, input.key, $event, null, child.key)"
                     :is="child.type"
                     :key="input.key + childIndex"
                     :id="child.name + 'ID'"
@@ -232,12 +232,16 @@ export default defineComponent({
       key: string,
       value: string | number | Array<FieldCostValue> | Array<string>,
       view: string,
+      keyChild: string,
     ) => {
       nextTick(() => {
-        store.commit(`form${type}/updateFormLField`, {
+        let module = 'pkt';
+        if (['p', 'l'].includes(type)) module = `form${type}`;
+        store.commit(`${module}/updateField`, {
           key,
           value,
           view,
+          keyChild,
         });
       });
     };

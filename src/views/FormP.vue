@@ -48,7 +48,7 @@ import {
   FormpItem,
   FormpKeys,
   FormQueryParams,
-  RootStateStoreWithModule,
+  RootStateStore,
   SelectedPkt,
 } from '@/types';
 import dayjs from 'dayjs';
@@ -75,7 +75,7 @@ export default defineComponent({
     const isSubmittingData = ref(false);
     const selectedFormpKey = ref<string>('');
     const showPkt = ref(true);
-    const store = useStore<RootStateStoreWithModule>();
+    const store = useStore<RootStateStore>();
     store.commit('formp/clearFields');
 
     const isGettingData = computed(() => {
@@ -102,7 +102,7 @@ export default defineComponent({
       store.dispatch('formp/unsubscribeFormpValue');
     });
 
-    const formpRef = firebase.database().ref(`/formps/${store.state.auth.group}/`);
+    const formpRef = firebase.database().ref(`/formps/${store.getters['auth/selectedGroup']}/`);
     const handleSubmit = async () => {
       isSubmittingData.value = true;
 
