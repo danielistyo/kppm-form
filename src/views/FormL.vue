@@ -33,7 +33,6 @@ import {
   computed,
   ComputedRef,
   defineComponent,
-  onUnmounted,
   ref,
   unref,
   watch,
@@ -106,11 +105,6 @@ export default defineComponent({
       const selectedPkt: SelectedPkt = store.getters['pkt/selectedPkt'](selectedPktKey);
       store.commit('forml/updateFormLFields', selectedPkt);
     };
-
-    store.dispatch('forml/getForml');
-    onUnmounted(() => {
-      store.dispatch('forml/unsubscribeFormlValue');
-    });
 
     const formlRef = firebase.database().ref(`/formls/${store.getters['auth/selectedGroup']}/`);
     const handleSubmit = async () => {

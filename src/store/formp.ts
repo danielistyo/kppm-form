@@ -10,6 +10,11 @@ import {
 } from '@/types';
 import { Module } from 'vuex';
 import firebase from 'firebase/app';
+import {
+  APPROVAL_STATUS_APPROVED,
+  APPROVAL_STATUS_DRAFT,
+  APPROVAL_STATUS_WAITING,
+} from '@/constants';
 
 let onFormpValueChange:
   | ((a: firebase.database.DataSnapshot, b?: string | null | undefined) => any)
@@ -26,6 +31,22 @@ const module: Module<FormpStates, RootStateStore> = {
     selectedFormp(state): Function {
       return (selectedKey: FormpKeys): SelectedFormp | undefined =>
         state.list.find(({ key }) => key === selectedKey);
+    },
+    statusCount(state) {
+      return state.list.reduce(
+        (counts, formp) => {
+          if (formp.status === APPROVAL_STATUS_DRAFT || !formp.status) {
+            counts.draft += 1;
+          } else if (formp.status === APPROVAL_STATUS_WAITING) {
+            counts.waiting += 1;
+          } else if (formp.status === APPROVAL_STATUS_APPROVED) {
+            counts.done += 1;
+          }
+
+          return counts;
+        },
+        { draft: 0, waiting: 0, done: 0 },
+      );
     },
   },
   mutations: {
