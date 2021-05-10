@@ -12,10 +12,13 @@
         :inputs="selectedFormpFields"
         :is-loading="isSubmittingData || isGettingData"
         :show-pkt="showPkt"
+        :status="selectedFormpData ? selectedFormpData.status || 1 : null"
         :menuOptions="menuOptions"
         @pktchange="handlePktChanged"
         @formsubmit="handleSubmit"
         @remove="deleteFormp"
+        @propose="proposeFormp"
+        @cancel="cancelFormp"
         type="p"
         class="formp__form-proposal"
       />
@@ -55,7 +58,11 @@ import dayjs from 'dayjs';
 import { useRoute, useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { APPROVAL_STATUS_DRAFT } from '@/constants';
+import {
+  APPROVAL_STATUS_DRAFT,
+  APPROVAL_STATUS_REJECTED,
+  APPROVAL_STATUS_WAITING,
+} from '@/constants';
 
 export default defineComponent({
   name: 'FormP',
@@ -86,6 +93,10 @@ export default defineComponent({
       return store.state.formp.list;
     });
 
+    const selectedFormpData = computed(() => {
+      return unref(formpList).find((item) => item.key === unref(selectedFormpKey));
+    });
+
     const selectedFormpFields: ComputedRef<FormFields<FormpKeys>> = computed<FormFields<FormpKeys>>(
       () => store.state.formp.fields,
     );
@@ -107,7 +118,7 @@ export default defineComponent({
       isSubmittingData.value = true;
 
       const currentFormPData = unref(formpList).find(
-        (forml) => forml.key === unref(selectedFormpKey),
+        (formp) => formp.key === unref(selectedFormpKey),
       );
 
       // remove deleted image first
@@ -256,6 +267,40 @@ export default defineComponent({
       }
     };
 
+    const proposeFormp = () => {
+      isSubmittingData.value = true;
+      store
+        .dispatch('formp/updateStatus', {
+          selectedKey: unref(selectedFormpKey),
+          status: APPROVAL_STATUS_WAITING,
+        })
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Form P sedang diajukan. Mohon tunggu.',
+            life: 3000,
+          });
+          isSubmittingData.value = false;
+        });
+    };
+
+    const cancelFormp = () => {
+      isSubmittingData.value = true;
+      store
+        .dispatch('formp/updateStatus', {
+          selectedKey: unref(selectedFormpKey),
+          status: APPROVAL_STATUS_DRAFT,
+        })
+        .then(() => {
+          toast.add({
+            severity: 'success',
+            summary: 'Pengajuan Form P dibatalkan.',
+            life: 3000,
+          });
+          isSubmittingData.value = false;
+        });
+    };
+
     const handleAddClicked = () => {
       router.push({ query: { action: 'add' } });
     };
@@ -298,8 +343,18 @@ export default defineComponent({
 
     const menuOptions = ref<string[]>([]);
     watchEffect(() => {
-      if (unref(selectedFormpKey) && !unref(isAddingData)) {
-        menuOptions.value = ['hapus'];
+      if (!unref(isAddingData)) {
+        const tempMenu: string[] = [];
+        const status = unref(selectedFormpData)?.status || 1;
+        if ([APPROVAL_STATUS_DRAFT, APPROVAL_STATUS_REJECTED].includes(status)) {
+          tempMenu.push('hapus');
+        }
+
+        if (status === APPROVAL_STATUS_DRAFT) tempMenu.push('ajukan');
+
+        if (status === APPROVAL_STATUS_WAITING) tempMenu.push('batalkan');
+
+        menuOptions.value = tempMenu;
       } else {
         menuOptions.value = [];
       }
@@ -309,6 +364,7 @@ export default defineComponent({
       menuOptions,
       showPkt,
       selectedFormpFields,
+      selectedFormpData,
       handlePktChanged,
       isSubmittingData,
       handleSubmit,
@@ -320,6 +376,8 @@ export default defineComponent({
       isAddingData,
       deleteFormp,
       selectedFormpKey,
+      proposeFormp,
+      cancelFormp,
     };
   },
 });

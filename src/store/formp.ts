@@ -168,6 +168,21 @@ const module: Module<FormpStates, RootStateStore> = {
       const selectedFormp: SelectedFormp = getters.selectedFormp(key);
       selectedFormp && commit('updateFormPFields', selectedFormp);
     },
+    updateStatus({ state, rootGetters }, { selectedKey, status }) {
+      const formp = cloneDeep(state.list.find((item) => item.key === selectedKey));
+      if (formp) {
+        const { key, ...clearData } = formp;
+        clearData.status = status;
+        return firebase
+          .database()
+          .ref(`/formps/${rootGetters['auth/selectedGroup']}/`)
+          .update({ [selectedKey]: clearData })
+          .catch((err) => {
+            console.error(err);
+          });
+      }
+      return Promise.resolve(null);
+    },
   },
 };
 
