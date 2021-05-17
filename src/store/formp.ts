@@ -204,6 +204,30 @@ const module: Module<FormpStates, RootStateStore> = {
       }
       return Promise.resolve(null);
     },
+    approveForm({ state, rootGetters }, { selectedKey }) {
+      const formp = cloneDeep(state.list.find((item) => item.key === selectedKey));
+      const userId = firebase?.auth()?.currentUser?.uid;
+      if (!userId || !formp) return;
+
+      const { key, ...clearData } = formp;
+
+      // change status when approvers are complete
+      if (formp?.approver_ids?.length === 1) {
+        clearData.status = APPROVAL_STATUS_APPROVED;
+      }
+
+      // create new array for approver
+      if (!clearData.approver_ids) clearData.approver_ids = [];
+      clearData.approver_ids.push(userId);
+
+      return firebase
+        .database()
+        .ref(`/formps/${rootGetters['auth/selectedGroup']}/`)
+        .update({ [selectedKey]: clearData })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
   },
 };
 
