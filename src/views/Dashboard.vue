@@ -1,22 +1,31 @@
 <template>
   <div class="dashboard">
-    <h2 class="p-py-5">Selamat datang, {{ name }}</h2>
+    <h2 class="p-py-5">Selamat datang, {{ name }}!</h2>
     <div class="p-grid">
       <card class="p-col p-mr-2 p-ml-2 p-mb-2">
         <template #title>Form P</template>
         <template #content>
           <div class="card-statistic">
             <div class="card-statistic__item">
-              {{ formpCount.draft }}
-              <div class="card-statistic__label">Draft</div>
+              <template v-if="!isLoading">
+                {{ formpCount.draft }}
+                <div class="card-statistic__label">Draft</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
             <div class="card-statistic__item">
-              {{ formpCount.waiting }}
-              <div class="card-statistic__label">Pengajuan</div>
+              <template v-if="!isLoading">
+                {{ formpCount.waiting }}
+                <div class="card-statistic__label">Pengajuan</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
             <div class="card-statistic__item">
-              {{ formpCount.done }}
-              <div class="card-statistic__label">Selesai</div>
+              <template v-if="!isLoading">
+                {{ formpCount.done }}
+                <div class="card-statistic__label">Selesai</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
           </div>
         </template>
@@ -26,42 +35,135 @@
         <template #content>
           <div class="card-statistic">
             <div class="card-statistic__item">
-              {{ formlCount.draft }}
-              <div class="card-statistic__label">Draft</div>
+              <template v-if="!isLoading">
+                {{ formlCount.draft }}
+                <div class="card-statistic__label">Draft</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
             <div class="card-statistic__item">
-              {{ formlCount.waiting }}
-              <div class="card-statistic__label">Pengajuan</div>
+              <template v-if="!isLoading">
+                {{ formlCount.waiting }}
+                <div class="card-statistic__label">Pengajuan</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
             <div class="card-statistic__item">
-              {{ formlCount.done }}
-              <div class="card-statistic__label">Selesai</div>
+              <template v-if="!isLoading">
+                {{ formlCount.done }}
+                <div class="card-statistic__label">Selesai</div>
+              </template>
+              <skeleton v-else width="50px" height="50px" />
             </div>
           </div>
         </template>
       </card>
+    </div>
+
+    <template v-if="!isLoading">
+      <h2 class="p-pt-5" v-if="formNeedApproval.length">Perlu diperiksa:</h2>
+      <h2 v-else># Tidak ada form yang perlu diperiksa.</h2>
+      <list-approval-form :forms="formNeedApproval" />
+    </template>
+    <div v-else class="p-grid p-p-2">
+      <div class="p-col-6">
+        <skeleton width="100%" height="50px" />
+      </div>
+      <div class="p-col-6">
+        <skeleton width="100%" height="50px" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Card from 'primevue/card';
-import { RootStateStore } from '@/types';
-import { computed, defineComponent } from 'vue';
+import firebase from 'firebase/app';
+import { FormpItem, FormlItem, Groups, RootStateStore } from '@/types';
+import { computed, defineComponent, ref, watch } from 'vue';
 import { mapGetters, useStore } from 'vuex';
+import { APPROVAL_STATUS_WAITING } from '@/constants';
+import ListApprovalForm from '@/components/ListApprovalForm';
+import Skeleton from 'primevue/skeleton';
 
 export default defineComponent({
   name: 'Dashboard',
   components: {
     Card,
+    ListApprovalForm,
+    Skeleton,
   },
   setup() {
+    const isLoading = ref(true);
     const store = useStore<RootStateStore>();
     const name = computed(() => {
       return store.state.auth.name;
     });
 
-    return { name };
+    const groupForms = ref<{ [k: string]: Array<FormpItem | FormlItem> }>({});
+    const formNeedApproval = computed<Array<FormpItem | FormlItem>>(() => {
+      const forms = Object.values(groupForms.value);
+      const newForms = forms.reduce((arr, items) => {
+        return arr.concat(items);
+      }, []);
+
+      const userId = firebase?.auth()?.currentUser?.uid;
+      if (userId) {
+        // skip form that already been signed
+        return newForms.filter((form) => !form.approver_ids?.includes(userId));
+      }
+      return newForms;
+    });
+
+    const approvalGroups = computed<{ approve1: Groups[]; approve2: Groups[] }>(() => {
+      return store.getters['auth/approvalGroups'];
+    });
+    watch(
+      approvalGroups,
+      async (approvalGroupsNew) => {
+        const formType = ['formls', 'formps'];
+
+        type FormsWithGroupAndType = Array<
+          (FormpItem | FormlItem) & { type: string; group: string; key: string }
+        >;
+        // create function to return promise in order to be able to be waited
+        const processGroup = (
+          group: Groups[],
+          filterApprove2?: (forms: FormsWithGroupAndType) => FormsWithGroupAndType,
+        ) =>
+          new Promise((resolve) => {
+            if (!group.length) resolve(true);
+            group.forEach((group: Groups) => {
+              formType.forEach(async (t) => {
+                await firebase
+                  .database()
+                  .ref(`/${t}/${group}/`)
+                  .orderByChild('status')
+                  .equalTo(APPROVAL_STATUS_WAITING)
+                  .on('value', (res) => {
+                    const data = res.val();
+                    let forms: FormsWithGroupAndType = Object.keys(data).map((key) => {
+                      return { ...(data[key] as FormpItem | FormlItem), type: t, group, key };
+                    });
+                    // filter data to get form which requires second approver sign
+                    if (filterApprove2) forms = filterApprove2(forms);
+                    groupForms.value[t] = forms;
+                    resolve(true);
+                  });
+              });
+            });
+          });
+        await processGroup(approvalGroupsNew.approve1);
+        // send second parameter to get second approval form only
+        await processGroup(approvalGroupsNew.approve2, (forms) => {
+          return forms.filter((form) => form.approver_ids?.length === 1);
+        });
+        isLoading.value = false;
+      },
+      { immediate: true },
+    );
+
+    return { name, formNeedApproval, groupForms, isLoading, approvalGroups };
   },
   computed: {
     ...mapGetters({ formpCount: 'formp/statusCount', formlCount: 'forml/statusCount' }),

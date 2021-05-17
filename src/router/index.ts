@@ -45,6 +45,15 @@ const routes: Array<RouteRecordRaw> = [
     },
     component: () => import(/* webpackChunkName: "dashboard-page" */ '../views/Dashboard.vue'),
   },
+  {
+    path: '/review',
+    name: 'Review',
+    meta: {
+      title: 'Review',
+      requiresAuth: true,
+    },
+    component: () => import(/* webpackChunkName: "review-page" */ '../views/Review.vue'),
+  },
 ];
 
 const router = createRouter({

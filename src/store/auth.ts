@@ -33,6 +33,22 @@ const module: Module<AuthStates, RootStateStore> = {
       }
       return null;
     },
+    approvalGroups(state): { approve1: string[]; approve2: string[] } {
+      const groups: { approve1: string[]; approve2: string[] } = { approve1: [], approve2: [] };
+
+      if (state.group) {
+        (Object.keys(state.group) as Groups[]).forEach((groupKey) => {
+          if (state.group && state.group[groupKey]?.includes('approve1')) {
+            groups.approve1.push(groupKey);
+          }
+          if (state.group && state.group[groupKey]?.includes('approve2')) {
+            groups.approve2.push(groupKey);
+          }
+        });
+      }
+
+      return groups;
+    },
   },
   mutations: {
     setIsLogin(state, val: boolean) {
