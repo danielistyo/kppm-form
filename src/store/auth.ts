@@ -11,6 +11,7 @@ const module: Module<AuthStates, RootStateStore> = {
     email: '',
     group: null, // { kppm: 'read, write, approve' }
     selectedGroupName: null,
+    userId: null,
   }),
   getters: {
     isMultipleGroup(state): boolean {
@@ -45,6 +46,9 @@ const module: Module<AuthStates, RootStateStore> = {
     },
     setGroup(state, val: { [g in Groups]?: string }) {
       state.group = val;
+    },
+    setUserId(state, userId: string) {
+      state.userId = userId;
     },
   },
   actions: {

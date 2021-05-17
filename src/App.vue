@@ -18,6 +18,7 @@ import emitter from '@/emitter';
 import { useStore } from 'vuex';
 import { RootStateStoreWithModule } from './types';
 import { useRouter } from 'vue-router';
+import firebase from 'firebase/app';
 
 export default defineComponent({
   name: 'App',
@@ -29,6 +30,10 @@ export default defineComponent({
   },
   setup() {
     const store = useStore<RootStateStoreWithModule>();
+
+    firebase.auth().onAuthStateChanged((user) => {
+      user?.uid && store.commit('auth/setUserId', user.uid);
+    });
 
     const isSidebarOpen = ref(false);
     emitter.on('sidebar:show', (isShow) => {
