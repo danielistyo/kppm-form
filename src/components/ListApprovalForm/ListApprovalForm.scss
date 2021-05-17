@@ -1,0 +1,38 @@
+.list-approval-form {
+  display: flex;
+  flex-wrap: wrap;
+
+  &__item {
+    margin-bottom: 1rem;
+    width: calc(50% - 0.5rem);
+
+    &.odd {
+      margin-right: 0.5rem;
+    }
+
+    &.even {
+      margin-left: 0.5rem;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    ::v-deep(.p-card) {
+      &:hover {
+        transition: background-color 0.3s;
+        background-color: #e4e4e4;
+      }
+    }
+  }
+
+  &__title {
+    margin: 0.5rem 0 0 0;
+    word-break: break-word;
+    color: #000;
+  }
+
+  ::v-deep(.p-card-content) {
+    padding: 0;
+  }
+}
