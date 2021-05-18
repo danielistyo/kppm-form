@@ -32,7 +32,21 @@ export default defineComponent({
     const store = useStore<RootStateStoreWithModule>();
 
     firebase.auth().onAuthStateChanged((user) => {
-      user?.uid && store.commit('auth/setUserId', user.uid);
+      if (user?.uid) {
+        store.commit('auth/setUserId', user.uid);
+
+        firebase
+          .database()
+          .ref('/users/')
+          .child(user.uid)
+          .on('value', (res) => {
+            store.commit('auth/setIsLogin', true);
+            store.commit('auth/setName', user.displayName);
+            store.commit('auth/setEmail', user.email);
+            store.commit('auth/setGroup', res.val().group);
+            store.commit('auth/setSignature', res.val().signature);
+          });
+      }
     });
 
     const isSidebarOpen = ref(false);

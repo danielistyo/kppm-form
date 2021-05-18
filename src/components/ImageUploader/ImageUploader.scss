@@ -16,4 +16,10 @@
       width: 70px;
     }
   }
+
+  .hide-header {
+    ::v-deep(.p-fileupload-buttonbar) {
+      display: none;
+    }
+  }
 }

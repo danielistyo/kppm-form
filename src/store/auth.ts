@@ -12,6 +12,7 @@ const module: Module<AuthStates, RootStateStore> = {
     group: null, // { kppm: 'read, write, approve' }
     selectedGroupName: null,
     userId: null,
+    signature: null,
   }),
   getters: {
     isMultipleGroup(state): boolean {
@@ -65,6 +66,9 @@ const module: Module<AuthStates, RootStateStore> = {
     },
     setUserId(state, userId: string) {
       state.userId = userId;
+    },
+    setSignature(state, signature) {
+      state.signature = signature;
     },
   },
   actions: {

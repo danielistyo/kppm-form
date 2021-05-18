@@ -1,6 +1,18 @@
 <template>
   <div class="dashboard">
-    <h2 class="p-py-5">Selamat datang, {{ name }}!</h2>
+    <h2 class="p-pt-5 p-pb-0">Selamat datang, {{ name }}!</h2>
+
+    <card class="p-mb-5">
+      <template #content>
+        <h4 v-if="!signature" class="p-mb-2 p-mt-0">
+          Anda belum mengunggah tanda tangan. Silakan unggah tanda tangan anda agar dapat mengajukan
+          atau memeriksa form.
+        </h4>
+        <h4 v-else class="p-mt-0">Anda sudah mempunyai tandatangan</h4>
+        <image-uploader v-model="signatureUrls" :hide-header="!!signatureUrls.length" />
+      </template>
+    </card>
+
     <div class="p-grid">
       <card class="p-col p-mr-2 p-ml-2 p-mb-2">
         <template #title>Form P</template>
@@ -80,11 +92,12 @@
 import Card from 'primevue/card';
 import firebase from 'firebase/app';
 import { FormpItem, FormlItem, Groups, RootStateStore } from '@/types';
-import { computed, defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, ref, unref, watch } from 'vue';
 import { mapGetters, useStore } from 'vuex';
 import { APPROVAL_STATUS_WAITING } from '@/constants';
 import ListApprovalForm from '@/components/ListApprovalForm';
 import Skeleton from 'primevue/skeleton';
+import ImageUploader from '@/components/ImageUploader';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -92,10 +105,45 @@ export default defineComponent({
     Card,
     ListApprovalForm,
     Skeleton,
+    ImageUploader,
   },
   setup() {
-    const isLoading = ref(true);
     const store = useStore<RootStateStore>();
+
+    const signature = computed(() => {
+      return store.state.auth.signature;
+    });
+    const signatureUrls = ref<string[]>([]);
+    if (signature.value) signatureUrls.value.push(signature.value);
+
+    watch(signatureUrls, (signatureUrlsNew, signatureUrlsOld) => {
+      if (store.state.auth.userId) {
+        const userRef = firebase
+          .database()
+          .ref('/users/')
+          .child(store.state.auth.userId);
+
+        if (signatureUrlsNew.length) {
+          userRef.update({ signature: signatureUrlsNew[0] });
+        } else {
+          userRef.update({ signature: null });
+
+          // delete old signature image
+          if (signatureUrlsOld.length) {
+            const res = signatureUrlsOld[0].match(/(?<=%2F)(.*)(?=\?alt=media)/);
+            const filename = res?.length ? res[0] : '';
+            firebase
+              .storage()
+              .ref()
+              .child('uploads/')
+              .child(filename)
+              .delete();
+          }
+        }
+      }
+    });
+
+    const isLoading = ref(true);
     const name = computed(() => {
       return store.state.auth.name;
     });
@@ -163,7 +211,15 @@ export default defineComponent({
       { immediate: true },
     );
 
-    return { name, formNeedApproval, groupForms, isLoading, approvalGroups };
+    return {
+      name,
+      formNeedApproval,
+      groupForms,
+      isLoading,
+      approvalGroups,
+      signatureUrls,
+      signature,
+    };
   },
   computed: {
     ...mapGetters({ formpCount: 'formp/statusCount', formlCount: 'forml/statusCount' }),

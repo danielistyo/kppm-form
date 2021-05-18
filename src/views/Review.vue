@@ -132,6 +132,8 @@ export default defineComponent({
     const showActions = computed(() => {
       const userIdString = unref(userId);
       if (!userIdString) return false;
+      if (!store.state.auth.signature) return false;
+
       return (
         !selectedForm.value?.approver_ids ||
         (selectedForm.value.approver_ids && !selectedForm.value.approver_ids.includes(userIdString))

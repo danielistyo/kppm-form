@@ -216,6 +216,7 @@ export interface AuthStates {
   group: { [g in Groups]?: string } | null;
   selectedGroupName: string | null;
   userId: string | null;
+  signature: null | string;
 }
 export interface RootStateStore {
   master: null | string;

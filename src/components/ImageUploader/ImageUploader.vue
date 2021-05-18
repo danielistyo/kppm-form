@@ -2,7 +2,7 @@
   <div class="image-uploader">
     <file-upload
       ref="fileUpload"
-      :class="`file-upload${randId}`"
+      :class="`file-upload${randId} ${hideHeader ? 'hide-header' : ''}`"
       chooseLabel="Pilih"
       cancelLabel="Batal"
       accept="image/png,image/jpg,image/webp"
@@ -39,6 +39,10 @@ export default defineComponent({
       required: true,
     },
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    hideHeader: {
       type: Boolean,
       default: false,
     },

@@ -55,11 +55,17 @@ export default defineComponent({
                 .ref('/users/')
                 .child(uid);
 
-              const setUserToStore = (user: { name: string; email: string; group: string }) => {
+              const setUserToStore = (user: {
+                name: string;
+                email: string;
+                group: string;
+                signature: string;
+              }) => {
                 store.commit('auth/setIsLogin', true);
                 store.commit('auth/setName', user.name);
                 store.commit('auth/setEmail', user.email);
                 store.commit('auth/setGroup', user.group);
+                store.commit('auth/setSignature', user.signature);
               };
 
               isLoading.value = true;
@@ -69,7 +75,7 @@ export default defineComponent({
                   if (!res.val()) {
                     // store new user to db
                     userRef.set({ name: displayName, email, group: '' }).then(() => {
-                      setUserToStore({ name: displayName, email, group: '' });
+                      setUserToStore({ name: displayName, email, group: '', signature: '' });
 
                       store.dispatch('pkt/getPkt');
                     });
@@ -77,7 +83,12 @@ export default defineComponent({
                     // show groupless alert when registering new account
                     isUserGroupless.value = true;
                   } else {
-                    setUserToStore({ name: displayName, email, group: res.val().group });
+                    setUserToStore({
+                      name: displayName,
+                      email,
+                      group: res.val().group,
+                      signature: res.val().signature,
+                    });
 
                     store.dispatch('pkt/getPkt');
 
