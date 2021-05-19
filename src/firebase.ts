@@ -2,14 +2,24 @@ import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/storage';
 
+const {
+  VUE_APP_FIREBASE_API_KEY,
+  VUE_APP_FIREBASE_AUTH_DOMAIN,
+  VUE_APP_FIREBASE_DATABASE_URL,
+  VUE_APP_FIREBASE_PROJECT_ID,
+  VUE_APP_FIREBASE_STORAGE_BUCKET,
+  VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
+  VUE_APP_FIREBASE_APP_ID,
+} = process.env;
+
 const firebaseConfig = {
-  apiKey: 'AIzaSyAaLdbiRcofVLfyRQtQpYOthzVwrz9Zplk',
-  authDomain: 'forml-397fa.firebaseapp.com',
-  databaseURL: 'https://forml-397fa.firebaseio.com',
-  projectId: 'forml-397fa',
-  storageBucket: 'forml-397fa.appspot.com',
-  messagingSenderId: '960207641468',
-  appId: '1:960207641468:web:b530cec03777dced6f62f9',
+  apiKey: VUE_APP_FIREBASE_API_KEY,
+  authDomain: VUE_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: VUE_APP_FIREBASE_DATABASE_URL,
+  projectId: VUE_APP_FIREBASE_PROJECT_ID,
+  storageBucket: VUE_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: VUE_APP_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
