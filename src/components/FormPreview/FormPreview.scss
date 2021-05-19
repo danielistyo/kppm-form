@@ -16,7 +16,8 @@
     margin: 0;
     padding: 0;
     font-size: calc(100vw / 48);
-    img, tr {
+    img,
+    tr {
       page-break-before: auto; /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
       page-break-after: auto; /* 'always,' 'avoid,' 'left,' 'inherit,' or 'right' */
       page-break-inside: avoid; /* or 'auto' */
@@ -114,12 +115,16 @@
 
   &__approver {
     display: inline-block;
-    width: 60%;
+    width: 40%;
+    padding-left: 2em;
+    padding-right: 2em;
+    margin-right: 20%;
   }
 
   &__requester {
     display: inline-block;
     width: 40%;
+    padding-left: 2em;
     vertical-align: top;
   }
 
@@ -135,11 +140,30 @@
   }
 }
 
+@mixin signature {
+  height: 6em;
+  object-fit: contain;
+}
+
 .approver {
   &__sign {
-    width: 50%;
+    width: 100%;
     margin-top: 4em;
     border-bottom: solid 1px #000;
+  }
+
+  &__signature {
+    width: 100%;
+    @include signature();
+  }
+
+  &__name {
+    width: 100%;
+    margin-top: 0.2em;
+    font-size: 1em;
+    word-wrap: break-word;
+    text-align: center;
+    text-decoration: underline;
   }
 }
 
@@ -148,6 +172,20 @@
     width: 80%;
     margin-top: 4em;
     border-bottom: solid 1px #000;
+  }
+
+  &__signature {
+    width: calc(100% - 2em);
+    @include signature();
+  }
+
+  &__name {
+    width: calc(100% - 2em);
+    margin-top: 0.2em;
+    font-size: 1em;
+    word-wrap: break-word;
+    text-align: center;
+    text-decoration: underline;
   }
 }
 

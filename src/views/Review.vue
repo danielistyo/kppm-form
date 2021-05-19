@@ -20,7 +20,13 @@
         :loading="isLoading"
       />
     </div>
-    <form-preview :inputs="selectedFields" :type="type" class="review__preview" />
+    <form-preview
+      :inputs="selectedFields"
+      :type="type"
+      :approver1="approver1"
+      :approver2="approver2"
+      class="review__preview"
+    />
   </div>
 </template>
 
@@ -34,6 +40,7 @@ import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import { APPROVAL_STATUS_REJECTED } from '@/constants';
+import dayjs from 'dayjs';
 
 export default defineComponent({
   name: 'Review',
@@ -131,8 +138,13 @@ export default defineComponent({
 
     const showActions = computed(() => {
       const userIdString = unref(userId);
-      if (!userIdString) return false;
-      if (!store.state.auth.signature) return false;
+      if (
+        !userIdString ||
+        !store.state.auth.signature ||
+        selectedForm.value?.status === APPROVAL_STATUS_REJECTED
+      ) {
+        return false;
+      }
 
       return (
         !selectedForm.value?.approver_ids ||
@@ -153,7 +165,49 @@ export default defineComponent({
       });
     });
 
-    return { selectedFields, type, handleAction, selectedForm, showActions, isLoading };
+    const approver1 = ref<{ name: string; signature: string; created_at: string }>();
+    const approver2 = ref<{ name: string; signature: string }>();
+
+    watch(
+      selectedForm,
+      (selectedFormNew) => {
+        if (selectedFormNew?.approver_ids?.length) {
+          // get approver 1 data
+          store.dispatch('auth/getUserData', selectedFormNew.approver_ids[0]).then((res) => {
+            const user = res.val();
+            if (user?.name && user?.signature && selectedFormNew.approved1_at) {
+              approver1.value = {
+                name: user.name,
+                signature: user.signature,
+                created_at: dayjs.unix(selectedFormNew.approved1_at).format('DD-MM-YYYY'),
+              };
+            }
+          });
+
+          // get approver 2 data
+          if (selectedFormNew.approver_ids[1]) {
+            store.dispatch('auth/getUserData', selectedFormNew.approver_ids[1]).then((res) => {
+              const user = res.val();
+              if (user?.name && user?.signature) {
+                approver2.value = { name: user.name, signature: user.signature };
+              }
+            });
+          }
+        }
+      },
+      { immediate: true },
+    );
+
+    return {
+      selectedFields,
+      type,
+      handleAction,
+      selectedForm,
+      showActions,
+      isLoading,
+      approver1,
+      approver2,
+    };
   },
 });
 </script>

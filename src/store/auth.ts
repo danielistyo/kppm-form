@@ -50,6 +50,10 @@ const module: Module<AuthStates, RootStateStore> = {
 
       return groups;
     },
+    isApprover(state): boolean {
+      if (!state.group) return false;
+      return Object.values(state.group).some((priviledges) => priviledges?.includes('approve'));
+    },
   },
   mutations: {
     setIsLogin(state, val: boolean) {
@@ -86,6 +90,13 @@ const module: Module<AuthStates, RootStateStore> = {
       commit('setName', '');
       commit('setEmail', '');
       commit('setGroup', '');
+    },
+    getUserData(_, uid: string) {
+      return firebase
+        .database()
+        .ref('users')
+        .child(uid)
+        .once('value');
     },
   },
 };

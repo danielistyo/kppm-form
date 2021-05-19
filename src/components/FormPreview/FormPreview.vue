@@ -60,16 +60,26 @@
 
       <div class="form-preview__footer">
         <div class="form-preview__approver approver">
-          <br />
           <div>Menyetujui</div>
-          <div>Ketua Bidang .............................</div>
-          <div class="approver__sign"></div>
+          <div>Ketua Bidang</div>
+          <br />
+          <div v-if="approver2">
+            <img :src="approver2.signature" class="approver__signature" />
+            <div class="approver__name">{{ approver2.name }}</div>
+          </div>
+          <div v-else class="approver__sign"></div>
         </div>
         <div class="form-preview__requester requester">
-          <div>Surabaya, ..............................</div>
+          <div>
+            Surabaya, {{ approver1 ? approver1.created_at : '..............................' }}
+          </div>
           <div>Ketua Komisi/Panitia/Tim</div>
           <br />
-          <div class="requester__sign"></div>
+          <div v-if="approver1">
+            <img :src="approver1.signature" class="requester__signature" />
+            <div class="requester__name">{{ approver1.name }}</div>
+          </div>
+          <div v-else class="requester__sign"></div>
         </div>
         <div class="form-preview__approver-note">
           Catatan Ketua Bidang/PHMJ
@@ -109,6 +119,14 @@ export default defineComponent({
     type: {
       type: String,
       required: true,
+    },
+    approver1: {
+      type: Object as PropType<{ name: string; signature: string; created_at: string }>,
+      default: null,
+    },
+    approver2: {
+      type: Object as PropType<{ name: string; signature: string }>,
+      default: null,
     },
   },
   setup(props) {

@@ -117,6 +117,10 @@ type ApprovalData = {
   creator_name?: string;
   approver_ids?: string[];
   status: ApprovalStatus;
+  proposed_at?: number;
+  approved1_at?: number;
+  approved2_at?: number;
+  rejected_at?: number;
 };
 
 export type SumberDanaKey = 'a' | 'b' | 'c';

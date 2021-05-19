@@ -29,15 +29,7 @@
 /* eslint-disable */
 import ProgressSpinner from 'primevue/progressspinner';
 import ButtonPrime from 'primevue/button';
-import {
-  computed,
-  ComputedRef,
-  defineComponent,
-  ref,
-  unref,
-  watch,
-  watchEffect,
-} from 'vue';
+import { computed, ComputedRef, defineComponent, ref, unref, watch, watchEffect } from 'vue';
 import FormProposal from '@/components/FormProposal';
 import FormPreview from '@/components/FormPreview';
 import ListForm from '@/components/ListForm';
@@ -348,7 +340,8 @@ export default defineComponent({
           tempMenu.push('hapus');
         }
 
-        if (status === APPROVAL_STATUS_DRAFT) tempMenu.push('ajukan');
+        if ([APPROVAL_STATUS_DRAFT, APPROVAL_STATUS_REJECTED].includes(status))
+          tempMenu.push('ajukan');
 
         if (status === APPROVAL_STATUS_WAITING) tempMenu.push('batalkan');
 

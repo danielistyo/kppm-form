@@ -46,7 +46,7 @@
                     :is="child.type"
                     :key="input.key + childIndex"
                     :id="child.name + 'ID'"
-                    :disabled="status === APPROVAL_STATUS_WAITING"
+                    :disabled="[APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED].includes(status)"
                     v-bind="child.props"
                     class="form-proposal__field-input-child"
                   />
@@ -61,7 +61,7 @@
                 :is="input.type"
                 :key="input.key"
                 :id="input.name + 'ID'"
-                :disabled="status === APPROVAL_STATUS_WAITING"
+                :disabled="[APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED].includes(status)"
                 class="form-proposal__field-input"
                 v-bind="input.props"
               />
@@ -74,7 +74,9 @@
     <div class="form-proposal__footer">
       <button-prime
         @click="$emit('formsubmit')"
-        :disabled="isLoading || status === APPROVAL_STATUS_WAITING"
+        :disabled="
+          isLoading || [APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED].includes(status)
+        "
         class="form-proposal__submit"
       >
         {{ submitLabel }}
@@ -108,7 +110,7 @@ import {
 import ButtonPrime from 'primevue/button';
 import { getStatus } from '@/helpers/status';
 import Menu from 'primevue/menu';
-import { APPROVAL_STATUS_WAITING } from '@/constants';
+import { APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED } from '@/constants';
 import { useStore } from 'vuex';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
@@ -254,6 +256,7 @@ export default defineComponent({
       menu,
       toggleMenu,
       APPROVAL_STATUS_WAITING,
+      APPROVAL_STATUS_APPROVED,
     };
   },
 });

@@ -2,11 +2,11 @@
   <div class="dashboard">
     <h2 class="p-pt-5 p-pb-0">Selamat datang, {{ name }}!</h2>
 
-    <card class="p-mb-5">
+    <card v-if="isApprover" class="p-mb-5">
       <template #content>
         <h4 v-if="!signature" class="p-mb-2 p-mt-0">
-          Anda belum mengunggah tanda tangan. Silakan unggah tanda tangan anda agar dapat mengajukan
-          atau memeriksa form.
+          Anda belum mengunggah tanda tangan. Silakan unggah tanda tangan anda agar dapat memeriksa
+          form.
         </h4>
         <h4 v-else class="p-mt-0">Anda sudah mempunyai tandatangan</h4>
         <image-uploader v-model="signatureUrls" :hide-header="!!signatureUrls.length" />
@@ -72,19 +72,21 @@
       </card>
     </div>
 
-    <template v-if="!isLoading">
-      <h2 class="p-pt-5" v-if="formNeedApproval.length">Perlu diperiksa:</h2>
-      <h2 v-else># Tidak ada form yang perlu diperiksa.</h2>
-      <list-approval-form :forms="formNeedApproval" />
+    <template v-if="isApprover"
+      ><template v-if="!isLoading">
+        <h2 class="p-pt-5" v-if="formNeedApproval.length">Perlu diperiksa:</h2>
+        <h2 v-else># Tidak ada form yang perlu diperiksa.</h2>
+        <list-approval-form :forms="formNeedApproval" />
+      </template>
+      <div v-else class="p-grid p-p-2">
+        <div class="p-col-6">
+          <skeleton width="100%" height="50px" />
+        </div>
+        <div class="p-col-6">
+          <skeleton width="100%" height="50px" />
+        </div>
+      </div>
     </template>
-    <div v-else class="p-grid p-p-2">
-      <div class="p-col-6">
-        <skeleton width="100%" height="50px" />
-      </div>
-      <div class="p-col-6">
-        <skeleton width="100%" height="50px" />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -92,7 +94,7 @@
 import Card from 'primevue/card';
 import firebase from 'firebase/app';
 import { FormpItem, FormlItem, Groups, RootStateStore } from '@/types';
-import { computed, defineComponent, ref, unref, watch } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import { mapGetters, useStore } from 'vuex';
 import { APPROVAL_STATUS_WAITING } from '@/constants';
 import ListApprovalForm from '@/components/ListApprovalForm';
@@ -190,6 +192,8 @@ export default defineComponent({
                   .equalTo(APPROVAL_STATUS_WAITING)
                   .on('value', (res) => {
                     const data = res.val();
+                    if (!data) return;
+
                     let forms: FormsWithGroupAndType = Object.keys(data).map((key) => {
                       return { ...(data[key] as FormpItem | FormlItem), type: t, group, key };
                     });
@@ -211,8 +215,13 @@ export default defineComponent({
       { immediate: true },
     );
 
+    const isApprover = computed(() => {
+      return store.getters['auth/isApprover'];
+    });
+
     return {
       name,
+      isApprover,
       formNeedApproval,
       groupForms,
       isLoading,

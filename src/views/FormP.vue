@@ -336,7 +336,8 @@ export default defineComponent({
           tempMenu.push('hapus');
         }
 
-        if (status === APPROVAL_STATUS_DRAFT) tempMenu.push('ajukan');
+        if ([APPROVAL_STATUS_DRAFT, APPROVAL_STATUS_REJECTED].includes(status))
+          tempMenu.push('ajukan');
 
         if (status === APPROVAL_STATUS_WAITING) tempMenu.push('batalkan');
 

@@ -13,8 +13,10 @@ import firebase from 'firebase/app';
 import {
   APPROVAL_STATUS_APPROVED,
   APPROVAL_STATUS_DRAFT,
+  APPROVAL_STATUS_REJECTED,
   APPROVAL_STATUS_WAITING,
 } from '@/constants';
+import dayjs from 'dayjs';
 
 let onFormlValueChange:
   | ((a: firebase.database.DataSnapshot, b?: string | null | undefined) => any)
@@ -191,41 +193,57 @@ const module: Module<FormlStates, RootStateStore> = {
       const selectedForml: SelectedForml = getters.selectedForml(key);
       selectedForml && commit('updateFormLFields', selectedForml);
     },
-    updateStatus({ state, rootGetters }, { selectedKey, status }) {
-      const forml = cloneDeep(state.list.find((item) => item.key === selectedKey));
-      if (forml) {
-        const { key, ...clearData } = forml;
-        clearData.status = status;
-        return firebase
-          .database()
-          .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
-          .update({ [selectedKey]: clearData })
-          .catch((err) => {
-            console.error(err);
-          });
+    updateStatus({ rootGetters }, { selectedKey, status }) {
+      const timestamp: {
+        proposed_at?: number;
+        rejected_at?: number;
+      } = {};
+      if (status === APPROVAL_STATUS_WAITING) {
+        timestamp.proposed_at = dayjs().unix();
+      } else if (status === APPROVAL_STATUS_REJECTED) {
+        timestamp.rejected_at = dayjs().unix();
       }
-      return Promise.resolve(null);
+      return firebase
+        .database()
+        .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
+        .child(selectedKey)
+        .update({ status, ...timestamp })
+        .catch((err) => {
+          console.error(err);
+        });
     },
     approveForm({ state, rootGetters }, { selectedKey }) {
       const forml = cloneDeep(state.list.find((item) => item.key === selectedKey));
       const userId = firebase?.auth()?.currentUser?.uid;
       if (!userId || !forml) return;
 
-      const { key, ...clearData } = forml;
+      const updatedData: {
+        status?: number;
+        approver_ids?: string[];
+        approved1_at?: number;
+        approved2_at?: number;
+      } = {
+        approver_ids: forml.approver_ids,
+      };
 
-      // change status when approvers are complete
-      if (forml?.approver_ids?.length === 1) {
-        clearData.status = APPROVAL_STATUS_APPROVED;
+      if (forml?.approver_ids?.length === 0 || !updatedData.approver_ids) {
+        updatedData.approved1_at = dayjs().unix();
+        // create new array for approver
+        updatedData.approver_ids = [];
+      } else if (forml?.approver_ids?.length === 1) {
+        updatedData.approved2_at = dayjs().unix();
+        // change status when approvers are complete
+        updatedData.status = APPROVAL_STATUS_APPROVED;
       }
 
-      // create new array for approver
-      if (!clearData.approver_ids) clearData.approver_ids = [];
-      clearData.approver_ids.push(userId);
+      // add current user id to approver_ids
+      updatedData.approver_ids.push(userId);
 
       return firebase
         .database()
         .ref(`/formls/${rootGetters['auth/selectedGroup']}/`)
-        .update({ [selectedKey]: clearData })
+        .child(selectedKey)
+        .update(updatedData)
         .catch((err) => {
           console.error(err);
         });
