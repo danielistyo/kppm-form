@@ -191,7 +191,7 @@ const module: Module<FormpStates, RootStateStore> = {
       const selectedFormp: SelectedFormp = getters.selectedFormp(key);
       selectedFormp && commit('updateFormPFields', selectedFormp);
     },
-    updateStatus({ state, rootGetters }, { selectedKey, status }) {
+    updateStatus({ rootGetters }, { selectedKey, status }) {
       const timestamp: {
         proposed_at?: number;
         rejected_at?: number;

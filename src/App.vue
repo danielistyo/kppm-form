@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUnmounted, ref } from 'vue';
+import { computed, defineComponent, onUnmounted, ref, watch } from 'vue';
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
 import MainSidebar from './components/MainSidebar/MainSidebar.vue';
@@ -55,20 +55,29 @@ export default defineComponent({
     });
 
     const showSidebar = ref(true);
+    const isLogin = computed(() => {
+      return store.state.auth.isLogin;
+    });
 
-    if (store.state.auth.isLogin) {
-      store.dispatch('pkt/getPkt');
+    watch(
+      isLogin,
+      (isLoginNew) => {
+        if (isLoginNew) {
+          store.dispatch('pkt/getPkt');
 
-      store.dispatch('formp/getFormp');
-      onUnmounted(() => {
-        store.dispatch('formp/unsubscribeFormpValue');
-      });
+          store.dispatch('formp/getFormp');
+          onUnmounted(() => {
+            store.dispatch('formp/unsubscribeFormpValue');
+          });
 
-      store.dispatch('forml/getForml');
-      onUnmounted(() => {
-        store.dispatch('forml/unsubscribeFormlValue');
-      });
-    }
+          store.dispatch('forml/getForml');
+          onUnmounted(() => {
+            store.dispatch('forml/unsubscribeFormlValue');
+          });
+        }
+      },
+      { immediate: true },
+    );
 
     const router = useRouter();
     router.beforeEach((to, from, next) => {
