@@ -178,12 +178,17 @@ export default defineComponent({
         >;
         // create function to return promise in order to be able to be waited
         const processGroup = (
-          group: Groups[],
+          groups: Groups[],
           filterApprove2?: (forms: FormsWithGroupAndType) => FormsWithGroupAndType,
-        ) =>
-          new Promise((resolve) => {
-            if (!group.length) resolve(true);
-            group.forEach((group: Groups) => {
+        ) => {
+          // because we can't use promise all in firebase callback, then we should count all promises that happens
+          const totalPromise = groups.length * formType.length;
+          const resolvedPromiseCount = ref(0);
+
+          return new Promise((resolve) => {
+            if (!groups.length) resolve(true);
+
+            groups.forEach((group: Groups) => {
               formType.forEach(async (t) => {
                 await firebase
                   .database()
@@ -192,7 +197,10 @@ export default defineComponent({
                   .equalTo(APPROVAL_STATUS_WAITING)
                   .on('value', (res) => {
                     const data = res.val();
-                    if (!data) return;
+                    if (!data) {
+                      resolvedPromiseCount.value++;
+                      return;
+                    }
 
                     let forms: FormsWithGroupAndType = Object.keys(data).map((key) => {
                       return { ...(data[key] as FormpItem | FormlItem), type: t, group, key };
@@ -200,11 +208,17 @@ export default defineComponent({
                     // filter data to get form which requires second approver sign
                     if (filterApprove2) forms = filterApprove2(forms);
                     groupForms.value[t] = forms;
-                    resolve(true);
+                    resolvedPromiseCount.value++;
                   });
               });
             });
+
+            // to check total promise
+            watch(resolvedPromiseCount, (resolvedPromiseCount) => {
+              if (resolvedPromiseCount === totalPromise) resolve(true);
+            });
           });
+        };
         await processGroup(approvalGroupsNew.approve1);
         // send second parameter to get second approval form only
         await processGroup(approvalGroupsNew.approve2, (forms) => {
