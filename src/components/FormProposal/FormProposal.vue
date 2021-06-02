@@ -19,7 +19,7 @@
             class="p-button-primary p-button-lg p-button-text"
             style="float:right;padding:0.2rem"
           />
-          <Menu :model="options" ref="menu" popup />
+          <Menu :model="options" ref="menu" append-to="body" popup />
         </template>
       </template>
       <template #content>
