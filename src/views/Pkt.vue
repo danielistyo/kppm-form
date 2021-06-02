@@ -12,20 +12,14 @@
         />
       </div>
 
-      <button-prime
-        v-if="selectedPktKey && !isAddingData"
-        @click="deletePkt"
-        icon="pi pi-times"
-        label="Hapus"
-        class="p-button-danger p-button-outlined p-button-sm pkt__delete"
-      ></button-prime>
-
       <form-proposal
         v-if="selectedPktKey || isAddingData"
         @formsubmit="submitPkt"
         :is-loading="isSubmittingData"
         :submit-label="actionButtonLabel"
         :inputs="selectedPktFields"
+        :menu-options="['hapus']"
+        @remove="deletePkt"
         type="pkt"
         class="pkt__form-proposal"
       />
@@ -206,6 +200,11 @@ export default defineComponent({
           accept: async () => {
             await pktRef.child(unref(selectedPktKey)).remove();
             selectedPktKey.value = '';
+            toast.add({
+              severity: 'success',
+              summary: 'Berhasil dihapus!',
+              life: 3000,
+            });
           },
           reject: () => {
             confirm.close();
