@@ -9,7 +9,7 @@
           form.
         </h4>
         <h4 v-else class="p-mt-0">Anda sudah mempunyai tandatangan</h4>
-        <image-uploader v-model="signatureUrls" :hide-header="!!signatureUrls.length" />
+        <file-uploader v-model="signatureUrls" :hide-header="!!signatureUrls.length" />
       </template>
     </card>
 
@@ -99,7 +99,7 @@ import { mapGetters, useStore } from 'vuex';
 import { APPROVAL_STATUS_WAITING } from '@/constants';
 import ListApprovalForm from '@/components/ListApprovalForm';
 import Skeleton from 'primevue/skeleton';
-import ImageUploader from '@/components/ImageUploader';
+import FileUploader from '@/components/FileUploader';
 
 export default defineComponent({
   name: 'Dashboard',
@@ -107,7 +107,7 @@ export default defineComponent({
     Card,
     ListApprovalForm,
     Skeleton,
-    ImageUploader,
+    FileUploader,
   },
   setup() {
     const store = useStore<RootStateStore>();

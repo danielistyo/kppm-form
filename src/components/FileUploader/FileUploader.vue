@@ -1,11 +1,11 @@
 <template>
-  <div class="image-uploader">
+  <div class="file-uploader">
     <file-upload
       ref="fileUpload"
       :class="`file-upload${randId} ${hideHeader ? 'hide-header' : ''}`"
       chooseLabel="Pilih"
       cancelLabel="Batal"
-      accept="image/png,image/jpg,image/webp"
+      accept=".xlsx,.xls,image/*,.doc, .docx,.ppt, .pptx,.txt,.pdf"
       :showUploadButton="false"
       multiple
       customUpload
@@ -14,20 +14,23 @@
       @uploader="handleUpload"
     />
 
-    <progress-spinner v-if="isLoading" class="image-uploader__loading" />
+    <progress-spinner v-if="isLoading" class="file-uploader__loading" />
   </div>
 </template>
 
 <script lang="ts">
+/* 
+  TODO: rewrite component. create new component
+ */
 import { defineComponent, nextTick, PropType, ref, toRef, unref, watch } from 'vue';
 import FileUpload from 'primevue/fileupload';
-import { resizeImg } from '@/helpers/image';
+import { getNameFromImageUrl, isUrlImage, resizeImg } from '@/helpers/image';
 import firebase from 'firebase/app';
 import dayjs from 'dayjs';
 import ProgressSpinner from 'primevue/progressspinner';
 
 export default defineComponent({
-  name: 'ImageUploader',
+  name: 'FileUploader',
   components: {
     FileUpload,
     ProgressSpinner,
@@ -56,7 +59,7 @@ export default defineComponent({
     const isLoading = ref(false);
     const fileUpload = ref<null | { files: Array<string> }>(null);
 
-    // create image element in ImageUploader when there is initial value
+    // create image element in FileUploader when there is initial value
     watch(
       toRef(props, 'modelValue'),
       (modelValue) => {
@@ -79,15 +82,18 @@ export default defineComponent({
             }
           };
           const getSelectedFileTemplate = (src: string) => {
-            const res = src.match(/(?<=%2F)(.*)(?=\?alt=media)/);
-            const filename = res?.length ? res[0] : '';
-
+            const filename = getNameFromImageUrl(src);
+            const isImage = isUrlImage(filename);
             return `
               <div id="existingImage${filename}" class="p-fileupload-row">
-                <div>
-                  <img role="presentation" alt="${filename}" width="50" src="${src}"/>
-                </div>
-                <div>${filename}</div>
+                <div class="p-text-center">
+                  ${
+                    isImage
+                      ? `<a href="${src}" target="_blank"><img role="presentation" alt="${filename}" width="50" src="${src}"/></a>`
+                      : '<span class="pi pi-file" style="font-size:18px"></span>'
+                  } 
+                </div> 
+                <div><a href="${src}" target="_blank">${filename}</a></div>
                 <div></div>
                 <div>
                   <button
@@ -139,19 +145,23 @@ export default defineComponent({
 
       isLoading.value = true;
       // get last image only
-      const image = files[files.length - 1];
-      const arrNames = image.name.split('.');
+      const file = files[files.length - 1];
+      const arrNames = file.name.split('.');
       const fileType = arrNames[arrNames.length - 1];
       const nameFile = dayjs().unix() + '.' + fileType;
-      const imageRef = uploadRef.child(nameFile);
+      const fileRef = uploadRef.child(nameFile);
 
-      // resize image first
-      const blob =
-        image.size > 500000 ? await resizeImg(image) : new Blob([image], { type: image.type });
+      let blob: Blob | null = null;
+      if (isUrlImage(`.${fileType}`)) {
+        // resize image first
+        blob = file.size > 500000 ? await resizeImg(file) : new Blob([file], { type: file.type });
+      } else {
+        blob = new Blob([file], { type: file.type });
+      }
 
       // upload image
-      await imageRef.put(blob);
-      const url = await imageRef.getDownloadURL();
+      await fileRef.put(blob);
+      const url = await fileRef.getDownloadURL();
 
       emit('update:modelValue', [...props.modelValue, url]);
 
@@ -218,4 +228,4 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" src="./ImageUploader.scss" scoped />
+<style lang="scss" src="./FileUploader.scss" scoped />

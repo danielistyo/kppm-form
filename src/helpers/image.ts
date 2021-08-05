@@ -33,3 +33,12 @@ export const resizeImg = async (file: Blob): Promise<Blob> => {
   });
   return result;
 };
+
+export const getNameFromImageUrl = (url: string): string => {
+  const res = url.match(/(?<=%2F)(.*)(?=\?alt=media)/);
+  return res?.length ? res[0] : '';
+};
+
+export const isUrlImage = (url: string): boolean => {
+  return /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(url);
+};

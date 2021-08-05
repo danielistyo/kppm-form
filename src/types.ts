@@ -26,7 +26,7 @@ export interface DefaultFormField<K> extends BasicFormField<K> {
     | 'simple-editor'
     | 'calendar-input'
     | 'text-area'
-    | 'image-uploader'
+    | 'file-uploader'
     | null;
   value?: string | number | Array<FieldCostValue> | Array<string>;
 }

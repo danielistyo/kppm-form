@@ -13,7 +13,7 @@ const fields: FormFields<FormlKeys> = [
     id: 2,
     key: 'lampiran',
     name: 'Lampiran',
-    type: 'image-uploader',
+    type: 'file-uploader',
     fieldValue: 'FieldValueDefault',
     value: [],
   },
