@@ -26,7 +26,11 @@ const module: Module<PktStates, RootStateStore> = {
       state.list = [];
       if (response) {
         Object.entries(response).forEach(([key, value]: [string, PktItem]) => {
-          state.list.push({ nameChoice: value.nama_program, valueChoice: key, ...value });
+          state.list.push({
+            nameChoice: `${value.badan_pembantu} - ${value.nama_program}`,
+            valueChoice: key,
+            ...value,
+          });
         });
       } else {
         state.list = [];
