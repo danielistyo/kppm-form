@@ -209,11 +209,31 @@
 }
 
 .attachments {
-  &__images {
-    img {
-      vertical-align: top;
-      padding: 0.5em;
-      max-width: 50%;
+  &__files {
+    display: flex;
+    flex-wrap: wrap;
+
+    a {
+      width: 6em;
+      height: 6em;
+      margin: 0.5em;
+      border: solid 1px;
     }
+
+    ::v-deep(.pi-file:before) {
+      content: '\e958';
+      vertical-align: middle;
+      width: 6em;
+    }
+  }
+  &__image {
+    vertical-align: top;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  &__doc {
+    vertical-align: middle;
+    font-size: 5em;
   }
 }

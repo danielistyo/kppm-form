@@ -89,8 +89,13 @@
 
       <div v-if="attachmentFiles.length" class="form-preview__attachment attachments">
         <h4>Lampiran:</h4>
-        <div class="attachments__images">
-          <img v-for="(imageUrl, index) in attachmentFiles" :key="index" :src="imageUrl" />
+        <div class="attachments__files">
+          <template v-for="(imageUrl, index) in attachmentFiles" :key="index">
+            <a :href="imageUrl" target="_blank">
+              <img v-if="isImage(imageUrl)" :src="imageUrl" class="attachments__image" />
+              <div v-else class="pi pi-file attachments__doc"></div>
+            </a>
+          </template>
         </div>
       </div>
     </div>
@@ -98,6 +103,7 @@
 </template>
 
 <script lang="ts">
+import { isUrlImage, getNameFromImageUrl } from '@/helpers/image';
 import { FormFields, FormlKeys, FormpKeys } from '@/types';
 import { computed, defineComponent, PropType } from 'vue';
 import FieldValueCost from './components/FieldValueCost.vue';
@@ -150,7 +156,10 @@ export default defineComponent({
       if (Array.isArray(val)) return val.length;
       return val;
     };
-    return { topTableFields, mainTableFields, title, getValue, attachmentFiles };
+
+    const isImage = (imageUrl: string): boolean => isUrlImage(getNameFromImageUrl(imageUrl));
+
+    return { topTableFields, mainTableFields, title, getValue, attachmentFiles, isImage };
   },
 });
 </script>
