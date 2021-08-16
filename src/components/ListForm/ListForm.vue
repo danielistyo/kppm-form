@@ -14,34 +14,36 @@
         label="Tambah"
       />
     </div>
-    <card
+    <router-link
       v-for="(unit, index) in paginatedList"
       :key="index"
-      @click="$emit('selected', unit.key)"
-      class="p-mb-2 unit-list"
+      :to="{ query: { action: 'edit', key: unit.key } }"
+      class="list-form__link"
     >
-      <template #content>
-        <div>
+      <card @click="$emit('selected', unit.key)" class="p-mb-2 unit-list">
+        <template #content>
           <div>
-            <span class="unit-list__number">{{ unit.nomor_program }}</span>
-            <tag-label
-              :severity="getStatus(unit.status).severity"
-              :value="getStatus(unit.status).value"
-            />
+            <div>
+              <span class="unit-list__number">{{ unit.nomor_program }}</span>
+              <tag-label
+                :severity="getStatus(unit.status).severity"
+                :value="getStatus(unit.status).value"
+              />
+            </div>
+            <div class="unit-list__name">{{ unit.nama_program }}</div>
+            <div class="unit-list__creator">
+              <i class="pi pi-user" />
+              {{ unit.creator_name }}
+            </div>
+            <div class="unit-list__created">
+              <i class="pi pi-calendar" />
+              {{ convertToDate(unit.created_at) }}
+            </div>
+            <i class="unit-list__icon-right pi pi-angle-right" />
           </div>
-          <div class="unit-list__name">{{ unit.nama_program }}</div>
-          <div class="unit-list__creator">
-            <i class="pi pi-user" />
-            {{ unit.creator_name }}
-          </div>
-          <div class="unit-list__created">
-            <i class="pi pi-calendar" />
-            {{ convertToDate(unit.created_at) }}
-          </div>
-          <i class="unit-list__icon-right pi pi-angle-right" />
-        </div>
-      </template>
-    </card>
+        </template>
+      </card>
+    </router-link>
     <paginator
       @page="handlePageChange"
       :totalRecords="totalRecords"

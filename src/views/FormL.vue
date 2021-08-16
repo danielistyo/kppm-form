@@ -298,12 +298,14 @@ export default defineComponent({
     const handleListSelected = (key: string) => {
       store.commit('forml/clearFields');
 
-      router.push({ query: { action: 'edit', key } });
+      // temporary comment. to be checked
+      // router.push({ query: { action: 'edit', key } });
     };
 
-    watch([formlList, selectedFormlKey], () => {
+    watch([formlList, selectedFormlKey], async () => {
       if (unref(formlList).length) {
-        store.dispatch('forml/chooseForml', unref(selectedFormlKey));
+        await store.dispatch('forml/chooseForml', unref(selectedFormlKey));
+        pktKey.value = selectedFormlData.value?.pkt || '';
       }
     });
 
@@ -369,6 +371,7 @@ export default defineComponent({
       deleteForml,
       proposeForml,
       cancelForml,
+      pktKey,
     };
   },
 });

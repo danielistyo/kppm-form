@@ -38,6 +38,7 @@
                 :is="field.fieldValue"
                 :value="field.value"
                 :view="field.view"
+                :remaining-balance="remainingBalance"
                 :need-render="field.type === 'simple-editor'"
               />
             </td>
@@ -104,7 +105,7 @@
 
 <script lang="ts">
 import { isUrlImage, getNameFromImageUrl } from '@/helpers/image';
-import { FormFields, FormlKeys, FormpKeys } from '@/types';
+import { CostItems, FormFields, FormlKeys, FormpKeys } from '@/types';
 import { computed, defineComponent, PropType } from 'vue';
 import FieldValueCost from './components/FieldValueCost.vue';
 import FieldValueDefault from './components/FieldValueDefault.vue';
@@ -152,6 +153,20 @@ export default defineComponent({
       props.type === 'l' ? 'LAPORAN' : 'PENGAJUAN PELAKSANAAN',
     );
 
+    const remainingBalance = computed<number>(() => {
+      const balance =
+        props.inputs
+          .find((input) => input.key === 'sumber_dana')
+          ?.children?.reduce((total, child) => total + (child.value as number), 0) || 0;
+      const expenses =
+        (props.inputs.find((input) => input.key === 'biaya')?.value as CostItems)?.reduce(
+          (total, item) => total + item.count * item.price,
+          0,
+        ) || 0;
+
+      return balance - expenses;
+    });
+
     const getValue = (val: string | string[]) => {
       if (Array.isArray(val)) return val.length;
       return val;
@@ -159,7 +174,15 @@ export default defineComponent({
 
     const isImage = (imageUrl: string): boolean => isUrlImage(getNameFromImageUrl(imageUrl));
 
-    return { topTableFields, mainTableFields, title, getValue, attachmentFiles, isImage };
+    return {
+      topTableFields,
+      mainTableFields,
+      title,
+      getValue,
+      attachmentFiles,
+      isImage,
+      remainingBalance,
+    };
   },
 });
 </script>

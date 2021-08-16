@@ -291,16 +291,18 @@ export default defineComponent({
       router.push({ query: { action: 'add' } });
     };
 
-    watch([formpList, selectedFormpKey], () => {
+    watch([formpList, selectedFormpKey], async () => {
       if (unref(formpList).length) {
-        store.dispatch('formp/chooseFormp', unref(selectedFormpKey));
+        await store.dispatch('formp/chooseFormp', unref(selectedFormpKey));
+        pktKey.value = selectedFormpData.value?.pkt || '';
       }
     });
 
     const handleListSelected = (key: string) => {
       store.commit('formp/clearFields');
 
-      router.push({ query: { action: 'edit', key } });
+      // temporary comment. to be checked
+      // router.push({ query: { action: 'edit', key } });
     };
 
     watch(
