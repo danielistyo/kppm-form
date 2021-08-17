@@ -20,7 +20,9 @@
         </tr>
       </tbody>
     </table>
-    <h4 class="p-mb-0 p-mt-1">Sumber Dana - Biaya = {{ formatIDR(remainingBalance) }}</h4>
+    <h4 v-if="type === 'l'" class="p-mb-0 p-mt-1">
+      Sumber Dana - Biaya = {{ formatIDR(remainingBalance) }}
+    </h4>
   </div>
 </template>
 
@@ -35,6 +37,10 @@ export default defineComponent({
   props: {
     value: {
       type: Array as PropType<ValueProp>,
+      required: true,
+    },
+    type: {
+      type: String as PropType<'l' | 'p'>,
       required: true,
     },
     remainingBalance: {

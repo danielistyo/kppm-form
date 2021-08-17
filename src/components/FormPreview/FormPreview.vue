@@ -38,6 +38,7 @@
                 :is="field.fieldValue"
                 :value="field.value"
                 :view="field.view"
+                :type="type"
                 :remaining-balance="remainingBalance"
                 :need-render="field.type === 'simple-editor'"
               />
