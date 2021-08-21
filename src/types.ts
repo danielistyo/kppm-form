@@ -2,6 +2,7 @@ export interface FieldCostValue {
   name: string;
   count: number;
   price: number;
+  frequency?: number;
 }
 
 interface BasicFormField<K> {
@@ -20,14 +21,7 @@ export interface CostFormField<K> extends BasicFormField<K> {
 }
 
 export interface DefaultFormField<K> extends BasicFormField<K> {
-  type:
-    | 'input-text'
-    | 'input-number'
-    | 'simple-editor'
-    | 'calendar-input'
-    | 'text-area'
-    | 'file-uploader'
-    | null;
+  type: 'input-text' | 'input-number' | 'simple-editor' | 'calendar-input' | 'text-area' | 'file-uploader' | null;
   value?: string | number | Array<FieldCostValue> | Array<string>;
 }
 
@@ -124,8 +118,8 @@ type ApprovalData = {
 };
 
 export type SumberDanaKey = 'a' | 'b' | 'c';
-type SumberDana = { [k in SumberDanaKey]: number };
-type BiayaItem = { [k: number]: FieldCostValue };
+export type SumberDana = { [k in SumberDanaKey]: number };
+export type BiayaItem = { [k: number]: FieldCostValue };
 
 type RequestData = {
   created_at: number;

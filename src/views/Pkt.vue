@@ -1,11 +1,20 @@
 <template>
   <div class="pkt">
+    <progress-spinner v-if="isImporting" class="pkt__loading" />
     <div class="p-fluid pkt__container">
+      <Dialog header="Tambah Pkt" v-model:visible="showAddOptions" :style="{ width: '50vw' }" modal dismissable-mask>
+        <div class="p-d-flex p-jc-between">
+          <button-prime label="Manual" class="p-mx-2" @click="addNewPkt" />
+          <button-prime label="Import" class="p-mx-2" @click="importPkt" />
+        </div>
+        <input ref="importFileEl" type="file" @change="handleInputChange" accept=".csv" class="p-d-none" />
+      </Dialog>
+
       <div class="p-field pkt__top-field">
         <pkt-dropdown v-model="selectedPktKey" :disabled="isSubmittingData" />
 
         <button-prime
-          @click="addNewPkt"
+          @click="showAddOptions = !showAddOptions"
           :disabled="isGettingPkt || isSubmittingData"
           icon="pi pi-plus"
           class="p-button-rounded p-button-primary pkt__add"
@@ -29,8 +38,10 @@
 </template>
 
 <script lang="tsx">
+import ProgressSpinner from 'primevue/progressspinner';
 import ButtonPrime from 'primevue/button';
 import { useConfirm } from 'primevue/useconfirm';
+import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import firebase from 'firebase/app';
 import { computed, defineComponent, nextTick, ref, unref, watch } from 'vue';
@@ -39,6 +50,7 @@ import PktDropdown from '@/components/@globals/PktDropdown';
 import { useStore } from 'vuex';
 import { CostFormField, DefaultFormField, PktItem, PktKeys, RootStateStore } from '@/types';
 import usePkt from '@/composables/pkt';
+import { parseCSV } from '@/helpers/csv';
 
 export default defineComponent({
   name: 'Pkt',
@@ -46,6 +58,8 @@ export default defineComponent({
     PktDropdown,
     FormProposal,
     ButtonPrime,
+    Dialog,
+    ProgressSpinner,
   },
   setup() {
     const store = useStore<RootStateStore>();
@@ -55,6 +69,7 @@ export default defineComponent({
 
     const isAddingData = ref(false);
     const isSubmittingData = ref(false);
+    const showAddOptions = ref(false);
     const selectedPktKey = ref<string>('');
     const { isGettingPkt, selectedPktFields } = usePkt();
 
@@ -78,6 +93,22 @@ export default defineComponent({
     const pktRef = firebase.database().ref(`/pkt/${store.getters['auth/selectedGroup']}/`);
 
     const submitPkt = () => {
+      const showDuplicatedToast = () => {
+        toast.add({
+          severity: 'error',
+          summary: 'Terjadi Kesalahan!',
+          detail: 'Nama Program sudah ada. Silakan pakai nama lain.',
+          life: 5000,
+        });
+      };
+
+      const showSuccessToast = () => {
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil disimpan!',
+          life: 3000,
+        });
+      };
       const submitData = async () => {
         isSubmittingData.value = true;
 
@@ -100,48 +131,30 @@ export default defineComponent({
         };
 
         // set pkt item template with vuex data
-        unref(selectedPktFields).forEach(
-          (pktItem: DefaultFormField<PktKeys> | CostFormField<PktKeys>) => {
-            // handle biaya only
-            if (pktItem.type === 'cost-input' && pktItem.key === 'biaya') {
-              pktItem.value?.forEach((cost, index) => {
-                pktObj.biaya[index] = cost;
-              });
-            }
-            // handle sumber_dana only
-            else if (pktItem.key === 'sumber_dana') {
-              pktItem?.children?.forEach((child) => {
-                if (typeof child.value === 'number') pktObj.sumber_dana[child.key] = child.value;
-              });
-            }
-            // for the other key
-            else if (pktItem.key !== 'biaya') {
-              // set high priority for view property first
-              if (pktItem.view) pktObj[pktItem.key] = pktItem.view;
-              else pktObj[pktItem.key] = pktItem.value as string;
-            }
-          },
-        );
+        unref(selectedPktFields).forEach((pktItem: DefaultFormField<PktKeys> | CostFormField<PktKeys>) => {
+          // handle biaya only
+          if (pktItem.type === 'cost-input' && pktItem.key === 'biaya') {
+            pktItem.value?.forEach((cost, index) => {
+              pktObj.biaya[index] = cost;
+            });
+          }
+          // handle sumber_dana only
+          else if (pktItem.key === 'sumber_dana') {
+            pktItem?.children?.forEach((child) => {
+              if (typeof child.value === 'number') pktObj.sumber_dana[child.key] = child.value;
+            });
+          }
+          // for the other key
+          else if (pktItem.key !== 'biaya') {
+            // set high priority for view property first
+            if (pktItem.view) pktObj[pktItem.key] = pktItem.view;
+            else pktObj[pktItem.key] = pktItem.value as string;
+          }
+        });
 
         // check existence of key
         const currentPktKey = pktObj.nama_program.toLowerCase().replaceAll(' ', '-');
         const isDuplicated = !!(await pktRef.child(currentPktKey).once('value')).val();
-        const showDuplicatedToast = () => {
-          toast.add({
-            severity: 'error',
-            summary: 'Terjadi Kesalahan!',
-            detail: 'Nama Program sudah ada. Silakan pakai nama lain.',
-            life: 5000,
-          });
-        };
-
-        const showSuccessToast = () => {
-          toast.add({
-            severity: 'success',
-            summary: 'Berhasil disimpan!',
-            life: 3000,
-          });
-        };
 
         // update to firebase
         if (unref(isAddingData)) {
@@ -176,9 +189,7 @@ export default defineComponent({
       };
 
       confirm.require({
-        message: `Anda yakin ingin ${
-          unref(isAddingData) ? 'menambahkan' : 'mengubah'
-        } program di PKT ini?`,
+        message: `Anda yakin ingin ${unref(isAddingData) ? 'menambahkan' : 'mengubah'} program di PKT ini?`,
         header: 'Perhatian!',
         icon: 'pi pi-exclamation-triangle',
         accept: () => {
@@ -220,7 +231,60 @@ export default defineComponent({
       else return 'Ubah';
     });
 
+    // any can be HTMLElement
+    const importFileEl = ref<any | null>(null);
+    const isImporting = ref<boolean>(false);
+    const handleInputChange = (e: Event) => {
+      isImporting.value = true;
+      const target = e.target as HTMLInputElement;
+      const parsePkt = new Promise((resolve) => {
+        parseCSV(target.files, async (pkts: { [key in string]: PktItem[] }) => {
+          const arrGroup = Object.keys(pkts);
+          for (let indexGroup = 0; indexGroup < arrGroup.length; indexGroup++) {
+            const groupName = arrGroup[indexGroup];
+            const group = firebase.database().ref(`/pkt/${groupName}/`);
+
+            const arrPkt = pkts[groupName];
+            for (let indexPkt = 0; indexPkt < arrPkt.length; indexPkt++) {
+              const pkt = arrPkt[indexPkt];
+              const currentPktKey = pkt.nama_program.toLowerCase().replaceAll(' ', '-');
+              const isDuplicated = !!(await group.child(currentPktKey).once('value')).val();
+              if (!isDuplicated) {
+                await group.child(currentPktKey).set(pkt);
+              }
+
+              // the end of parsing
+              if (arrGroup.length - 1 === indexGroup && arrPkt.length - 1 === indexPkt) resolve(true);
+            }
+          }
+        });
+      });
+
+      // close loading
+      parsePkt.then(() => {
+        isImporting.value = false;
+        showAddOptions.value = false;
+      });
+
+      // clear file value
+      if (importFileEl.value) {
+        importFileEl.value.value = '';
+        if (!/safari/i.test(navigator.userAgent)) {
+          importFileEl.value.type = '';
+          importFileEl.value.type = 'file';
+        }
+      }
+    };
+
+    const importPkt = () => {
+      importFileEl.value?.click();
+    };
     return {
+      isImporting,
+      showAddOptions,
+      handleInputChange,
+      importFileEl,
+      importPkt,
       selectedPktFields,
       selectedPktKey,
       isGettingPkt,
@@ -239,6 +303,24 @@ export default defineComponent({
 .pkt {
   max-width: 768px;
   margin: auto;
+
+  &__loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    background: #0000007d;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+
+    ::v-deep(.p-progress-spinner-svg) {
+      width: 100px;
+      height: 100px;
+    }
+  }
 
   &__container {
     position: relative;

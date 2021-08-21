@@ -42,7 +42,7 @@ export default defineComponent({
         tosUrl: process.env.BASE_URL,
         // Privacy policy url/callback.
         privacyPolicyUrl: function() {
-          window.location.assign(process.env.BASE_URL);
+          window.location.assign(process.env.BASE_URL || '');
         },
         signInFlow: 'redirect',
         callbacks: {
@@ -55,12 +55,7 @@ export default defineComponent({
                 .ref('/users/')
                 .child(uid);
 
-              const setUserToStore = (user: {
-                name: string;
-                email: string;
-                group: string;
-                signature: string;
-              }) => {
+              const setUserToStore = (user: { name: string; email: string; group: string; signature: string }) => {
                 store.commit('auth/setIsLogin', true);
                 store.commit('auth/setName', user.name);
                 store.commit('auth/setEmail', user.email);
@@ -107,8 +102,7 @@ export default defineComponent({
       };
 
       // Initialize the FirebaseUI Widget using Firebase.
-      const ui =
-        firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
+      const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
       // The start method will wait until the DOM is loaded.
       ui.start('#firebaseui-auth-container', uiConfig);
     });
