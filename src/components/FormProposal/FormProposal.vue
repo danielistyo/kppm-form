@@ -73,10 +73,8 @@
 
     <div class="form-proposal__footer">
       <button-prime
-        @click="$emit('formsubmit')"
-        :disabled="
-          isLoading || [APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED].includes(status)
-        "
+        @click="handleSubmit"
+        :disabled="isLoading || [APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED].includes(status)"
         class="form-proposal__submit"
       >
         {{ submitLabel }}
@@ -112,6 +110,7 @@ import { getStatus } from '@/helpers/status';
 import Menu from 'primevue/menu';
 import { APPROVAL_STATUS_WAITING, APPROVAL_STATUS_APPROVED } from '@/constants';
 import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
 
 type FieldType = FormFields<PktKeys | FormpKeys | FormlKeys>;
 
@@ -169,6 +168,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const store = useStore<RootStateStoreWithModule>();
     const selectedPktKey = ref<string>('');
+    const toast = useToast();
 
     watch(selectedPktKey, (newSelectedPktKey) => {
       emit('pktchange', newSelectedPktKey);
@@ -225,9 +225,7 @@ export default defineComponent({
       },
     };
 
-    const options = computed(() =>
-      props.menuOptions.map((option: 'hapus' | 'ajukan') => menuOptions[option]),
-    );
+    const options = computed(() => props.menuOptions.map((option: 'hapus' | 'ajukan') => menuOptions[option]));
 
     const updateInputData = (
       type: string,
@@ -248,12 +246,29 @@ export default defineComponent({
       });
     };
 
+    const handleSubmit = () => {
+      const biaya = props.inputs.find((input) => input.key === 'biaya');
+      const totalBiaya =
+        (biaya?.value as FieldCostValue[])?.reduce((total: number, child) => total + child.count * child.price, 0) || 0;
+      const sumberDana = props.inputs.find((input) => input.key === 'sumber_dana');
+      const totalSumberDana =
+        sumberDana?.children?.reduce((total: number, child) => total + (child.value as number), 0) || 0;
+      if (totalSumberDana >= totalBiaya) emit('formsubmit');
+      else
+        toast.add({
+          severity: 'error',
+          summary: 'Total biaya tidak boleh lebih dari total sumber dana',
+          life: 5000,
+        });
+    };
+
     return {
       updateInputData,
       getStatus,
       selectedPktKey,
       options,
       menu,
+      handleSubmit,
       toggleMenu,
       APPROVAL_STATUS_WAITING,
       APPROVAL_STATUS_APPROVED,
