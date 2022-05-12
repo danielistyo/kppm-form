@@ -75,10 +75,12 @@ const module: Module<PktStates, RootStateStore> = {
       state,
       {
         key,
+        keyChild,
         value,
         view,
       }: {
         key: string;
+        keyChild: string;
         value: string | number | Array<FieldCostValue> | Array<string> | null;
         view: string | null;
       },
@@ -88,8 +90,16 @@ const module: Module<PktStates, RootStateStore> = {
       copyOfFields.find((field) => {
         const isFound = field.key === key;
         if (isFound) {
-          if (value !== null) field.value = value;
-          if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+          if (keyChild) {
+            const child = field.children?.find((child) => child.key === keyChild);
+            if (child) {
+              if (value !== null) child.value = value;
+              if (typeof child.view === 'string' && typeof view === 'string') child.view = view;
+            }
+          } else {
+            if (value !== null) field.value = value;
+            if (typeof field.view === 'string' && typeof view === 'string') field.view = view;
+          }
         }
         return isFound;
       });
