@@ -249,7 +249,7 @@ export default defineComponent({
     const handleSubmit = () => {
       const biaya = props.inputs.find((input) => input.key === 'biaya');
       const totalBiaya =
-        (biaya?.value as FieldCostValue[])?.reduce((total: number, child) => total + (child.count * child.price * (props.type === 'pkt' ? child.frequency : 1)), 0) || 0;
+        (biaya?.value as FieldCostValue[])?.reduce((total: number, child) => total + (child.count * child.price * (props.type === 'pkt' ? child.frequency || 1 : 1)), 0) || 0;
       const sumberDana = props.inputs.find((input) => input.key === 'sumber_dana');
       const totalSumberDana =
         sumberDana?.children?.reduce((total: number, child) => total + (child.value as number), 0) || 0;
